@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plantenkennis App - Quiz & Praktijk</title>
+  <title>Plantenkennis App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,6 @@
       <p class="subtitle">Oefen je theorie & praktijkkennis van planten</p>
     </header>
 
-    <!-- TAB NAVIGATIE -->
     <nav class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('quiz-tab', this)">📝 Quiz</button>
       <button class="tab-btn" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
@@ -45,7 +44,6 @@
         <button id="next-btn" class="btn primary-btn hidden" onclick="volgendeVraag()">Volgende vraag ➔</button>
       </div>
 
-      <!-- RESULTATEN SCHERM -->
       <div id="result-card" class="card hidden">
         <h2>🎉 Quiz Voltooid!</h2>
         <p class="result-text">Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed beantwoord!</p>
@@ -68,8 +66,8 @@
       </div>
     </main>
 
-    <!-- TAB 2: PLANTENBIBLIOTHEEK -->
-    <main id="library-tab" class="tab-content hidden">
+    <!-- TAB 2: BIBLIOTHEEK -->
+    <main id="library-tab" class="tab-content">
       <div class="search-box">
         <input type="text" id="search-input" onkeyup="zoekPlanten()" placeholder="🔍 Zoek op Nederlandse of Latijnse naam...">
       </div>
@@ -77,7 +75,7 @@
     </main>
 
     <!-- TAB 3: BEHEER -->
-    <main id="admin-tab" class="tab-content hidden">
+    <main id="admin-tab" class="tab-content">
       <h2>⚙️ Planten Beheren</h2>
       <p class="sub-text">Voeg hier nieuwe planten toe aan de app.</p>
 
