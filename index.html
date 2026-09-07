@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantenkennis App - Quiz & Praktijk</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>🌱 Plantenkennis App</h1>
+      <p class="subtitle">Oefen je theorie & praktijkkennis van planten</p>
+    </header>
+
+    <!-- TAB NAVIGATIE -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('quiz-tab')">📝 Quiz & Oefenen</button>
+      <button class="tab-btn" onclick="switchTab('library-tab')">📚 Plantenbibliotheek</button>
+    </nav>
+
+    <!-- TAB 1: QUIZ -->
+    <main id="quiz-tab" class="tab-content active">
+      <div id="quiz-card" class="card">
+        <div class="progress-bar-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div class="quiz-header">
+          <span id="question-count">Vraag 1 van 5</span>
+          <span id="score-display">Score: 0</span>
+        </div>
+
+        <div class="image-container">
+          <img id="plant-img" src="" alt="Plant foto">
+        </div>
+
+        <h2 id="question-title">Welke plant is dit?</h2>
+        <p id="question-desc" class="hint-text"></p>
+
+        <div id="options-container" class="options-grid"></div>
+
+        <div id="feedback-box" class="feedback-box hidden"></div>
+
+        <button id="next-btn" class="btn primary-btn hidden" onclick="volgendeVraag()">Volgende vraag ➔</button>
+      </div>
+
+      <!-- RESULTATEN SCHERM -->
+      <div id="result-card" class="card hidden">
+        <h2>🎉 Quiz Voltooid!</h2>
+        <p class="result-text">Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed beantwoord!</p>
+        
+        <div class="submit-section">
+          <h3>Resultaat doorgeven</h3>
+          <p class="sub-text">Vul je naam in om je score door te sturen naar de docent.</p>
+          
+          <div class="form-group">
+            <label for="student-name">Naam leerling / cursist:</label>
+            <input type="text" id="student-name" placeholder="Typ je voor- en achternaam...">
+          </div>
+
+          <div class="button-group">
+            <button class="btn secondary-btn" onclick="verstuurNaarGoogleForms()">📩 Verstuur naar Docent</button>
+            <button class="btn outline-btn" onclick="herstartQuiz()">🔄 Opnieuw Oefenen</button>
+          </div>
+          <p id="submit-status" class="status-message"></p>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: PLANTENBIBLIOTHEEK -->
+    <main id="library-tab" class="tab-content hidden">
+      <div class="search-box">
+        <input type="text" id="search-input" onkeyup="zoekPlanten()" placeholder="🔍 Zoek op Nederlandse of Latijnse naam...">
+      </div>
+      <div id="plant-grid" class="plant-grid"></div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
