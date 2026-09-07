@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
   installeerPlakLuisteraar();
-  initFlashcards();
 });
 
 function opslaanInStorage() {
@@ -67,7 +66,21 @@ function opslaanInStorage() {
   }
 }
 
+// TAB NAVIGATION MET WACHTWOORDBEVEILIGING FOR BEHEER
 function switchTab(tabId, btnElement) {
+  // Controleer of de gebruiker naar het Beheer-tabblad wil
+  if (tabId === 'admin-tab') {
+    const ingevoerdWachtwoord = prompt("🔒 Voer het beheerderswachtwoord in:");
+    
+    // VERANDER 'docent123' HIERONDER NAAR JOUW EIGEN WACHTWOORD
+    if (ingevoerdWachtwoord !== 'docent123') {
+      if (ingevoerdWachtwoord !== null) {
+        alert("❌ Onjuist wachtwoord! Toegang geweigerd.");
+      }
+      return; // Stop de functie, gebruiker blijft op het huidige tabblad
+    }
+  }
+
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   
