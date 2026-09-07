@@ -21,9 +21,39 @@
 
     <!-- TAB 1: QUIZ -->
     <section id="quiz-tab" class="tab-content active">
-      <div id="quiz-card" class="card">
+      
+      <!-- INSTELLINGEN KAART (Voor de start) -->
+      <div id="quiz-settings-card" class="card">
+        <h2>🎯 Quiz Instellingen</h2>
+        <p style="margin-bottom: 1.5rem; color: #555;">Kies hoe je wilt oefenen voordat je begint:</p>
+
+        <div class="form-group">
+          <label for="quiz-mode-select">🎮 Spelvorm:</label>
+          <select id="quiz-mode-select">
+            <option value="foto-naar-naam">🖼️ Foto ➔ Naam raden</option>
+            <option value="naam-naar-foto">🏷️ Naam ➔ Foto kiezen</option>
+            <option value="eigenschap-naar-naam">☀️ Standplaats / Eigenschap ➔ Naam raden</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="timer-select">⏱️ Timer per vraag:</label>
+          <select id="timer-select">
+            <option value="0">Geen timer (Rustig oefenen)</option>
+            <option value="30">30 seconden per vraag</option>
+            <option value="15">15 seconden per vraag (Spannend!)</option>
+            <option value="10">10 seconden per vraag (Expert!)</option>
+          </select>
+        </div>
+
+        <button class="primary-btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="startQuizMetInstellingen()">🚀 Start Quiz!</button>
+      </div>
+
+      <!-- SPEEL KAART -->
+      <div id="quiz-card" class="card hidden">
         <div class="quiz-header">
           <span id="question-count">Vraag 1</span>
+          <span id="timer-display" class="timer-badge hidden">⏱️ <span id="time-left">15</span>s</span>
           <span id="score-display">Score: 0</span>
         </div>
 
@@ -31,21 +61,32 @@
           <div id="progress-bar" class="progress-bar"></div>
         </div>
 
-        <div class="image-container">
+        <div id="timer-bar-container" class="timer-bar-container hidden">
+          <div id="timer-bar" class="timer-bar"></div>
+        </div>
+
+        <!-- VRAAG ELEMENTEN -->
+        <div id="image-container" class="image-container">
           <img id="plant-img" src="" alt="Plantenfoto">
         </div>
 
         <div class="question-info">
+          <h3 id="question-title" class="hidden" style="text-align: center; font-size: 1.4rem; color: #2e7d32; margin-bottom: 0.5rem;"></h3>
           <p id="question-desc" class="hint-text"></p>
         </div>
 
+        <!-- ANTWOORDEN (GRID) -->
         <div id="options-container" class="options-grid"></div>
 
         <div id="feedback-box" class="feedback-box hidden"></div>
 
-        <button id="next-btn" class="primary-btn hidden" onclick="volgendeVraag()">Volgende Vraag ➔</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="next-btn" class="primary-btn hidden" onclick="volgendeVraag()">Volgende Vraag ➔</button>
+          <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Instellingen wijzigen</button>
+        </div>
       </div>
 
+      <!-- RESULTAAT KAART -->
       <div id="result-card" class="card hidden">
         <h2>🎉 Quiz Afgerond!</h2>
         <p>Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed geantwoord.</p>
@@ -58,6 +99,7 @@
         </div>
 
         <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
+        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm Kiezen</button>
       </div>
     </section>
 
