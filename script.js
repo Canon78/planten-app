@@ -3,6 +3,12 @@ const standaardPlanten = [
     id: 1,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
+    standplaats: "Halfschaduw / Lichte plek",
+    waterbehoefte: "Gemiddeld (regelmatig)",
+    bladbehoud: "Groenblijvend (bladhoudend)",
+    bloeitijd: "Zelden in de huiskamer",
+    vermeerderen: "Stengelstek met luchtwortel",
+    grootte: "1,5 tot 3 meter",
     foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80",
     beschrijving: "Bekend om zijn grote, ingesneden bladeren."
   },
@@ -10,6 +16,12 @@ const standaardPlanten = [
     id: 2,
     nlNaam: "Pannenkoekenplant",
     latNaam: "Pilea peperomioides",
+    standplaats: "Halfschaduw / Lichte plek",
+    waterbehoefte: "Gemiddeld (regelmatig)",
+    bladbehoud: "Groenblijvend (bladhoudend)",
+    bloeitijd: "Lente (kleine onopvallende bloemetjes)",
+    vermeerderen: "Kleine babyplantjes (uitlopers) afsnijden",
+    grootte: "30 tot 40 cm",
     foto: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=600&q=80",
     beschrijving: "Ronde, pannenkoekachtige bladeren."
   }
@@ -76,7 +88,11 @@ function toonVraag() {
   document.getElementById("progress-bar").style.width = ((huidigeVraagIndex / quizVragen.length) * 100) + "%";
 
   document.getElementById("plant-img").src = vraag.foto;
-  document.getElementById("question-desc").innerText = "Tip: " + vraag.beschrijving;
+  
+  let hint = "";
+  if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats + " | ";
+  hint += "Tip: " + (vraag.beschrijving || "Geen extra tip");
+  document.getElementById("question-desc").innerText = hint;
 
   const optiesContainer = document.getElementById("options-container");
   optiesContainer.innerHTML = "";
@@ -155,16 +171,32 @@ function laadBibliotheek() {
   plantenDatabase.forEach(plant => {
     const card = document.createElement("div");
     card.className = "plant-card";
+    
+    // Voeg alle velden toe aan de zoekdata
+    const zoekData = [
+      plant.nlNaam, plant.latNaam, plant.standplaats, plant.waterbehoefte,
+      plant.bladbehoud, plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    card.setAttribute("data-search", zoekData);
     card.setAttribute("data-nl", plant.nlNaam.toLowerCase());
     card.setAttribute("data-lat", plant.latNaam.toLowerCase());
-    card.setAttribute("data-desc", plant.beschrijving.toLowerCase());
-    
+
     card.innerHTML = `
       <img src="${plant.foto}" alt="${plant.nlNaam}">
       <div class="plant-card-content">
         <h3>${plant.nlNaam}</h3>
         <p><em>${plant.latNaam}</em></p>
-        <p>${plant.beschrijving}</p>
+        
+        <div class="plant-details">
+          ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
+          ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
+          ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : ''}
+          ${plant.bloeitijd ? `<span>🌸 <strong>Bloei:</strong> ${plant.bloeitijd}</span>` : ''}
+          ${plant.vermeerderen ? `<span>✂️ <strong>Vermeerderen:</strong> ${plant.vermeerderen}</span>` : ''}
+          ${plant.grootte ? `<span>📏 <strong>Grootte:</strong> ${plant.grootte}</span>` : ''}
+          ${plant.beschrijving ? `<span>📝 ${plant.beschrijving}</span>` : ''}
+        </div>
       </div>
     `;
     grid.appendChild(card);
@@ -196,11 +228,8 @@ function zoekPlanten() {
   document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("active"));
 
   kaarten.forEach(kaart => {
-    const nl = kaart.getAttribute("data-nl");
-    const lat = kaart.getAttribute("data-lat");
-    const desc = kaart.getAttribute("data-desc");
-
-    if (nl.includes(zoekopdracht) || lat.includes(zoekopdracht) || desc.includes(zoekopdracht)) {
+    const searchData = kaart.getAttribute("data-search");
+    if (searchData.includes(zoekopdracht)) {
       kaart.style.display = "block";
     } else {
       kaart.style.display = "none";
@@ -243,6 +272,12 @@ function voegPlantToe(e) {
     id: Date.now(),
     nlNaam: document.getElementById("new-nl").value.trim(),
     latNaam: document.getElementById("new-lat").value.trim(),
+    standplaats: document.getElementById("new-standplaats").value,
+    waterbehoefte: document.getElementById("new-water").value,
+    bladbehoud: document.getElementById("new-blad").value,
+    bloeitijd: document.getElementById("new-bloei").value.trim(),
+    vermeerderen: document.getElementById("new-vermeerderen").value.trim(),
+    grootte: document.getElementById("new-grootte").value.trim(),
     foto: ingevoerdeFoto !== "" ? ingevoerdeFoto : standaardFoto,
     beschrijving: document.getElementById("new-desc").value.trim()
   };
