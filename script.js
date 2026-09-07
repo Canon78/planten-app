@@ -3,6 +3,7 @@ const standaardPlanten = [
     id: 1,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
+    categorie: "Kamerplant",
     standplaats: "Halfschaduw / Lichte plek",
     waterbehoefte: "Gemiddeld (regelmatig)",
     bladbehoud: "Groenblijvend (bladhoudend)",
@@ -16,6 +17,7 @@ const standaardPlanten = [
     id: 2,
     nlNaam: "Pannenkoekenplant",
     latNaam: "Pilea peperomioides",
+    categorie: "Kamerplant",
     standplaats: "Halfschaduw / Lichte plek",
     waterbehoefte: "Gemiddeld (regelmatig)",
     bladbehoud: "Groenblijvend (bladhoudend)",
@@ -28,7 +30,8 @@ const standaardPlanten = [
 ];
 
 let plantenDatabase = [];
-let bewerkId = null; // Houdt bij of we een plant aan het bewerken zijn
+let bewerkId = null;
+let actieveCategorieFilter = "ALLES";
 
 try {
   const opgeslagen = localStorage.getItem('mijnPlantenApp_data');
@@ -97,6 +100,7 @@ function toonVraag() {
   document.getElementById("plant-img").src = vraag.foto;
   
   let hint = "";
+  if (vraag.categorie) hint += "🏷️ Type: " + vraag.categorie + " | ";
   if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats + " | ";
   hint += "Tip: " + (vraag.beschrijving || "Geen extra tip");
   document.getElementById("question-desc").innerText = hint;
@@ -167,7 +171,7 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK & ALFABET
+// BIBLIOTHEEK & CATEGORIEËN
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
@@ -180,13 +184,14 @@ function laadBibliotheek() {
     card.className = "plant-card";
     
     const zoekData = [
-      plant.nlNaam, plant.latNaam, plant.standplaats, plant.waterbehoefte,
+      plant.nlNaam, plant.latNaam, plant.categorie, plant.standplaats, plant.waterbehoefte,
       plant.bladbehoud, plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
     ].filter(Boolean).join(" ").toLowerCase();
 
     card.setAttribute("data-search", zoekData);
     card.setAttribute("data-nl", plant.nlNaam.toLowerCase());
     card.setAttribute("data-lat", plant.latNaam.toLowerCase());
+    card.setAttribute("data-cat", plant.categorie || "");
 
     card.innerHTML = `
       <img src="${plant.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80'}" alt="${plant.nlNaam}">
@@ -195,6 +200,7 @@ function laadBibliotheek() {
         <p><em>${plant.latNaam}</em></p>
         
         <div class="plant-details">
+          ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
           ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : '<span>☀️ <strong>Standplaats:</strong> Niet opgegeven</span>'}
           ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : '<span>💧 <strong>Water:</strong> Niet opgegeven</span>'}
           ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : '<span>🍃 <strong>Blad:</strong> Niet opgegeven</span>'}
@@ -208,7 +214,43 @@ function laadBibliotheek() {
     grid.appendChild(card);
   });
 
+  maakCategorieBalk();
   maakAlfabetBalk();
+}
+
+function maakCategorieBalk() {
+  const container = document.getElementById("category-filter");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const cats = ["ALLES", "Boom", "Struik / Plant", "Kruid / Vaste plant", "Kamerplant"];
+
+  cats.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "letter-btn" + (cat === actieveCategorieFilter ? " active" : "");
+    btn.innerText = cat;
+    btn.onclick = function() { filterOpCategorie(cat, btn); };
+    container.appendChild(btn);
+  });
+}
+
+function filterOpCategorie(cat, gekozenKnop) {
+  actieveCategorieFilter = cat;
+  if (gekozenKnop) {
+    const cBtns = gekozenKnop.parentElement.querySelectorAll(".letter-btn");
+    cBtns.forEach(b => b.classList.remove("active"));
+    gekozenKnop.classList.add("active");
+  }
+
+  const kaarten = document.querySelectorAll(".plant-card");
+  kaarten.forEach(kaart => {
+    const plantCat = kaart.getAttribute("data-cat");
+    if (cat === "ALLES" || plantCat === cat) {
+      kaart.style.display = "block";
+    } else {
+      kaart.style.display = "none";
+    }
+  });
 }
 
 function maakAlfabetBalk() {
@@ -315,11 +357,12 @@ function voegPlantToe(e) {
     gekozenFoto = urlFoto;
   }
 
+  const catEl = document.getElementById("new-categorie");
+  const gekozenCategorie = catEl ? catEl.value : "Kamerplant";
+
   if (bewerkId !== null) {
-    // BEWERKEN VAN BESTAANDE PLANT
     const index = plantenDatabase.findIndex(p => p.id === bewerkId);
     if (index !== -1) {
-      // Als er geen nieuwe foto is opgegeven, behouden we de oude foto
       const oudeFoto = plantenDatabase[index].foto;
       if (!geplakteOfUploadFoto && !urlFoto) {
         gekozenFoto = oudeFoto;
@@ -329,6 +372,7 @@ function voegPlantToe(e) {
         id: bewerkId,
         nlNaam: document.getElementById("new-nl").value.trim(),
         latNaam: document.getElementById("new-lat").value.trim(),
+        categorie: gekozenCategorie,
         standplaats: document.getElementById("new-standplaats").value,
         waterbehoefte: document.getElementById("new-water").value,
         bladbehoud: document.getElementById("new-blad").value,
@@ -342,11 +386,11 @@ function voegPlantToe(e) {
     }
     bewerkId = null;
   } else {
-    // NIEUWE PLANT TOEVOEGEN
     const nieuwePlant = {
       id: Date.now(),
       nlNaam: document.getElementById("new-nl").value.trim(),
       latNaam: document.getElementById("new-lat").value.trim(),
+      categorie: gekozenCategorie,
       standplaats: document.getElementById("new-standplaats").value,
       waterbehoefte: document.getElementById("new-water").value,
       bladbehoud: document.getElementById("new-blad").value,
@@ -376,6 +420,10 @@ function startBewerken(id) {
 
   document.getElementById("new-nl").value = plant.nlNaam || "";
   document.getElementById("new-lat").value = plant.latNaam || "";
+  
+  const catEl = document.getElementById("new-categorie");
+  if (catEl) catEl.value = plant.categorie || "Kamerplant";
+
   document.getElementById("new-standplaats").value = plant.standplaats || "";
   document.getElementById("new-water").value = plant.waterbehoefte || "";
   document.getElementById("new-blad").value = plant.bladbehoud || "";
@@ -390,11 +438,9 @@ function startBewerken(id) {
     document.getElementById("img-preview-container").classList.remove("hidden");
   }
 
-  // Pas de knoptekst aan
   const submitBtn = document.querySelector("#add-plant-form button[type='submit']");
   if (submitBtn) submitBtn.innerText = "💾 Wijzigingen Opslaan";
 
-  // Scroll omhoog naar het formulier
   document.getElementById("add-plant-form").scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -427,7 +473,7 @@ function laadBeheerLijst() {
     const item = document.createElement("div");
     item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
     item.innerHTML = `
-      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
+      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>) <small style="color: #666;">[${plant.categorie || 'Kamerplant'}]</small></span>
       <div>
         <button onclick="startBewerken(${plant.id})" style="background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Bewerken</button>
         <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
