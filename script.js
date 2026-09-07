@@ -1,52 +1,33 @@
-// STANDAARD PLANTEN DATABANK
 const standaardPlanten = [
   {
     id: 1,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
     foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Bekend om zijn grote, ingesneden bladeren. Hoge sierwaarde."
+    beschrijving: "Bekend om zijn grote, ingesneden bladeren."
   },
   {
     id: 2,
     nlNaam: "Pannenkoekenplant",
     latNaam: "Pilea peperomioides",
     foto: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Populaire kamerplant met ronde, pannenkoekachtige bladeren."
-  },
-  {
-    id: 3,
-    nlNaam: "Gouden Epipremnum",
-    latNaam: "Epipremnum aureum",
-    foto: "https://images.unsplash.com/photo-1596547609652-9cf5d8d76921?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Eenvoudige klim- of hangplant met hartvormige, gevlekte bladeren."
-  },
-  {
-    id: 4,
-    nlNaam: "Sansevieria (Vrouwentong)",
-    latNaam: "Sansevieria trifasciata",
-    foto: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Zeer sterke vetplant met rechtopstaande, zwaardvormige bladeren."
-  },
-  {
-    id: 5,
-    nlNaam: "Lepelplant",
-    latNaam: "Spathiphyllum",
-    foto: "https://images.unsplash.com/photo-1593691509543-c55fb32e7355?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Luchtzuiverende plant met donkergroene bladeren en witte schutbladeren."
+    beschrijving: "Ronde, pannenkoekachtige bladeren."
   }
 ];
 
-// DATA LADEN UIT STORAGE OF STANDAARD
-let plantenDatabase = JSON.parse(localStorage.getItem('mijnPlantenApp_data')) || standaardPlanten;
+let plantenDatabase = [];
+try {
+  const opgeslagen = localStorage.getItem('mijnPlantenApp_data');
+  plantenDatabase = opgeslagen ? JSON.parse(opgeslagen) : standaardPlanten;
+} catch (err) {
+  plantenDatabase = standaardPlanten;
+}
 
-// APP STATE
 let huidigeVraagIndex = 0;
 let score = 0;
 let quizVragen = [];
 
-// INITIATIE
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
   herstartQuiz();
@@ -56,38 +37,45 @@ function opslaanInStorage() {
   localStorage.setItem('mijnPlantenApp_data', JSON.stringify(plantenDatabase));
 }
 
-// TAB SWITCHEN
-function switchTab(tabId, element) {
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+function switchTab(tabId, btnElement) {
+  const tabs = document.querySelectorAll('.tab-content');
+  for (let i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+  }
+
+  const btns = document.querySelectorAll('.tab-btn');
+  for (let i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+  }
   
-  document.getElementById(tabId).classList.add('active');
-  if(element) element.classList.add('active');
+  const gekozenTab = document.getElementById(tabId);
+  if (gekozenTab) gekozenTab.classList.add('active');
+  if (btnElement) btnElement.classList.add('active');
 }
 
-// QUIZ LOGICA
 function herstartQuiz() {
   huidigeVraagIndex = 0;
   score = 0;
   quizVragen = [...plantenDatabase].sort(() => Math.random() - 0.5);
   
-  document.getElementById("quiz-card").classList.remove("hidden");
-  document.getElementById("result-card").classList.add("hidden");
+  const quizCard = document.getElementById("quiz-card");
+  const resultCard = document.getElementById("result-card");
+  if (quizCard) quizCard.classList.remove("hidden");
+  if (resultCard) resultCard.classList.add("hidden");
   
-  if (quizVragen.length > 0) {
-    toonVraag();
-  }
+  if (quizVragen.length > 0) toonVraag();
 }
 
 function toonVraag() {
   const vraag = quizVragen[huidigeVraagIndex];
+  if (!vraag) return;
   
-  document.getElementById("question-count").innerText = `Vraag ${huidigeVraagIndex + 1} van ${quizVragen.length}`;
-  document.getElementById("score-display").innerText = `Score: ${score}`;
-  document.getElementById("progress-bar").style.width = `${((huidigeVraagIndex) / quizVragen.length) * 100}%`;
+  document.getElementById("question-count").innerText = "Vraag " + (huidigeVraagIndex + 1) + " van " + quizVragen.length;
+  document.getElementById("score-display").innerText = "Score: " + score;
+  document.getElementById("progress-bar").style.width = ((huidigeVraagIndex / quizVragen.length) * 100) + "%";
 
   document.getElementById("plant-img").src = vraag.foto;
-  document.getElementById("question-desc").innerText = `Tip: ${vraag.beschrijving}`;
+  document.getElementById("question-desc").innerText = "Tip: " + vraag.beschrijving;
 
   const optiesContainer = document.getElementById("options-container");
   optiesContainer.innerHTML = "";
@@ -97,8 +85,8 @@ function toonVraag() {
   opties.forEach(optie => {
     const btn = document.createElement("button");
     btn.className = "option-btn";
-    btn.innerText = `${optie.nlNaam} (${optie.latNaam})`;
-    btn.onclick = () => controleerAntwoord(optie, vraag, btn);
+    btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
+    btn.onclick = function() { controleerAntwoord(optie, vraag, btn); };
     optiesContainer.appendChild(btn);
   });
 
@@ -110,8 +98,7 @@ function genereerOpties(correctePlant) {
   let fouteOpties = plantenDatabase.filter(p => p.id !== correctePlant.id);
   fouteOpties = fouteOpties.sort(() => Math.random() - 0.5).slice(0, Math.min(3, fouteOpties.length));
   
-  const alleOpties = [correctePlant, ...fouteOpties];
-  return alleOpties.sort(() => Math.random() - 0.5);
+  return [correctePlant, ...fouteOpties].sort(() => Math.random() - 0.5);
 }
 
 function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
@@ -127,17 +114,15 @@ function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
     feedbackBox.className = "feedback-box correct";
   } else {
     gekozenKnop.classList.add("wrong");
-    feedbackBox.innerText = `❌ Helaas! Het juiste antwoord was: ${correctePlant.nlNaam}`;
+    feedbackBox.innerText = "❌ Helaas! Het juiste antwoord was: " + correctePlant.nlNaam;
     feedbackBox.className = "feedback-box wrong";
 
     alleKnoppen.forEach(btn => {
-      if (btn.innerText.includes(correctePlant.nlNaam)) {
-        btn.classList.add("correct");
-      }
+      if (btn.innerText.includes(correctePlant.nlNaam)) btn.classList.add("correct");
     });
   }
 
-  document.getElementById("score-display").innerText = `Score: ${score}`;
+  document.getElementById("score-display").innerText = "Score: " + score;
   document.getElementById("next-btn").classList.remove("hidden");
 }
 
@@ -158,9 +143,9 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK LOGICA
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
+  if (!grid) return;
   grid.innerHTML = "";
 
   plantenDatabase.forEach(plant => {
@@ -180,19 +165,11 @@ function laadBibliotheek() {
 
 function zoekPlanten() {
   const zoekopdracht = document.getElementById("search-input").value.toLowerCase();
-  const kaarten = document.querySelectorAll(".plant-card");
-
-  kaarten.forEach(kaart => {
-    const tekst = kaart.innerText.toLowerCase();
-    if (tekst.includes(zoekopdracht)) {
-      kaart.style.display = "block";
-    } else {
-      kaart.style.display = "none";
-    }
+  document.querySelectorAll(".plant-card").forEach(kaart => {
+    kaart.style.display = kaart.innerText.toLowerCase().includes(zoekopdracht) ? "block" : "none";
   });
 }
 
-// BEHEER LOGICA (PLANTEN TOEVOEGEN & VERWIJDEREN)
 function voegPlantToe(e) {
   e.preventDefault();
 
@@ -208,12 +185,11 @@ function voegPlantToe(e) {
   opslaanInStorage();
   
   document.getElementById("add-plant-form").reset();
-  
   laadBibliotheek();
   laadBeheerLijst();
   herstartQuiz();
 
-  alert("✅ Plant succesvol toegevoegd!");
+  alert("✅ Plant toegevoegd!");
 }
 
 function verwijderPlant(id) {
@@ -228,11 +204,12 @@ function verwijderPlant(id) {
 
 function laadBeheerLijst() {
   const lijst = document.getElementById("admin-plant-list");
+  if (!lijst) return;
   lijst.innerHTML = "";
 
   plantenDatabase.forEach(plant => {
     const item = document.createElement("div");
-    item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px;";
+    item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
     item.innerHTML = `
       <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
       <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
@@ -255,7 +232,7 @@ function verstuurNaarGoogleForms() {
   statusEl.style.color = "#1565c0";
 
   setTimeout(() => {
-    statusEl.innerText = `✅ Top! De score (${score}/${quizVragen.length}) van ${naam} is succesvol opgeslagen!`;
+    statusEl.innerText = "✅ Score verstuurd voor " + naam;
     statusEl.style.color = "#2e7d32";
   }, 1000);
 }
