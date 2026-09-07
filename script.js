@@ -11,7 +11,7 @@ const standaardPlanten = [
     vermeerderen: "Stengelstek met luchtwortel",
     grootte: "1,5 tot 3 meter",
     foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Bekend om zijn grote, ingesneden bladeren."
+    beschrijving: "Bekend om zijn grote, ingesneden bladeren met gaten."
   },
   {
     id: 2,
@@ -40,14 +40,18 @@ try {
   plantenDatabase = standaardPlanten;
 }
 
+// QUIZ VARIABELEN
 let huidigeVraagIndex = 0;
 let score = 0;
 let quizVragen = [];
+let gekozenSpelvorm = "foto-naar-naam";
+let ingesteldeTimerSec = 0;
+let timerInterval = null;
+let resterendeTijd = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
-  herstartQuiz();
   installeerPlakLuisteraar();
 });
 
@@ -55,7 +59,7 @@ function opslaanInStorage() {
   try {
     localStorage.setItem('mijnPlantenApp_data', JSON.stringify(plantenDatabase));
   } catch (e) {
-    alert("⚠️ Waarschuwing: Afbeelding is te groot om op te slaan in de browser. Probeer een kleinere/gecomprimeerde foto.");
+    alert("⚠️ Waarschuwing: Afbeelding is te groot om op te slaan.");
   }
 }
 
@@ -76,20 +80,41 @@ function switchTab(tabId, btnElement) {
 }
 
 // QUIZ LOGICA
+function startQuizMetInstellingen() {
+  gekozenSpelvorm = document.getElementById("quiz-mode-select").value;
+  ingesteldeTimerSec = parseInt(document.getElementById("timer-select").value, 10);
+
+  document.getElementById("quiz-settings-card").classList.add("hidden");
+  document.getElementById("quiz-card").classList.remove("hidden");
+  
+  herstartQuiz();
+}
+
+function stopQuizAndReturn() {
+  clearInterval(timerInterval);
+  document.getElementById("quiz-card").classList.add("hidden");
+  document.getElementById("result-card").classList.add("hidden");
+  document.getElementById("quiz-settings-card").classList.remove("hidden");
+}
+
 function herstartQuiz() {
+  clearInterval(timerInterval);
   huidigeVraagIndex = 0;
   score = 0;
   quizVragen = [...plantenDatabase].sort(() => Math.random() - 0.5);
   
-  const quizCard = document.getElementById("quiz-card");
-  const resultCard = document.getElementById("result-card");
-  if (quizCard) quizCard.classList.remove("hidden");
-  if (resultCard) resultCard.classList.add("hidden");
+  document.getElementById("quiz-card").classList.remove("hidden");
+  document.getElementById("result-card").classList.add("hidden");
   
-  if (quizVragen.length > 0) toonVraag();
+  if (quizVragen.length > 0) {
+    toonVraag();
+  } else {
+    alert("Er zijn geen planten beschikbaar voor de quiz!");
+  }
 }
 
 function toonVraag() {
+  clearInterval(timerInterval);
   const vraag = quizVragen[huidigeVraagIndex];
   if (!vraag) return;
   
@@ -97,29 +122,123 @@ function toonVraag() {
   document.getElementById("score-display").innerText = "Score: " + score;
   document.getElementById("progress-bar").style.width = ((huidigeVraagIndex / quizVragen.length) * 100) + "%";
 
-  document.getElementById("plant-img").src = vraag.foto;
-  
-  let hint = "";
-  if (vraag.categorie) hint += "🏷️ Type: " + vraag.categorie + " | ";
-  if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats + " | ";
-  hint += "Tip: " + (vraag.beschrijving || "Geen extra tip");
-  document.getElementById("question-desc").innerText = hint;
-
+  const imgContainer = document.getElementById("image-container");
+  const questionTitle = document.getElementById("question-title");
+  const questionDesc = document.getElementById("question-desc");
   const optiesContainer = document.getElementById("options-container");
+  
   optiesContainer.innerHTML = "";
-
-  const opties = genereerOpties(vraag);
-
-  opties.forEach(optie => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
-    btn.onclick = function() { controleerAntwoord(optie, vraag, btn); };
-    optiesContainer.appendChild(btn);
-  });
-
   document.getElementById("feedback-box").className = "feedback-box hidden";
   document.getElementById("next-btn").classList.add("hidden");
+
+  // MODE 1: FOTO -> NAAM
+  if (gekozenSpelvorm === "foto-naar-naam") {
+    imgContainer.classList.remove("hidden");
+    questionTitle.classList.add("hidden");
+    document.getElementById("plant-img").src = vraag.foto;
+    
+    let hint = "";
+    if (vraag.categorie) hint += "🏷️ Type: " + vraag.categorie + " | ";
+    if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats;
+    questionDesc.innerText = hint;
+
+    const opties = genereerOpties(vraag);
+    opties.forEach(optie => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
+      btn.onclick = function() { controleerAntwoord(optie, vraag, btn); };
+      optiesContainer.appendChild(btn);
+    });
+
+  // MODE 2: NAAM -> FOTO
+  } else if (gekozenSpelvorm === "naam-naar-foto") {
+    imgContainer.classList.add("hidden");
+    questionTitle.classList.remove("hidden");
+    questionTitle.innerText = "Welke foto hoort bij: " + vraag.nlNaam + " (" + vraag.latNaam + ")?";
+    questionDesc.innerText = "Klik op de foto die volgens jou de juiste plant is.";
+
+    const opties = genereerOpties(vraag);
+    opties.forEach(optie => {
+      const btn = document.createElement("button");
+      btn.className = "option-img-btn";
+      btn.innerHTML = `<img src="${optie.foto}" alt="Optie">`;
+      btn.onclick = function() { controleerAntwoord(optie, vraag, btn); };
+      optiesContainer.appendChild(btn);
+    });
+
+  // MODE 3: EIGENSCHAP -> NAAM
+  } else if (gekozenSpelvorm === "eigenschap-naar-naam") {
+    imgContainer.classList.add("hidden");
+    questionTitle.classList.remove("hidden");
+    questionTitle.innerText = "Welke plant heeft deze kenmerken?";
+
+    let hint = [];
+    if (vraag.standplaats) hint.push("☀️ Standplaats: " + vraag.standplaats);
+    if (vraag.waterbehoefte) hint.push("💧 Water: " + vraag.waterbehoefte);
+    if (vraag.bladbehoud) hint.push("🍃 Blad: " + vraag.bladbehoud);
+    if (vraag.beschrijving) hint.push("📝 Tip: " + vraag.beschrijving);
+
+    questionDesc.innerHTML = hint.length > 0 ? hint.join("<br>") : "Geen specifieke kenmerken opgegeven.";
+
+    const opties = genereerOpties(vraag);
+    opties.forEach(optie => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
+      btn.onclick = function() { controleerAntwoord(optie, vraag, btn); };
+      optiesContainer.appendChild(btn);
+    });
+  }
+
+  // TIMER STARTEN (INDIEN INGESTELD)
+  startTimer();
+}
+
+function startTimer() {
+  const timerBadge = document.getElementById("timer-display");
+  const timerBarContainer = document.getElementById("timer-bar-container");
+  const timerBar = document.getElementById("timer-bar");
+
+  if (ingesteldeTimerSec <= 0) {
+    timerBadge.classList.add("hidden");
+    timerBarContainer.classList.add("hidden");
+    return;
+  }
+
+  timerBadge.classList.remove("hidden");
+  timerBarContainer.classList.remove("hidden");
+
+  resterendeTijd = ingesteldeTimerSec;
+  document.getElementById("time-left").innerText = resterendeTijd;
+  timerBar.style.width = "100%";
+  timerBar.style.backgroundColor = "#ff9800";
+
+  timerInterval = setInterval(() => {
+    resterendeTijd--;
+    document.getElementById("time-left").innerText = resterendeTijd;
+    
+    let percentage = (resterendeTijd / ingesteldeTimerSec) * 100;
+    timerBar.style.width = percentage + "%";
+
+    if (resterendeTijd <= 5) {
+      timerBar.style.backgroundColor = "#c62828"; // Rood bij laatste 5 sec
+    }
+
+    if (resterendeTijd <= 0) {
+      clearInterval(timerInterval);
+      tijdOm();
+    }
+  }, 1000);
+}
+
+function tijdOm() {
+  const feedbackBox = document.getElementById("feedback-box");
+  feedbackBox.innerText = "⏰ Tijd is om! Het juiste antwoord was: " + quizVragen[huidigeVraagIndex].nlNaam;
+  feedbackBox.className = "feedback-box wrong";
+
+  disableAlleKnoppen();
+  document.getElementById("next-btn").classList.remove("hidden");
 }
 
 function genereerOpties(correctePlant) {
@@ -130,8 +249,8 @@ function genereerOpties(correctePlant) {
 }
 
 function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
-  const alleKnoppen = document.querySelectorAll(".option-btn");
-  alleKnoppen.forEach(btn => btn.disabled = true);
+  clearInterval(timerInterval);
+  disableAlleKnoppen();
 
   const feedbackBox = document.getElementById("feedback-box");
 
@@ -144,14 +263,15 @@ function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
     gekozenKnop.classList.add("wrong");
     feedbackBox.innerText = "❌ Helaas! Het juiste antwoord was: " + correctePlant.nlNaam;
     feedbackBox.className = "feedback-box wrong";
-
-    alleKnoppen.forEach(btn => {
-      if (btn.innerText.includes(correctePlant.nlNaam)) btn.classList.add("correct");
-    });
   }
 
   document.getElementById("score-display").innerText = "Score: " + score;
   document.getElementById("next-btn").classList.remove("hidden");
+}
+
+function disableAlleKnoppen() {
+  const alleKnoppen = document.querySelectorAll(".option-btn, .option-img-btn");
+  alleKnoppen.forEach(btn => btn.disabled = true);
 }
 
 function volgendeVraag() {
@@ -164,6 +284,7 @@ function volgendeVraag() {
 }
 
 function toonResultaten() {
+  clearInterval(timerInterval);
   document.getElementById("quiz-card").classList.add("hidden");
   document.getElementById("result-card").classList.remove("hidden");
 
@@ -171,7 +292,7 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK & CATEGORIEËN
+// BIBLIOTHEEK LOGICA
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
@@ -201,9 +322,9 @@ function laadBibliotheek() {
         
         <div class="plant-details">
           ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
-          ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : '<span>☀️ <strong>Standplaats:</strong> Niet opgegeven</span>'}
-          ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : '<span>💧 <strong>Water:</strong> Niet opgegeven</span>'}
-          ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : '<span>🍃 <strong>Blad:</strong> Niet opgegeven</span>'}
+          ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
+          ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
+          ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : ''}
           ${plant.bloeitijd ? `<span>🌸 <strong>Bloei:</strong> ${plant.bloeitijd}</span>` : ''}
           ${plant.vermeerderen ? `<span>✂️ <strong>Vermeerderen:</strong> ${plant.vermeerderen}</span>` : ''}
           ${plant.grootte ? `<span>📏 <strong>Grootte:</strong> ${plant.grootte}</span>` : ''}
@@ -309,7 +430,7 @@ function filterOpLetter(letter, gekozenKnop) {
   });
 }
 
-// AFBEELDING PLAKKEN & UPLOADEN
+// UPLOAD EN BEHEER LOGICA
 function installeerPlakLuisteraar() {
   const pasteZone = document.getElementById("paste-area");
   if (!pasteZone) return;
@@ -342,7 +463,6 @@ function leesFotoBestand(file) {
   reader.readAsDataURL(file);
 }
 
-// BEHEER & EDIT LOGICA
 function voegPlantToe(e) {
   e.preventDefault();
 
@@ -409,7 +529,6 @@ function voegPlantToe(e) {
 
   laadBibliotheek();
   laadBeheerLijst();
-  herstartQuiz();
 }
 
 function startBewerken(id) {
@@ -460,7 +579,6 @@ function verwijderPlant(id) {
     opslaanInStorage();
     laadBibliotheek();
     laadBeheerLijst();
-    herstartQuiz();
   }
 }
 
@@ -484,20 +602,7 @@ function laadBeheerLijst() {
 }
 
 function verstuurNaarGoogleForms() {
-  const naam = document.getElementById("student-name").value.trim();
   const statusEl = document.getElementById("submit-status");
-
-  if (!naam) {
-    statusEl.innerText = "⚠️ Vul eerst je naam in!";
-    statusEl.style.color = "#c62828";
-    return;
-  }
-
-  statusEl.innerText = "⏳ Bezig met versturen...";
+  statusEl.innerText = "ℹ️ Bewaar een screenshot van dit scherm om te laten zien aan je docent.";
   statusEl.style.color = "#1565c0";
-
-  setTimeout(() => {
-    statusEl.innerText = "✅ Score verstuurd voor " + naam;
-    statusEl.style.color = "#2e7d32";
-  }, 1000);
 }
