@@ -76,26 +76,26 @@
       <div id="plant-grid" class="plant-grid"></div>
     </main>
 
-    <!-- TAB 3: BEHEER (NIEUW!) -->
+    <!-- TAB 3: BEHEER -->
     <main id="admin-tab" class="tab-content hidden">
       <h2>⚙️ Planten Beheren</h2>
       <p class="sub-text">Voeg hier nieuwe planten toe aan de app.</p>
 
       <form id="add-plant-form" onsubmit="voegPlantToe(event)" class="submit-section">
         <div class="form-group">
-          <label>Nederlandse naam:</label>
+          <label for="new-nl">Nederlandse naam:</label>
           <input type="text" id="new-nl" placeholder="bijv. Gatenplant" required>
         </div>
         <div class="form-group">
-          <label>Latijnse naam:</label>
+          <label for="new-lat">Latijnse naam:</label>
           <input type="text" id="new-lat" placeholder="bijv. Monstera deliciosa" required>
         </div>
         <div class="form-group">
-          <label>Afbeelding URL (link naar foto):</label>
+          <label for="new-foto">Afbeelding URL (link naar foto):</label>
           <input type="url" id="new-foto" placeholder="https://..." required>
         </div>
         <div class="form-group">
-          <label>Beschrijving / Tip:</label>
+          <label for="new-desc">Beschrijving / Tip:</label>
           <input type="text" id="new-desc" placeholder="Korte beschrijving van de plant" required>
         </div>
         <button type="submit" class="btn primary-btn">➕ Plant Toevoegen</button>
