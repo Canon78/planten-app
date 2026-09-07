@@ -31,7 +31,6 @@ const standaardPlanten = [
 
 let plantenDatabase = [];
 let bewerkId = null;
-let actieveCategorieFilter = "ALLES";
 
 try {
   const opgeslagen = localStorage.getItem('mijnPlantenApp_data');
@@ -39,6 +38,10 @@ try {
 } catch (err) {
   plantenDatabase = standaardPlanten;
 }
+
+// FLASHCARD VARIABELEN
+let fcLijst = [];
+let fcIndex = 0;
 
 // QUIZ VARIABELEN
 let huidigeVraagIndex = 0;
@@ -53,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
   installeerPlakLuisteraar();
+  initFlashcards();
 });
 
 function opslaanInStorage() {
@@ -64,19 +68,70 @@ function opslaanInStorage() {
 }
 
 function switchTab(tabId, btnElement) {
-  const tabs = document.querySelectorAll('.tab-content');
-  for (let i = 0; i < tabs.length; i++) {
-    tabs[i].classList.remove('active');
-  }
-
-  const btns = document.querySelectorAll('.tab-btn');
-  for (let i = 0; i < btns.length; i++) {
-    btns[i].classList.remove('active');
-  }
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   
   const gekozenTab = document.getElementById(tabId);
   if (gekozenTab) gekozenTab.classList.add('active');
   if (btnElement) btnElement.classList.add('active');
+
+  if (tabId === 'flashcard-tab') {
+    initFlashcards();
+  }
+}
+
+// FLASHCARDS LOGICA
+function initFlashcards() {
+  fcLijst = [...plantenDatabase];
+  fcIndex = 0;
+  toonFlashcard();
+}
+
+function toonFlashcard() {
+  const cardEl = document.getElementById("flashcard");
+  if (cardEl) cardEl.classList.remove("flipped");
+
+  if (fcLijst.length === 0) return;
+
+  const plant = fcLijst[fcIndex];
+
+  document.getElementById("fc-img").src = plant.foto || "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80";
+  document.getElementById("fc-nl").innerText = plant.nlNaam;
+  document.getElementById("fc-lat").innerText = plant.latNaam;
+
+  let hint = [];
+  if (plant.categorie) hint.push("🏷️ <strong>Type:</strong> " + plant.categorie);
+  if (plant.standplaats) hint.push("☀️ <strong>Standplaats:</strong> " + plant.standplaats);
+  if (plant.waterbehoefte) hint.push("💧 <strong>Water:</strong> " + plant.waterbehoefte);
+  if (plant.bladbehoud) hint.push("🍃 <strong>Blad:</strong> " + plant.bladbehoud);
+  if (plant.beschrijving) hint.push("📝 <strong>Tip:</strong> " + plant.beschrijving);
+
+  document.getElementById("fc-details").innerHTML = hint.join("<br>");
+  document.getElementById("fc-counter").innerText = (fcIndex + 1) + " / " + fcLijst.length;
+}
+
+function draaiFlashcardOm() {
+  document.getElementById("flashcard").classList.toggle("flipped");
+}
+
+function volgendeFlashcard() {
+  if (fcIndex < fcLijst.length - 1) {
+    fcIndex++;
+    toonFlashcard();
+  }
+}
+
+function vorigeFlashcard() {
+  if (fcIndex > 0) {
+    fcIndex--;
+    toonFlashcard();
+  }
+}
+
+function schudFlashcards() {
+  fcLijst = fcLijst.sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  toonFlashcard();
 }
 
 // QUIZ LOGICA
@@ -108,8 +163,6 @@ function herstartQuiz() {
   
   if (quizVragen.length > 0) {
     toonVraag();
-  } else {
-    alert("Er zijn geen planten beschikbaar voor de quiz!");
   }
 }
 
@@ -131,7 +184,6 @@ function toonVraag() {
   document.getElementById("feedback-box").className = "feedback-box hidden";
   document.getElementById("next-btn").classList.add("hidden");
 
-  // MODE 1: FOTO -> NAAM
   if (gekozenSpelvorm === "foto-naar-naam") {
     imgContainer.classList.remove("hidden");
     questionTitle.classList.add("hidden");
@@ -142,8 +194,7 @@ function toonVraag() {
     if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats;
     questionDesc.innerText = hint;
 
-    const opties = genereerOpties(vraag);
-    opties.forEach(optie => {
+    genereerOpties(vraag).forEach(optie => {
       const btn = document.createElement("button");
       btn.className = "option-btn";
       btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
@@ -151,15 +202,13 @@ function toonVraag() {
       optiesContainer.appendChild(btn);
     });
 
-  // MODE 2: NAAM -> FOTO
   } else if (gekozenSpelvorm === "naam-naar-foto") {
     imgContainer.classList.add("hidden");
     questionTitle.classList.remove("hidden");
     questionTitle.innerText = "Welke foto hoort bij: " + vraag.nlNaam + " (" + vraag.latNaam + ")?";
-    questionDesc.innerText = "Klik op de foto die volgens jou de juiste plant is.";
+    questionDesc.innerText = "Klik op de juiste foto.";
 
-    const opties = genereerOpties(vraag);
-    opties.forEach(optie => {
+    genereerOpties(vraag).forEach(optie => {
       const btn = document.createElement("button");
       btn.className = "option-img-btn";
       btn.innerHTML = `<img src="${optie.foto}" alt="Optie">`;
@@ -167,7 +216,6 @@ function toonVraag() {
       optiesContainer.appendChild(btn);
     });
 
-  // MODE 3: EIGENSCHAP -> NAAM
   } else if (gekozenSpelvorm === "eigenschap-naar-naam") {
     imgContainer.classList.add("hidden");
     questionTitle.classList.remove("hidden");
@@ -179,10 +227,9 @@ function toonVraag() {
     if (vraag.bladbehoud) hint.push("🍃 Blad: " + vraag.bladbehoud);
     if (vraag.beschrijving) hint.push("📝 Tip: " + vraag.beschrijving);
 
-    questionDesc.innerHTML = hint.length > 0 ? hint.join("<br>") : "Geen specifieke kenmerken opgegeven.";
+    questionDesc.innerHTML = hint.length > 0 ? hint.join("<br>") : "Geen specifieke kenmerken.";
 
-    const opties = genereerOpties(vraag);
-    opties.forEach(optie => {
+    genereerOpties(vraag).forEach(optie => {
       const btn = document.createElement("button");
       btn.className = "option-btn";
       btn.innerText = optie.nlNaam + " (" + optie.latNaam + ")";
@@ -191,7 +238,6 @@ function toonVraag() {
     });
   }
 
-  // TIMER STARTEN (INDIEN INGESTELD)
   startTimer();
 }
 
@@ -222,7 +268,7 @@ function startTimer() {
     timerBar.style.width = percentage + "%";
 
     if (resterendeTijd <= 5) {
-      timerBar.style.backgroundColor = "#c62828"; // Rood bij laatste 5 sec
+      timerBar.style.backgroundColor = "#c62828";
     }
 
     if (resterendeTijd <= 0) {
@@ -244,7 +290,6 @@ function tijdOm() {
 function genereerOpties(correctePlant) {
   let fouteOpties = plantenDatabase.filter(p => p.id !== correctePlant.id);
   fouteOpties = fouteOpties.sort(() => Math.random() - 0.5).slice(0, Math.min(3, fouteOpties.length));
-  
   return [correctePlant, ...fouteOpties].sort(() => Math.random() - 0.5);
 }
 
@@ -270,8 +315,7 @@ function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
 }
 
 function disableAlleKnoppen() {
-  const alleKnoppen = document.querySelectorAll(".option-btn, .option-img-btn");
-  alleKnoppen.forEach(btn => btn.disabled = true);
+  document.querySelectorAll(".option-btn, .option-img-btn").forEach(btn => btn.disabled = true);
 }
 
 function volgendeVraag() {
@@ -287,12 +331,11 @@ function toonResultaten() {
   clearInterval(timerInterval);
   document.getElementById("quiz-card").classList.add("hidden");
   document.getElementById("result-card").classList.remove("hidden");
-
   document.getElementById("final-score").innerText = score;
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK LOGICA
+// BIBLIOTHEEK & SLIMME FILTERS
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
@@ -304,15 +347,18 @@ function laadBibliotheek() {
     const card = document.createElement("div");
     card.className = "plant-card";
     
+    card.setAttribute("data-nl", (plant.nlNaam || "").toLowerCase());
+    card.setAttribute("data-lat", (plant.latNaam || "").toLowerCase());
+    card.setAttribute("data-cat", plant.categorie || "");
+    card.setAttribute("data-standplaats", plant.standplaats || "");
+    card.setAttribute("data-blad", plant.bladbehoud || "");
+
     const zoekData = [
       plant.nlNaam, plant.latNaam, plant.categorie, plant.standplaats, plant.waterbehoefte,
       plant.bladbehoud, plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
     ].filter(Boolean).join(" ").toLowerCase();
 
     card.setAttribute("data-search", zoekData);
-    card.setAttribute("data-nl", plant.nlNaam.toLowerCase());
-    card.setAttribute("data-lat", plant.latNaam.toLowerCase());
-    card.setAttribute("data-cat", plant.categorie || "");
 
     card.innerHTML = `
       <img src="${plant.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80'}" alt="${plant.nlNaam}">
@@ -335,42 +381,28 @@ function laadBibliotheek() {
     grid.appendChild(card);
   });
 
-  maakCategorieBalk();
   maakAlfabetBalk();
 }
 
-function maakCategorieBalk() {
-  const container = document.getElementById("category-filter");
-  if (!container) return;
-  container.innerHTML = "";
-
-  const cats = ["ALLES", "Boom", "Struik / Plant", "Kruid / Vaste plant", "Kamerplant"];
-
-  cats.forEach(cat => {
-    const btn = document.createElement("button");
-    btn.className = "letter-btn" + (cat === actieveCategorieFilter ? " active" : "");
-    btn.innerText = cat;
-    btn.onclick = function() { filterOpCategorie(cat, btn); };
-    container.appendChild(btn);
-  });
-}
-
-function filterOpCategorie(cat, gekozenKnop) {
-  actieveCategorieFilter = cat;
-  if (gekozenKnop) {
-    const cBtns = gekozenKnop.parentElement.querySelectorAll(".letter-btn");
-    cBtns.forEach(b => b.classList.remove("active"));
-    gekozenKnop.classList.add("active");
-  }
+function pasFiltersToe() {
+  const standplaats = document.getElementById("filter-standplaats").value;
+  const blad = document.getElementById("filter-blad").value;
+  const categorie = document.getElementById("filter-categorie").value;
 
   const kaarten = document.querySelectorAll(".plant-card");
+
   kaarten.forEach(kaart => {
-    const plantCat = kaart.getAttribute("data-cat");
-    if (cat === "ALLES" || plantCat === cat) {
-      kaart.style.display = "block";
-    } else {
-      kaart.style.display = "none";
-    }
+    const kStand = kaart.getAttribute("data-standplaats");
+    const kBlad = kaart.getAttribute("data-blad");
+    const kCat = kaart.getAttribute("data-cat");
+
+    let toon = true;
+
+    if (standplaats && kStand !== standplaats) toon = false;
+    if (blad && kBlad !== blad) toon = false;
+    if (categorie && kCat !== categorie) toon = false;
+
+    kaart.style.display = toon ? "block" : "none";
   });
 }
 
@@ -394,15 +426,9 @@ function zoekPlanten() {
   const zoekopdracht = document.getElementById("search-input").value.toLowerCase().trim();
   const kaarten = document.querySelectorAll(".plant-card");
 
-  document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("active"));
-
   kaarten.forEach(kaart => {
     const searchData = kaart.getAttribute("data-search");
-    if (searchData.includes(zoekopdracht)) {
-      kaart.style.display = "block";
-    } else {
-      kaart.style.display = "none";
-    }
+    kaart.style.display = searchData.includes(zoekopdracht) ? "block" : "none";
   });
 }
 
@@ -420,12 +446,8 @@ function filterOpLetter(letter, gekozenKnop) {
     if (letter === "ALLES") {
       kaart.style.display = "block";
     } else {
-      const startLetter = letter.toLowerCase();
-      if (nl.startsWith(startLetter) || lat.startsWith(startLetter)) {
-        kaart.style.display = "block";
-      } else {
-        kaart.style.display = "none";
-      }
+      const start = letter.toLowerCase();
+      kaart.style.display = (nl.startsWith(start) || lat.startsWith(start)) ? "block" : "none";
     }
   });
 }
@@ -439,8 +461,7 @@ function installeerPlakLuisteraar() {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let item of items) {
       if (item.kind === "file" && item.type.startsWith("image/")) {
-        const file = item.getAsFile();
-        leesFotoBestand(file);
+        leesFotoBestand(item.getAsFile());
         break;
       }
     }
@@ -470,29 +491,20 @@ function voegPlantToe(e) {
   const urlFoto = document.getElementById("new-foto").value.trim();
   const standaardFoto = "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80";
 
-  let gekozenFoto = standaardFoto;
-  if (geplakteOfUploadFoto !== "") {
-    gekozenFoto = geplakteOfUploadFoto;
-  } else if (urlFoto !== "") {
-    gekozenFoto = urlFoto;
-  }
-
-  const catEl = document.getElementById("new-categorie");
-  const gekozenCategorie = catEl ? catEl.value : "Kamerplant";
+  let gekozenFoto = geplakteOfUploadFoto || urlFoto || standaardFoto;
 
   if (bewerkId !== null) {
     const index = plantenDatabase.findIndex(p => p.id === bewerkId);
     if (index !== -1) {
-      const oudeFoto = plantenDatabase[index].foto;
       if (!geplakteOfUploadFoto && !urlFoto) {
-        gekozenFoto = oudeFoto;
+        gekozenFoto = plantenDatabase[index].foto;
       }
 
       plantenDatabase[index] = {
         id: bewerkId,
         nlNaam: document.getElementById("new-nl").value.trim(),
         latNaam: document.getElementById("new-lat").value.trim(),
-        categorie: gekozenCategorie,
+        categorie: document.getElementById("new-categorie").value,
         standplaats: document.getElementById("new-standplaats").value,
         waterbehoefte: document.getElementById("new-water").value,
         bladbehoud: document.getElementById("new-blad").value,
@@ -506,11 +518,11 @@ function voegPlantToe(e) {
     }
     bewerkId = null;
   } else {
-    const nieuwePlant = {
+    plantenDatabase.push({
       id: Date.now(),
       nlNaam: document.getElementById("new-nl").value.trim(),
       latNaam: document.getElementById("new-lat").value.trim(),
-      categorie: gekozenCategorie,
+      categorie: document.getElementById("new-categorie").value,
       standplaats: document.getElementById("new-standplaats").value,
       waterbehoefte: document.getElementById("new-water").value,
       bladbehoud: document.getElementById("new-blad").value,
@@ -519,14 +531,12 @@ function voegPlantToe(e) {
       grootte: document.getElementById("new-grootte").value.trim(),
       foto: gekozenFoto,
       beschrijving: document.getElementById("new-desc").value.trim()
-    };
-    plantenDatabase.push(nieuwePlant);
+    });
     alert("✅ Nieuwe plant succesvol toegevoegd!");
   }
 
   opslaanInStorage();
   resetFormulier();
-
   laadBibliotheek();
   laadBeheerLijst();
 }
@@ -536,13 +546,9 @@ function startBewerken(id) {
   if (!plant) return;
 
   bewerkId = plant.id;
-
   document.getElementById("new-nl").value = plant.nlNaam || "";
   document.getElementById("new-lat").value = plant.latNaam || "";
-  
-  const catEl = document.getElementById("new-categorie");
-  if (catEl) catEl.value = plant.categorie || "Kamerplant";
-
+  document.getElementById("new-categorie").value = plant.categorie || "Kamerplant";
   document.getElementById("new-standplaats").value = plant.standplaats || "";
   document.getElementById("new-water").value = plant.waterbehoefte || "";
   document.getElementById("new-blad").value = plant.bladbehoud || "";
@@ -559,7 +565,6 @@ function startBewerken(id) {
 
   const submitBtn = document.querySelector("#add-plant-form button[type='submit']");
   if (submitBtn) submitBtn.innerText = "💾 Wijzigingen Opslaan";
-
   document.getElementById("add-plant-form").scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -591,7 +596,7 @@ function laadBeheerLijst() {
     const item = document.createElement("div");
     item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
     item.innerHTML = `
-      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>) <small style="color: #666;">[${plant.categorie || 'Kamerplant'}]</small></span>
+      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
       <div>
         <button onclick="startBewerken(${plant.id})" style="background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Bewerken</button>
         <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
