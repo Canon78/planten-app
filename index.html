@@ -94,7 +94,6 @@
           <input type="text" id="new-lat" placeholder="bijv. Monstera deliciosa" required>
         </div>
 
-        <!-- DROP-DOWN 1: STANDPLAATS -->
         <div class="form-group">
           <label for="new-standplaats">☀️ Standplaats:</label>
           <select id="new-standplaats">
@@ -105,19 +104,16 @@
           </select>
         </div>
 
-        <!-- DROP-DOWN 2: WATERBEHOEFTE -->
         <div class="form-group">
           <label for="new-water">💧 Waterbehoefte:</label>
           <select id="new-water">
             <option value="">-- Kies waterbehoefte --</option>
-
             <option value="Wéinig (droogtebestendig)">Wéinig (droogtebestendig)</option>
             <option value="Gemiddeld (regelmatig)">Gemiddeld (regelmatig)</option>
             <option value="Veel (vochtige grond)">Veel (vochtige grond)</option>
           </select>
         </div>
 
-        <!-- DROP-DOWN 3: BLADBEHOUD -->
         <div class="form-group">
           <label for="new-blad">🍃 Bladbehoud:</label>
           <select id="new-blad">
@@ -144,8 +140,17 @@
         </div>
 
         <div class="form-group">
-          <label for="new-foto">Afbeelding URL (optioneel):</label>
-          <input type="url" id="new-foto" placeholder="https://... (leeg laten = standaard foto)">
+          <label>📷 Afbeelding toevoegen:</label>
+          <input type="file" id="new-foto-file" accept="image/*" onchange="verwerkBestandUpload(this)">
+          <div id="paste-area" class="paste-zone" tabindex="0">
+            📋 Of klik hier en druk <strong>Ctrl + V</strong> om een afbeelding te plakken
+          </div>
+          <input type="hidden" id="new-foto-data">
+          <input type="url" id="new-foto" placeholder="Of voer een URL in (https://...)" style="margin-top: 5px;">
+          <div id="img-preview-container" class="hidden" style="margin-top: 8px;">
+            <p style="font-size: 0.8rem; color: #2e7d32;"><strong>Voorbeeld gekozen foto:</strong></p>
+            <img id="img-preview" src="" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc; margin-top: 4px;">
+          </div>
         </div>
 
         <div class="form-group">
