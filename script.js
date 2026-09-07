@@ -53,6 +53,7 @@ function switchTab(tabId, btnElement) {
   if (btnElement) btnElement.classList.add('active');
 }
 
+// QUIZ LOGICA
 function herstartQuiz() {
   huidigeVraagIndex = 0;
   score = 0;
@@ -143,14 +144,21 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
+// BIBLIOTHEEK & ALFABET
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
+  
+  plantenDatabase.sort((a, b) => a.nlNaam.localeCompare(b.nlNaam));
   grid.innerHTML = "";
 
   plantenDatabase.forEach(plant => {
     const card = document.createElement("div");
     card.className = "plant-card";
+    card.setAttribute("data-nl", plant.nlNaam.toLowerCase());
+    card.setAttribute("data-lat", plant.latNaam.toLowerCase());
+    card.setAttribute("data-desc", plant.beschrijving.toLowerCase());
+    
     card.innerHTML = `
       <img src="${plant.foto}" alt="${plant.nlNaam}">
       <div class="plant-card-content">
@@ -161,24 +169,82 @@ function laadBibliotheek() {
     `;
     grid.appendChild(card);
   });
+
+  maakAlfabetBalk();
 }
 
-function zoekPlanten() {
-  const zoekopdracht = document.getElementById("search-input").value.toLowerCase();
-  document.querySelectorAll(".plant-card").forEach(kaart => {
-    kaart.style.display = kaart.innerText.toLowerCase().includes(zoekopdracht) ? "block" : "none";
+function maakAlfabetBalk() {
+  const container = document.getElementById("alphabet-filter");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const alfabet = ["ALLES", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+
+  alfabet.forEach(letter => {
+    const btn = document.createElement("button");
+    btn.className = "letter-btn";
+    btn.innerText = letter;
+    btn.onclick = function() { filterOpLetter(letter, btn); };
+    container.appendChild(btn);
   });
 }
 
+function zoekPlanten() {
+  const zoekopdracht = document.getElementById("search-input").value.toLowerCase().trim();
+  const kaarten = document.querySelectorAll(".plant-card");
+
+  document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("active"));
+
+  kaarten.forEach(kaart => {
+    const nl = kaart.getAttribute("data-nl");
+    const lat = kaart.getAttribute("data-lat");
+    const desc = kaart.getAttribute("data-desc");
+
+    if (nl.includes(zoekopdracht) || lat.includes(zoekopdracht) || desc.includes(zoekopdracht)) {
+      kaart.style.display = "block";
+    } else {
+      kaart.style.display = "none";
+    }
+  });
+}
+
+function filterOpLetter(letter, gekozenKnop) {
+  document.getElementById("search-input").value = "";
+  document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("active"));
+  if (gekozenKnop) gekozenKnop.classList.add("active");
+
+  const kaarten = document.querySelectorAll(".plant-card");
+
+  kaarten.forEach(kaart => {
+    const nl = kaart.getAttribute("data-nl");
+    const lat = kaart.getAttribute("data-lat");
+
+    if (letter === "ALLES") {
+      kaart.style.display = "block";
+    } else {
+      const startLetter = letter.toLowerCase();
+      if (nl.startsWith(startLetter) || lat.startsWith(startLetter)) {
+        kaart.style.display = "block";
+      } else {
+        kaart.style.display = "none";
+      }
+    }
+  });
+}
+
+// BEHEER LOGICA
 function voegPlantToe(e) {
   e.preventDefault();
 
+  const ingevoerdeFoto = document.getElementById("new-foto").value.trim();
+  const standaardFoto = "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80";
+
   const nieuwePlant = {
     id: Date.now(),
-    nlNaam: document.getElementById("new-nl").value,
-    latNaam: document.getElementById("new-lat").value,
-    foto: document.getElementById("new-foto").value,
-    beschrijving: document.getElementById("new-desc").value
+    nlNaam: document.getElementById("new-nl").value.trim(),
+    latNaam: document.getElementById("new-lat").value.trim(),
+    foto: ingevoerdeFoto !== "" ? ingevoerdeFoto : standaardFoto,
+    beschrijving: document.getElementById("new-desc").value.trim()
   };
 
   plantenDatabase.push(nieuwePlant);
@@ -189,7 +255,7 @@ function voegPlantToe(e) {
   laadBeheerLijst();
   herstartQuiz();
 
-  alert("✅ Plant toegevoegd!");
+  alert("✅ Plant succesvol toegevoegd!");
 }
 
 function verwijderPlant(id) {
