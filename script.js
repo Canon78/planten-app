@@ -1,5 +1,5 @@
-// PLANTEN DATABANK
-const plantenDatabase = [
+// STANDAARD PLANTEN DATABANK
+const standaardPlanten = [
   {
     id: 1,
     nlNaam: "Monstera (Gatenplant)",
@@ -37,10 +37,8 @@ const plantenDatabase = [
   }
 ];
 
-// GOOGLE FORMS CONFIGURATIE (Optioneel aan te passen)
-const GOOGLE_FORM_URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSc.../formResponse"; 
-const FORM_ENTRY_NAAM = "entry.123456789"; 
-const FORM_ENTRY_SCORE = "entry.987654321"; 
+// DATA LADEN UIT STORAGE OF STANDAARD
+let plantenDatabase = JSON.parse(localStorage.getItem('mijnPlantenApp_data')) || standaardPlanten;
 
 // APP STATE
 let huidigeVraagIndex = 0;
@@ -50,16 +48,21 @@ let quizVragen = [];
 // INITIATIE
 document.addEventListener("DOMContentLoaded", () => {
   laadBibliotheek();
+  laadBeheerLijst();
   herstartQuiz();
 });
 
+function opslaanInStorage() {
+  localStorage.setItem('mijnPlantenApp_data', JSON.stringify(plantenDatabase));
+}
+
 // TAB SWITCHEN
-function switchTab(tabId) {
+function switchTab(tabId, element) {
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   
   document.getElementById(tabId).classList.add('active');
-  event.currentTarget.classList.add('active');
+  if(element) element.classList.add('active');
 }
 
 // QUIZ LOGICA
@@ -71,22 +74,21 @@ function herstartQuiz() {
   document.getElementById("quiz-card").classList.remove("hidden");
   document.getElementById("result-card").classList.add("hidden");
   
-  toonVraag();
+  if (quizVragen.length > 0) {
+    toonVraag();
+  }
 }
 
 function toonVraag() {
   const vraag = quizVragen[huidigeVraagIndex];
   
-  // Voortgang updaten
   document.getElementById("question-count").innerText = `Vraag ${huidigeVraagIndex + 1} van ${quizVragen.length}`;
   document.getElementById("score-display").innerText = `Score: ${score}`;
   document.getElementById("progress-bar").style.width = `${((huidigeVraagIndex) / quizVragen.length) * 100}%`;
 
-  // Content vullen
   document.getElementById("plant-img").src = vraag.foto;
   document.getElementById("question-desc").innerText = `Tip: ${vraag.beschrijving}`;
 
-  // Opties genereren (1 goede + 3 foute)
   const optiesContainer = document.getElementById("options-container");
   optiesContainer.innerHTML = "";
 
@@ -100,14 +102,13 @@ function toonVraag() {
     optiesContainer.appendChild(btn);
   });
 
-  // UI Reset
   document.getElementById("feedback-box").className = "feedback-box hidden";
   document.getElementById("next-btn").classList.add("hidden");
 }
 
 function genereerOpties(correctePlant) {
   let fouteOpties = plantenDatabase.filter(p => p.id !== correctePlant.id);
-  fouteOpties = fouteOpties.sort(() => Math.random() - 0.5).slice(0, 3);
+  fouteOpties = fouteOpties.sort(() => Math.random() - 0.5).slice(0, Math.min(3, fouteOpties.length));
   
   const alleOpties = [correctePlant, ...fouteOpties];
   return alleOpties.sort(() => Math.random() - 0.5);
@@ -129,7 +130,6 @@ function controleerAntwoord(gekozenOptie, correctePlant, gekozenKnop) {
     feedbackBox.innerText = `❌ Helaas! Het juiste antwoord was: ${correctePlant.nlNaam}`;
     feedbackBox.className = "feedback-box wrong";
 
-    // Toon de juiste knop
     alleKnoppen.forEach(btn => {
       if (btn.innerText.includes(correctePlant.nlNaam)) {
         btn.classList.add("correct");
@@ -192,7 +192,55 @@ function zoekPlanten() {
   });
 }
 
-// FORMULIER VERSTUREN (GOOGLE FORMS)
+// BEHEER LOGICA (PLANTEN TOEVOEGEN & VERWIJDEREN)
+function voegPlantToe(e) {
+  e.preventDefault();
+
+  const nieuwePlant = {
+    id: Date.now(),
+    nlNaam: document.getElementById("new-nl").value,
+    latNaam: document.getElementById("new-lat").value,
+    foto: document.getElementById("new-foto").value,
+    beschrijving: document.getElementById("new-desc").value
+  };
+
+  plantenDatabase.push(nieuwePlant);
+  opslaanInStorage();
+  
+  document.getElementById("add-plant-form").reset();
+  
+  laadBibliotheek();
+  laadBeheerLijst();
+  herstartQuiz();
+
+  alert("✅ Plant succesvol toegevoegd!");
+}
+
+function verwijderPlant(id) {
+  if (confirm("Weet je zeker dat je deze plant wilt verwijderen?")) {
+    plantenDatabase = plantenDatabase.filter(p => p.id !== id);
+    opslaanInStorage();
+    laadBibliotheek();
+    laadBeheerLijst();
+    herstartQuiz();
+  }
+}
+
+function laadBeheerLijst() {
+  const lijst = document.getElementById("admin-plant-list");
+  lijst.innerHTML = "";
+
+  plantenDatabase.forEach(plant => {
+    const item = document.createElement("div");
+    item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px;";
+    item.innerHTML = `
+      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
+      <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
+    `;
+    lijst.appendChild(item);
+  });
+}
+
 function verstuurNaarGoogleForms() {
   const naam = document.getElementById("student-name").value.trim();
   const statusEl = document.getElementById("submit-status");
@@ -206,7 +254,6 @@ function verstuurNaarGoogleForms() {
   statusEl.innerText = "⏳ Bezig met versturen...";
   statusEl.style.color = "#1565c0";
 
-  // Simulatie van verzending (of echte koppeling als URL is ingesteld)
   setTimeout(() => {
     statusEl.innerText = `✅ Top! De score (${score}/${quizVragen.length}) van ${naam} is succesvol opgeslagen!`;
     statusEl.style.color = "#2e7d32";
