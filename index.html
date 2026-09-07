@@ -11,17 +11,94 @@
   <header>
     <h1>🌿 PlantenAcademie</h1>
     <nav>
-      <button class="tab-btn active" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
+      <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
       <button class="tab-btn" onclick="switchTab('flashcard-tab', this)">🎴 Flashcards</button>
-      <button class="tab-btn" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
+      <button class="tab-btn" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
       <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
     </nav>
   </header>
 
   <main class="container">
 
-    <!-- TAB 1: QUIZ -->
-    <section id="quiz-tab" class="tab-content active">
+    <!-- TAB 1: BIBLIOTHEEK (STANDAARD ACTIEF) -->
+    <section id="library-tab" class="tab-content active">
+      <h2>📚 Plantenbibliotheek</h2>
+      
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Zoek op Nederlandse of Latijnse naam..." oninput="zoekPlanten()">
+      </div>
+
+      <!-- SLIMME FILTERS -->
+      <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; background: #e8f5e9;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Slimme Filters</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Standplaats:</label>
+            <select id="filter-standplaats" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Standplaatsen --</option>
+              <option value="Volle zon">Volle zon</option>
+              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
+              <option value="Schaduw">Schaduw</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Bladbehoud:</label>
+            <select id="filter-blad" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Bladsoorten --</option>
+              <option value="Groenblijvend (bladhoudend)">Groenblijvend</option>
+              <option value="Bladverliezend">Bladverliezend</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Categorie:</label>
+            <select id="filter-categorie" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Categorieën --</option>
+              <option value="Kamerplant">Kamerplant</option>
+              <option value="Boom">Boom</option>
+              <option value="Struik / Plant">Struik / Plant</option>
+              <option value="Kruid / Vaste plant">Kruid / Vaste plant</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alfabet Filter -->
+      <div id="alphabet-filter" class="alphabet-container"></div>
+
+      <div id="plant-grid" class="plant-grid"></div>
+    </section>
+
+    <!-- TAB 2: FLASHCARDS -->
+    <section id="flashcard-tab" class="tab-content">
+      <h2>🎴 Flashcards Stampen</h2>
+      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & kenmerken) te bekijken.</p>
+
+      <div class="flashcard-wrapper">
+        <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
+          <!-- VOORKANT -->
+          <div class="flashcard-front">
+            <img id="fc-img" src="" alt="Plant">
+            <p class="fc-hint">💡 Klik op de kaart om om te draaien</p>
+          </div>
+          <!-- ACHTERKANT -->
+          <div class="flashcard-back">
+            <h3 id="fc-nl"></h3>
+            <p><em id="fc-lat"></em></p>
+            <div id="fc-details" class="plant-details" style="margin-top: 1rem; text-align: left;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-controls">
+        <button class="secondary-btn" onclick="vorigeFlashcard()">⬅️ Vorige</button>
+        <span id="fc-counter" style="font-weight: bold; align-self: center;">1 / 1</span>
+        <button class="primary-btn" onclick="volgendeFlashcard()">Volgende ➡️</button>
+        <button class="secondary-btn" onclick="schudFlashcards()" style="background-color: #f57c00;">🔀 Schudden</button>
+      </div>
+    </section>
+
+    <!-- TAB 3: QUIZ -->
+    <section id="quiz-tab" class="tab-content">
       <div id="quiz-settings-card" class="card">
         <h2>🎯 Quiz Instellingen</h2>
         <p style="margin-bottom: 1.5rem; color: #555;">Kies hoe je wilt oefenen voordat je begint:</p>
@@ -95,83 +172,6 @@
         <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
         <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm Kiezen</button>
       </div>
-    </section>
-
-    <!-- TAB 2: FLASHCARDS -->
-    <section id="flashcard-tab" class="tab-content">
-      <h2>🎴 Flashcards Stampen</h2>
-      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & kenmerken) te bekijken.</p>
-
-      <div class="flashcard-wrapper">
-        <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
-          <!-- VOORKANT -->
-          <div class="flashcard-front">
-            <img id="fc-img" src="" alt="Plant">
-            <p class="fc-hint">💡 Klik op de kaart om om te draaien</p>
-          </div>
-          <!-- ACHTERKANT -->
-          <div class="flashcard-back">
-            <h3 id="fc-nl"></h3>
-            <p><em id="fc-lat"></em></p>
-            <div id="fc-details" class="plant-details" style="margin-top: 1rem; text-align: left;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flashcard-controls">
-        <button class="secondary-btn" onclick="vorigeFlashcard()">⬅️ Vorige</button>
-        <span id="fc-counter" style="font-weight: bold; align-self: center;">1 / 1</span>
-        <button class="primary-btn" onclick="volgendeFlashcard()">Volgende ➡️</button>
-        <button class="secondary-btn" onclick="schudFlashcards()" style="background-color: #f57c00;">🔀 Schudden</button>
-      </div>
-    </section>
-
-    <!-- TAB 3: BIBLIOTHEEK -->
-    <section id="library-tab" class="tab-content">
-      <h2>📚 Plantenbibliotheek</h2>
-      
-      <div class="search-container">
-        <input type="text" id="search-input" placeholder="Zoek op Nederlandse of Latijnse naam..." oninput="zoekPlanten()">
-      </div>
-
-      <!-- SLIMME FILTERS -->
-      <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; background: #e8f5e9;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Slimme Filters</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Standplaats:</label>
-            <select id="filter-standplaats" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Standplaatsen --</option>
-              <option value="Volle zon">Volle zon</option>
-              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
-              <option value="Schaduw">Schaduw</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Bladbehoud:</label>
-            <select id="filter-blad" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Bladsoorten --</option>
-              <option value="Groenblijvend (bladhoudend)">Groenblijvend</option>
-              <option value="Bladverliezend">Bladverliezend</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Categorie:</label>
-            <select id="filter-categorie" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Categorieën --</option>
-              <option value="Kamerplant">Kamerplant</option>
-              <option value="Boom">Boom</option>
-              <option value="Struik / Plant">Struik / Plant</option>
-              <option value="Kruid / Vaste plant">Kruid / Vaste plant</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alfabet Filter -->
-      <div id="alphabet-filter" class="alphabet-container"></div>
-
-      <div id="plant-grid" class="plant-grid"></div>
     </section>
 
     <!-- TAB 4: BEHEER -->
