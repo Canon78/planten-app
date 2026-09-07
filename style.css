@@ -180,10 +180,13 @@ header h1 {
   margin-bottom: 12px;
 }
 
-.form-group input {
+.form-group input, .form-group select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background-color: white;
+  font-size: 0.95rem;
+  color: #333;
 }
 
 /* BIBLIOTHEEK GRID */
@@ -210,7 +213,7 @@ header h1 {
 
 .plant-card img {
   width: 100%;
-  height: 120px;
+  height: 140px;
   object-fit: cover;
 }
 
@@ -226,6 +229,22 @@ header h1 {
 .plant-card-content p {
   font-size: 0.85rem;
   color: #555;
+}
+
+/* EXTRA PLANTDETAILS */
+.plant-details {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e0e0e0;
+  font-size: 0.8rem;
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plant-details span {
+  display: block;
 }
 
 /* ALFABET FILTER BALK */
@@ -253,12 +272,23 @@ header h1 {
   background: #2e7d32;
   color: white;
 }
-/* FORMULIER DROP-DOWNS */
-.form-group select {
-  padding: 10px;
-  border: 1px solid #ccc;
+
+/* PLAKZONE VOOR AFBEELDINGEN */
+.paste-zone {
+  border: 2px dashed #a5d6a7;
+  background: #f1f8e9;
+  padding: 12px;
+  text-align: center;
   border-radius: 6px;
-  background-color: white;
-  font-size: 0.95rem;
-  color: #333;
+  font-size: 0.85rem;
+  color: #2e7d32;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s;
+}
+
+.paste-zone:focus, .paste-zone:hover {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  outline: none;
 }
