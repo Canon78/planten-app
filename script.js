@@ -28,6 +28,8 @@ const standaardPlanten = [
 ];
 
 let plantenDatabase = [];
+let bewerkId = null; // Houdt bij of we een plant aan het bewerken zijn
+
 try {
   const opgeslagen = localStorage.getItem('mijnPlantenApp_data');
   plantenDatabase = opgeslagen ? JSON.parse(opgeslagen) : standaardPlanten;
@@ -187,19 +189,19 @@ function laadBibliotheek() {
     card.setAttribute("data-lat", plant.latNaam.toLowerCase());
 
     card.innerHTML = `
-      <img src="${plant.foto}" alt="${plant.nlNaam}">
+      <img src="${plant.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80'}" alt="${plant.nlNaam}">
       <div class="plant-card-content">
         <h3>${plant.nlNaam}</h3>
         <p><em>${plant.latNaam}</em></p>
         
         <div class="plant-details">
-          ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
-          ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
-          ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : ''}
+          ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : '<span>☀️ <strong>Standplaats:</strong> Niet opgegeven</span>'}
+          ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : '<span>💧 <strong>Water:</strong> Niet opgegeven</span>'}
+          ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : '<span>🍃 <strong>Blad:</strong> Niet opgegeven</span>'}
           ${plant.bloeitijd ? `<span>🌸 <strong>Bloei:</strong> ${plant.bloeitijd}</span>` : ''}
           ${plant.vermeerderen ? `<span>✂️ <strong>Vermeerderen:</strong> ${plant.vermeerderen}</span>` : ''}
           ${plant.grootte ? `<span>📏 <strong>Grootte:</strong> ${plant.grootte}</span>` : ''}
-          ${plant.beschrijving ? `<span>📝 ${plant.beschrijving}</span>` : ''}
+          ${plant.beschrijving ? `<span>📝 <strong>Tip:</strong> ${plant.beschrijving}</span>` : ''}
         </div>
       </div>
     `;
@@ -298,7 +300,7 @@ function leesFotoBestand(file) {
   reader.readAsDataURL(file);
 }
 
-// BEHEER LOGICA
+// BEHEER & EDIT LOGICA
 function voegPlantToe(e) {
   e.preventDefault();
 
@@ -313,32 +315,97 @@ function voegPlantToe(e) {
     gekozenFoto = urlFoto;
   }
 
-  const nieuwePlant = {
-    id: Date.now(),
-    nlNaam: document.getElementById("new-nl").value.trim(),
-    latNaam: document.getElementById("new-lat").value.trim(),
-    standplaats: document.getElementById("new-standplaats").value,
-    waterbehoefte: document.getElementById("new-water").value,
-    bladbehoud: document.getElementById("new-blad").value,
-    bloeitijd: document.getElementById("new-bloei").value.trim(),
-    vermeerderen: document.getElementById("new-vermeerderen").value.trim(),
-    grootte: document.getElementById("new-grootte").value.trim(),
-    foto: gekozenFoto,
-    beschrijving: document.getElementById("new-desc").value.trim()
-  };
+  if (bewerkId !== null) {
+    // BEWERKEN VAN BESTAANDE PLANT
+    const index = plantenDatabase.findIndex(p => p.id === bewerkId);
+    if (index !== -1) {
+      // Als er geen nieuwe foto is opgegeven, behouden we de oude foto
+      const oudeFoto = plantenDatabase[index].foto;
+      if (!geplakteOfUploadFoto && !urlFoto) {
+        gekozenFoto = oudeFoto;
+      }
 
-  plantenDatabase.push(nieuwePlant);
+      plantenDatabase[index] = {
+        id: bewerkId,
+        nlNaam: document.getElementById("new-nl").value.trim(),
+        latNaam: document.getElementById("new-lat").value.trim(),
+        standplaats: document.getElementById("new-standplaats").value,
+        waterbehoefte: document.getElementById("new-water").value,
+        bladbehoud: document.getElementById("new-blad").value,
+        bloeitijd: document.getElementById("new-bloei").value.trim(),
+        vermeerderen: document.getElementById("new-vermeerderen").value.trim(),
+        grootte: document.getElementById("new-grootte").value.trim(),
+        foto: gekozenFoto,
+        beschrijving: document.getElementById("new-desc").value.trim()
+      };
+      alert("✅ Plant succesvol bijgewerkt!");
+    }
+    bewerkId = null;
+  } else {
+    // NIEUWE PLANT TOEVOEGEN
+    const nieuwePlant = {
+      id: Date.now(),
+      nlNaam: document.getElementById("new-nl").value.trim(),
+      latNaam: document.getElementById("new-lat").value.trim(),
+      standplaats: document.getElementById("new-standplaats").value,
+      waterbehoefte: document.getElementById("new-water").value,
+      bladbehoud: document.getElementById("new-blad").value,
+      bloeitijd: document.getElementById("new-bloei").value.trim(),
+      vermeerderen: document.getElementById("new-vermeerderen").value.trim(),
+      grootte: document.getElementById("new-grootte").value.trim(),
+      foto: gekozenFoto,
+      beschrijving: document.getElementById("new-desc").value.trim()
+    };
+    plantenDatabase.push(nieuwePlant);
+    alert("✅ Nieuwe plant succesvol toegevoegd!");
+  }
+
   opslaanInStorage();
-  
-  document.getElementById("add-plant-form").reset();
-  document.getElementById("new-foto-data").value = "";
-  document.getElementById("img-preview-container").classList.add("hidden");
+  resetFormulier();
 
   laadBibliotheek();
   laadBeheerLijst();
   herstartQuiz();
+}
 
-  alert("✅ Plant succesvol toegevoegd!");
+function startBewerken(id) {
+  const plant = plantenDatabase.find(p => p.id === id);
+  if (!plant) return;
+
+  bewerkId = plant.id;
+
+  document.getElementById("new-nl").value = plant.nlNaam || "";
+  document.getElementById("new-lat").value = plant.latNaam || "";
+  document.getElementById("new-standplaats").value = plant.standplaats || "";
+  document.getElementById("new-water").value = plant.waterbehoefte || "";
+  document.getElementById("new-blad").value = plant.bladbehoud || "";
+  document.getElementById("new-bloei").value = plant.bloeitijd || "";
+  document.getElementById("new-vermeerderen").value = plant.vermeerderen || "";
+  document.getElementById("new-grootte").value = plant.grootte || "";
+  document.getElementById("new-desc").value = plant.beschrijving || "";
+  document.getElementById("new-foto").value = plant.foto && plant.foto.startsWith("http") ? plant.foto : "";
+
+  if (plant.foto) {
+    document.getElementById("img-preview").src = plant.foto;
+    document.getElementById("img-preview-container").classList.remove("hidden");
+  }
+
+  // Pas de knoptekst aan
+  const submitBtn = document.querySelector("#add-plant-form button[type='submit']");
+  if (submitBtn) submitBtn.innerText = "💾 Wijzigingen Opslaan";
+
+  // Scroll omhoog naar het formulier
+  document.getElementById("add-plant-form").scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetFormulier() {
+  document.getElementById("add-plant-form").reset();
+  document.getElementById("new-foto-data").value = "";
+  document.getElementById("img-preview-container").classList.add("hidden");
+  bewerkId = null;
+
+  const submitBtn = document.querySelector("#add-plant-form button[type='submit']");
+  if (submitBtn) submitBtn.innerText = "➕ Plant Toevoegen";
 }
 
 function verwijderPlant(id) {
@@ -361,7 +428,10 @@ function laadBeheerLijst() {
     item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
     item.innerHTML = `
       <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
-      <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
+      <div>
+        <button onclick="startBewerken(${plant.id})" style="background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Bewerken</button>
+        <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
+      </div>
     `;
     lijst.appendChild(item);
   });
