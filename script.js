@@ -43,10 +43,15 @@ document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
   herstartQuiz();
+  installeerPlakLuisteraar();
 });
 
 function opslaanInStorage() {
-  localStorage.setItem('mijnPlantenApp_data', JSON.stringify(plantenDatabase));
+  try {
+    localStorage.setItem('mijnPlantenApp_data', JSON.stringify(plantenDatabase));
+  } catch (e) {
+    alert("⚠️ Waarschuwing: Afbeelding is te groot om op te slaan in de browser. Probeer een kleinere/gecomprimeerde foto.");
+  }
 }
 
 function switchTab(tabId, btnElement) {
@@ -172,7 +177,6 @@ function laadBibliotheek() {
     const card = document.createElement("div");
     card.className = "plant-card";
     
-    // Voeg alle velden toe aan de zoekdata
     const zoekData = [
       plant.nlNaam, plant.latNaam, plant.standplaats, plant.waterbehoefte,
       plant.bladbehoud, plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
@@ -261,12 +265,53 @@ function filterOpLetter(letter, gekozenKnop) {
   });
 }
 
+// AFBEELDING PLAKKEN & UPLOADEN
+function installeerPlakLuisteraar() {
+  const pasteZone = document.getElementById("paste-area");
+  if (!pasteZone) return;
+
+  pasteZone.addEventListener("paste", function(e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let item of items) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        leesFotoBestand(file);
+        break;
+      }
+    }
+  });
+}
+
+function verwerkBestandUpload(input) {
+  if (input.files && input.files[0]) {
+    leesFotoBestand(input.files[0]);
+  }
+}
+
+function leesFotoBestand(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById("new-foto-data").value = e.target.result;
+    document.getElementById("img-preview").src = e.target.result;
+    document.getElementById("img-preview-container").classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+}
+
 // BEHEER LOGICA
 function voegPlantToe(e) {
   e.preventDefault();
 
-  const ingevoerdeFoto = document.getElementById("new-foto").value.trim();
+  const geplakteOfUploadFoto = document.getElementById("new-foto-data").value;
+  const urlFoto = document.getElementById("new-foto").value.trim();
   const standaardFoto = "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80";
+
+  let gekozenFoto = standaardFoto;
+  if (geplakteOfUploadFoto !== "") {
+    gekozenFoto = geplakteOfUploadFoto;
+  } else if (urlFoto !== "") {
+    gekozenFoto = urlFoto;
+  }
 
   const nieuwePlant = {
     id: Date.now(),
@@ -278,7 +323,7 @@ function voegPlantToe(e) {
     bloeitijd: document.getElementById("new-bloei").value.trim(),
     vermeerderen: document.getElementById("new-vermeerderen").value.trim(),
     grootte: document.getElementById("new-grootte").value.trim(),
-    foto: ingevoerdeFoto !== "" ? ingevoerdeFoto : standaardFoto,
+    foto: gekozenFoto,
     beschrijving: document.getElementById("new-desc").value.trim()
   };
 
@@ -286,6 +331,9 @@ function voegPlantToe(e) {
   opslaanInStorage();
   
   document.getElementById("add-plant-form").reset();
+  document.getElementById("new-foto-data").value = "";
+  document.getElementById("img-preview-container").classList.add("hidden");
+
   laadBibliotheek();
   laadBeheerLijst();
   herstartQuiz();
