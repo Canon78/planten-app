@@ -11,7 +11,7 @@ body {
   line-height: 1.6;
 }
 
-/* HEADER EN NAVIGATIE (Bovenin vast) */
+/* HEADER EN NAVIGATIE */
 header {
   background-color: #2e7d32;
   color: white;
@@ -171,9 +171,18 @@ h2, h3 {
 .quiz-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: bold;
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
+}
+
+.timer-badge {
+  background: #ffe0b2;
+  color: #e65100;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
 }
 
 .progress-container {
@@ -181,7 +190,7 @@ h2, h3 {
   height: 8px;
   background-color: #e0e0e0;
   border-radius: 4px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   overflow: hidden;
 }
 
@@ -190,6 +199,22 @@ h2, h3 {
   background-color: #2e7d32;
   width: 0%;
   transition: width 0.3s ease;
+}
+
+.timer-bar-container {
+  width: 100%;
+  height: 6px;
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.timer-bar {
+  height: 100%;
+  background-color: #ff9800;
+  width: 100%;
+  transition: width 1s linear, background-color 0.3s ease;
 }
 
 .image-container {
@@ -214,6 +239,7 @@ h2, h3 {
   font-style: italic;
 }
 
+/* SPELVORM FOTO KIEZEN GRID */
 .options-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -254,6 +280,40 @@ h2, h3 {
   background-color: #ffcdd2 !important;
   border-color: #c62828 !important;
   color: #b71c1c;
+}
+
+/* FOTO KNOPPEN SPECIFIEK */
+.option-img-btn {
+  background-color: #ffffff;
+  border: 3px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  height: 180px;
+  transition: all 0.2s;
+}
+
+.option-img-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.option-img-btn:hover:not(:disabled) {
+  border-color: #2e7d32;
+  transform: scale(1.02);
+}
+
+.option-img-btn.correct {
+  border-color: #2e7d32 !important;
+  box-shadow: 0 0 10px rgba(46, 125, 50, 0.6);
+}
+
+.option-img-btn.wrong {
+  border-color: #c62828 !important;
+  opacity: 0.6;
 }
 
 .feedback-box {
