@@ -1,9 +1,33 @@
 const standaardPlanten = [
   {
     id: 1,
+    nlNaam: "Gewone esdoorn",
+    latNaam: "Acer pseudoplatanus",
+    familie: "Sapindaceae (Zeepboomfamilie)",
+    leerjaren: ["3", "4", "5", "6"],
+    categorie: "Boom",
+    bladvorm: "Handlobbig (5 lobben)",
+    bladrand: "Grof getand",
+    vrucht: "Gefleugelde splitvrucht (helikoptertje)",
+    standplaats: "Volle zon",
+    waterbehoefte: "Gemiddeld (regelmatig)",
+    bladbehoud: "Bladverliezend",
+    bloeitijd: "Mei (hangende trossen)",
+    vermeerderen: "Zaaien",
+    grootte: "20 tot 30 meter",
+    foto: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    beschrijving: "Opvallend grote knoppen met groene schubben. Vruchten hangen in V-vorm."
+  },
+  {
+    id: 2,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
+    familie: "Araceae (Aronskelkwaliteit)",
+    leerjaren: ["3", "4"],
     categorie: "Kamerplant",
+    bladvorm: "Hartvormig met diepe insnijdingen/gaten",
+    bladrand: "Gaafrandig (ingesneden)",
+    vrucht: "Kolfvrucht (zelden binnenshuis)",
     standplaats: "Halfschaduw / Lichte plek",
     waterbehoefte: "Gemiddeld (regelmatig)",
     bladbehoud: "Groenblijvend (bladhoudend)",
@@ -11,21 +35,7 @@ const standaardPlanten = [
     vermeerderen: "Stengelstek met luchtwortel",
     grootte: "1,5 tot 3 meter",
     foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Bekend om zijn grote, ingesneden bladeren met gaten."
-  },
-  {
-    id: 2,
-    nlNaam: "Pannenkoekenplant",
-    latNaam: "Pilea peperomioides",
-    categorie: "Kamerplant",
-    standplaats: "Halfschaduw / Lichte plek",
-    waterbehoefte: "Gemiddeld (regelmatig)",
-    bladbehoud: "Groenblijvend (bladhoudend)",
-    bloeitijd: "Lente (kleine onopvallende bloemetjes)",
-    vermeerderen: "Kleine babyplantjes (uitlopers) afsnijden",
-    grootte: "30 tot 40 cm",
-    foto: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=600&q=80",
-    beschrijving: "Ronde, pannenkoekachtige bladeren."
+    beschrijving: "Bekend om zijn grote, ingesneden bladeren en luchtwortels."
   }
 ];
 
@@ -68,16 +78,13 @@ function opslaanInStorage() {
 
 // TAB NAVIGATION MET WACHTWOORDBEVEILIGING FOR BEHEER
 function switchTab(tabId, btnElement) {
-  // Controleer of de gebruiker naar het Beheer-tabblad wil
   if (tabId === 'admin-tab') {
     const ingevoerdWachtwoord = prompt("🔒 Voer het beheerderswachtwoord in:");
-    
-    // VERANDER 'docent123' HIERONDER NAAR JOUW EIGEN WACHTWOORD
     if (ingevoerdWachtwoord !== 'docent123') {
       if (ingevoerdWachtwoord !== null) {
         alert("❌ Onjuist wachtwoord! Toegang geweigerd.");
       }
-      return; // Stop de functie, gebruiker blijft op het huidige tabblad
+      return;
     }
   }
 
@@ -95,7 +102,16 @@ function switchTab(tabId, btnElement) {
 
 // FLASHCARDS LOGICA
 function initFlashcards() {
-  fcLijst = [...plantenDatabase];
+  filterFlashcardsOpJaar();
+}
+
+function filterFlashcardsOpJaar() {
+  const gekozenJaar = document.getElementById("fc-jaar-select").value;
+  if (gekozenJaar === "alle") {
+    fcLijst = [...plantenDatabase];
+  } else {
+    fcLijst = plantenDatabase.filter(p => p.leerjaren && p.leerjaren.includes(gekozenJaar));
+  }
   fcIndex = 0;
   toonFlashcard();
 }
@@ -104,7 +120,13 @@ function toonFlashcard() {
   const cardEl = document.getElementById("flashcard");
   if (cardEl) cardEl.classList.remove("flipped");
 
-  if (fcLijst.length === 0) return;
+  if (fcLijst.length === 0) {
+    document.getElementById("fc-nl").innerText = "Geen planten gevonden";
+    document.getElementById("fc-lat").innerText = "Kies een ander leerjaar";
+    document.getElementById("fc-details").innerText = "";
+    document.getElementById("fc-counter").innerText = "0 / 0";
+    return;
+  }
 
   const plant = fcLijst[fcIndex];
 
@@ -113,18 +135,22 @@ function toonFlashcard() {
   document.getElementById("fc-lat").innerText = plant.latNaam;
 
   let hint = [];
-  if (plant.categorie) hint.push("🏷️ <strong>Type:</strong> " + plant.categorie);
+  if (plant.familie) hint.push("🏛️ <strong>Familie:</strong> " + plant.familie);
+  if (plant.leerjaren && plant.leerjaren.length > 0) hint.push("🎓 <strong>Leerjaar:</strong> " + plant.leerjaren.map(j => j + "e").join(", "));
+  if (plant.bladvorm) hint.push("🍃 <strong>Bladvorm:</strong> " + plant.bladvorm);
+  if (plant.bladrand) hint.push("📐 <strong>Bladrand:</strong> " + plant.bladrand);
+  if (plant.vrucht) hint.push("🍒 <strong>Vrucht:</strong> " + plant.vrucht);
   if (plant.standplaats) hint.push("☀️ <strong>Standplaats:</strong> " + plant.standplaats);
-  if (plant.waterbehoefte) hint.push("💧 <strong>Water:</strong> " + plant.waterbehoefte);
-  if (plant.bladbehoud) hint.push("🍃 <strong>Blad:</strong> " + plant.bladbehoud);
-  if (plant.beschrijving) hint.push("📝 <strong>Tip:</strong> " + plant.beschrijving);
+  if (plant.beschrijving) hint.push("📝 <strong>Herbariumtip:</strong> " + plant.beschrijving);
 
   document.getElementById("fc-details").innerHTML = hint.join("<br>");
   document.getElementById("fc-counter").innerText = (fcIndex + 1) + " / " + fcLijst.length;
 }
 
 function draaiFlashcardOm() {
-  document.getElementById("flashcard").classList.toggle("flipped");
+  if (fcLijst.length > 0) {
+    document.getElementById("flashcard").classList.toggle("flipped");
+  }
 }
 
 function volgendeFlashcard() {
@@ -151,6 +177,19 @@ function schudFlashcards() {
 function startQuizMetInstellingen() {
   gekozenSpelvorm = document.getElementById("quiz-mode-select").value;
   ingesteldeTimerSec = parseInt(document.getElementById("timer-select").value, 10);
+  const gekozenJaar = document.getElementById("quiz-jaar-select").value;
+
+  let gefilterdePlanten = [...plantenDatabase];
+  if (gekozenJaar !== "alle") {
+    gefilterdePlanten = plantenDatabase.filter(p => p.leerjaren && p.leerjaren.includes(gekozenJaar));
+  }
+
+  if (gefilterdePlanten.length === 0) {
+    alert("⚠️ Er zijn nog geen planten ingevoerd voor dit leerjaar.");
+    return;
+  }
+
+  quizVragen = gefilterdePlanten.sort(() => Math.random() - 0.5);
 
   document.getElementById("quiz-settings-card").classList.add("hidden");
   document.getElementById("quiz-card").classList.remove("hidden");
@@ -169,7 +208,6 @@ function herstartQuiz() {
   clearInterval(timerInterval);
   huidigeVraagIndex = 0;
   score = 0;
-  quizVragen = [...plantenDatabase].sort(() => Math.random() - 0.5);
   
   document.getElementById("quiz-card").classList.remove("hidden");
   document.getElementById("result-card").classList.add("hidden");
@@ -203,8 +241,8 @@ function toonVraag() {
     document.getElementById("plant-img").src = vraag.foto;
     
     let hint = "";
-    if (vraag.categorie) hint += "🏷️ Type: " + vraag.categorie + " | ";
-    if (vraag.standplaats) hint += "☀️ Standplaats: " + vraag.standplaats;
+    if (vraag.familie) hint += "🏛️ Familie: " + vraag.familie + " | ";
+    if (vraag.bladvorm) hint += "🍃 Bladvorm: " + vraag.bladvorm;
     questionDesc.innerText = hint;
 
     genereerOpties(vraag).forEach(optie => {
@@ -232,13 +270,14 @@ function toonVraag() {
   } else if (gekozenSpelvorm === "eigenschap-naar-naam") {
     imgContainer.classList.add("hidden");
     questionTitle.classList.remove("hidden");
-    questionTitle.innerText = "Welke plant heeft deze kenmerken?";
+    questionTitle.innerText = "Welke plant heeft deze herbariumkenmerken?";
 
     let hint = [];
-    if (vraag.standplaats) hint.push("☀️ Standplaats: " + vraag.standplaats);
-    if (vraag.waterbehoefte) hint.push("💧 Water: " + vraag.waterbehoefte);
-    if (vraag.bladbehoud) hint.push("🍃 Blad: " + vraag.bladbehoud);
-    if (vraag.beschrijving) hint.push("📝 Tip: " + vraag.beschrijving);
+    if (vraag.familie) hint.push("🏛️ <strong>Familie:</strong> " + vraag.familie);
+    if (vraag.bladvorm) hint.push("🍃 <strong>Bladvorm:</strong> " + vraag.bladvorm);
+    if (vraag.bladrand) hint.push("📐 <strong>Bladrand:</strong> " + vraag.bladrand);
+    if (vraag.vrucht) hint.push("🍒 <strong>Vrucht:</strong> " + vraag.vrucht);
+    if (vraag.beschrijving) hint.push("📝 <strong>Tip:</strong> " + vraag.beschrijving);
 
     questionDesc.innerHTML = hint.length > 0 ? hint.join("<br>") : "Geen specifieke kenmerken.";
 
@@ -348,7 +387,7 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK & SLIMME FILTERS
+// BIBLIOTHEEK & FILTERS
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
@@ -365,13 +404,19 @@ function laadBibliotheek() {
     card.setAttribute("data-cat", plant.categorie || "");
     card.setAttribute("data-standplaats", plant.standplaats || "");
     card.setAttribute("data-blad", plant.bladbehoud || "");
+    card.setAttribute("data-jaren", JSON.stringify(plant.leerjaren || []));
 
     const zoekData = [
-      plant.nlNaam, plant.latNaam, plant.categorie, plant.standplaats, plant.waterbehoefte,
-      plant.bladbehoud, plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
+      plant.nlNaam, plant.latNaam, plant.familie, plant.bladvorm, plant.bladrand, plant.vrucht,
+      plant.categorie, plant.standplaats, plant.waterbehoefte, plant.bladbehoud, 
+      plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
     ].filter(Boolean).join(" ").toLowerCase();
 
     card.setAttribute("data-search", zoekData);
+
+    const leerjarenTekst = plant.leerjaren && plant.leerjaren.length > 0 
+      ? plant.leerjaren.map(j => j + "e").join(", ") 
+      : "Alle";
 
     card.innerHTML = `
       <img src="${plant.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80'}" alt="${plant.nlNaam}">
@@ -380,6 +425,11 @@ function laadBibliotheek() {
         <p><em>${plant.latNaam}</em></p>
         
         <div class="plant-details">
+          ${plant.familie ? `<span>🏛️ <strong>Familie:</strong> ${plant.familie}</span>` : ''}
+          <span>🎓 <strong>Leerjaar:</strong> ${leerjarenTekst}</span>
+          ${plant.bladvorm ? `<span>🍃 <strong>Bladvorm:</strong> ${plant.bladvorm}</span>` : ''}
+          ${plant.bladrand ? `<span>📐 <strong>Bladrand:</strong> ${plant.bladrand}</span>` : ''}
+          ${plant.vrucht ? `<span>🍒 <strong>Vrucht:</strong> ${plant.vrucht}</span>` : ''}
           ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
           ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
           ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
@@ -387,7 +437,7 @@ function laadBibliotheek() {
           ${plant.bloeitijd ? `<span>🌸 <strong>Bloei:</strong> ${plant.bloeitijd}</span>` : ''}
           ${plant.vermeerderen ? `<span>✂️ <strong>Vermeerderen:</strong> ${plant.vermeerderen}</span>` : ''}
           ${plant.grootte ? `<span>📏 <strong>Grootte:</strong> ${plant.grootte}</span>` : ''}
-          ${plant.beschrijving ? `<span>📝 <strong>Tip:</strong> ${plant.beschrijving}</span>` : ''}
+          ${plant.beschrijving ? `<span>📝 <strong>Opmerking:</strong> ${plant.beschrijving}</span>` : ''}
         </div>
       </div>
     `;
@@ -398,6 +448,7 @@ function laadBibliotheek() {
 }
 
 function pasFiltersToe() {
+  const gekozenJaar = document.getElementById("filter-jaar").value;
   const standplaats = document.getElementById("filter-standplaats").value;
   const blad = document.getElementById("filter-blad").value;
   const categorie = document.getElementById("filter-categorie").value;
@@ -408,9 +459,11 @@ function pasFiltersToe() {
     const kStand = kaart.getAttribute("data-standplaats");
     const kBlad = kaart.getAttribute("data-blad");
     const kCat = kaart.getAttribute("data-cat");
+    const kJaren = JSON.parse(kaart.getAttribute("data-jaren") || "[]");
 
     let toon = true;
 
+    if (gekozenJaar && !kJaren.includes(gekozenJaar)) toon = false;
     if (standplaats && kStand !== standplaats) toon = false;
     if (blad && kBlad !== blad) toon = false;
     if (categorie && kCat !== categorie) toon = false;
@@ -506,6 +559,13 @@ function voegPlantToe(e) {
 
   let gekozenFoto = geplakteOfUploadFoto || urlFoto || standaardFoto;
 
+  // LEERJAREN OPHALEN
+  const gekozenLeerjaren = [];
+  if (document.getElementById("jaar-3").checked) gekozenLeerjaren.push("3");
+  if (document.getElementById("jaar-4").checked) gekozenLeerjaren.push("4");
+  if (document.getElementById("jaar-5").checked) gekozenLeerjaren.push("5");
+  if (document.getElementById("jaar-6").checked) gekozenLeerjaren.push("6");
+
   if (bewerkId !== null) {
     const index = plantenDatabase.findIndex(p => p.id === bewerkId);
     if (index !== -1) {
@@ -517,6 +577,11 @@ function voegPlantToe(e) {
         id: bewerkId,
         nlNaam: document.getElementById("new-nl").value.trim(),
         latNaam: document.getElementById("new-lat").value.trim(),
+        familie: document.getElementById("new-familie").value.trim(),
+        leerjaren: gekozenLeerjaren,
+        bladvorm: document.getElementById("new-bladvorm").value.trim(),
+        bladrand: document.getElementById("new-bladrand").value.trim(),
+        vrucht: document.getElementById("new-vrucht").value.trim(),
         categorie: document.getElementById("new-categorie").value,
         standplaats: document.getElementById("new-standplaats").value,
         waterbehoefte: document.getElementById("new-water").value,
@@ -527,7 +592,7 @@ function voegPlantToe(e) {
         foto: gekozenFoto,
         beschrijving: document.getElementById("new-desc").value.trim()
       };
-      alert("✅ Plant succesvol bijgewerkt!");
+      alert("✅ Herbarium-item succesvol bijgewerkt!");
     }
     bewerkId = null;
   } else {
@@ -535,6 +600,11 @@ function voegPlantToe(e) {
       id: Date.now(),
       nlNaam: document.getElementById("new-nl").value.trim(),
       latNaam: document.getElementById("new-lat").value.trim(),
+      familie: document.getElementById("new-familie").value.trim(),
+      leerjaren: gekozenLeerjaren,
+      bladvorm: document.getElementById("new-bladvorm").value.trim(),
+      bladrand: document.getElementById("new-bladrand").value.trim(),
+      vrucht: document.getElementById("new-vrucht").value.trim(),
       categorie: document.getElementById("new-categorie").value,
       standplaats: document.getElementById("new-standplaats").value,
       waterbehoefte: document.getElementById("new-water").value,
@@ -545,7 +615,7 @@ function voegPlantToe(e) {
       foto: gekozenFoto,
       beschrijving: document.getElementById("new-desc").value.trim()
     });
-    alert("✅ Nieuwe plant succesvol toegevoegd!");
+    alert("✅ Nieuwe plant succesvol toegevoegd aan het Herbarium!");
   }
 
   opslaanInStorage();
@@ -561,7 +631,19 @@ function startBewerken(id) {
   bewerkId = plant.id;
   document.getElementById("new-nl").value = plant.nlNaam || "";
   document.getElementById("new-lat").value = plant.latNaam || "";
-  document.getElementById("new-categorie").value = plant.categorie || "Kamerplant";
+  document.getElementById("new-familie").value = plant.familie || "";
+  
+  // LEERJAREN VINKJES ZETTEN
+  const j = plant.leerjaren || [];
+  document.getElementById("jaar-3").checked = j.includes("3");
+  document.getElementById("jaar-4").checked = j.includes("4");
+  document.getElementById("jaar-5").checked = j.includes("5");
+  document.getElementById("jaar-6").checked = j.includes("6");
+
+  document.getElementById("new-bladvorm").value = plant.bladvorm || "";
+  document.getElementById("new-bladrand").value = plant.bladrand || "";
+  document.getElementById("new-vrucht").value = plant.vrucht || "";
+  document.getElementById("new-categorie").value = plant.categorie || "Struik / Plant";
   document.getElementById("new-standplaats").value = plant.standplaats || "";
   document.getElementById("new-water").value = plant.waterbehoefte || "";
   document.getElementById("new-blad").value = plant.bladbehoud || "";
@@ -583,16 +665,21 @@ function startBewerken(id) {
 
 function resetFormulier() {
   document.getElementById("add-plant-form").reset();
+  document.getElementById("jaar-3").checked = true;
+  document.getElementById("jaar-4").checked = false;
+  document.getElementById("jaar-5").checked = false;
+  document.getElementById("jaar-6").checked = false;
+
   document.getElementById("new-foto-data").value = "";
   document.getElementById("img-preview-container").classList.add("hidden");
   bewerkId = null;
 
   const submitBtn = document.querySelector("#add-plant-form button[type='submit']");
-  if (submitBtn) submitBtn.innerText = "➕ Plant Toevoegen";
+  if (submitBtn) submitBtn.innerText = "➕ Plant Toevoegen aan Herbarium";
 }
 
 function verwijderPlant(id) {
-  if (confirm("Weet je zeker dat je deze plant wilt verwijderen?")) {
+  if (confirm("Weet je zeker dat je deze plant uit het herbarium wilt verwijderen?")) {
     plantenDatabase = plantenDatabase.filter(p => p.id !== id);
     opslaanInStorage();
     laadBibliotheek();
@@ -608,8 +695,11 @@ function laadBeheerLijst() {
   plantenDatabase.forEach(plant => {
     const item = document.createElement("div");
     item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
+    
+    const leerjarenLabel = plant.leerjaren && plant.leerjaren.length > 0 ? " [Jaar: " + plant.leerjaren.join(",") + "]" : "";
+
     item.innerHTML = `
-      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
+      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)<small style="color: #666;">${leerjarenLabel}</small></span>
       <div>
         <button onclick="startBewerken(${plant.id})" style="background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Bewerken</button>
         <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
