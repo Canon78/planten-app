@@ -13,6 +13,7 @@
       <p class="subtitle">Oefen je theorie & praktijkkennis van planten</p>
     </header>
 
+    <!-- TAB NAVIGATIE -->
     <nav class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('quiz-tab', this)">📝 Quiz</button>
       <button class="tab-btn" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
@@ -66,11 +67,15 @@
       </div>
     </main>
 
-    <!-- TAB 2: BIBLIOTHEEK -->
+    <!-- TAB 2: PLANTENBIBLIOTHEEK MET ALFABET -->
     <main id="library-tab" class="tab-content">
       <div class="search-box">
-        <input type="text" id="search-input" onkeyup="zoekPlanten()" placeholder="🔍 Zoek op Nederlandse of Latijnse naam...">
+        <input type="text" id="search-input" oninput="zoekPlanten()" placeholder="🔍 Typ een naam, letter of woorddeel...">
       </div>
+
+      <!-- ALFABET KNOPPEN -->
+      <div id="alphabet-filter" class="alphabet-container"></div>
+
       <div id="plant-grid" class="plant-grid"></div>
     </main>
 
@@ -89,8 +94,8 @@
           <input type="text" id="new-lat" placeholder="bijv. Monstera deliciosa" required>
         </div>
         <div class="form-group">
-          <label for="new-foto">Afbeelding URL (link naar foto):</label>
-          <input type="url" id="new-foto" placeholder="https://..." required>
+          <label for="new-foto">Afbeelding URL (optioneel):</label>
+          <input type="url" id="new-foto" placeholder="https://... (leeg laten = standaard foto)">
         </div>
         <div class="form-group">
           <label for="new-desc">Beschrijving / Tip:</label>
