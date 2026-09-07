@@ -67,10 +67,10 @@
       </div>
     </main>
 
-    <!-- TAB 2: PLANTENBIBLIOTHEEK MET ALFABET -->
+    <!-- TAB 2: PLANTENBIBLIOTHEEK -->
     <main id="library-tab" class="tab-content">
       <div class="search-box">
-        <input type="text" id="search-input" oninput="zoekPlanten()" placeholder="🔍 Typ een naam, letter of woorddeel...">
+        <input type="text" id="search-input" oninput="zoekPlanten()" placeholder="🔍 Typ een naam, standplaats, bloeikleur...">
       </div>
 
       <!-- ALFABET KNOPPEN -->
@@ -93,14 +93,66 @@
           <label for="new-lat">Latijnse naam:</label>
           <input type="text" id="new-lat" placeholder="bijv. Monstera deliciosa" required>
         </div>
+
+        <!-- DROP-DOWN 1: STANDPLAATS -->
+        <div class="form-group">
+          <label for="new-standplaats">☀️ Standplaats:</label>
+          <select id="new-standplaats">
+            <option value="">-- Kies standplaats --</option>
+            <option value="Volle zon">Volle zon</option>
+            <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
+            <option value="Schaduw">Schaduw</option>
+          </select>
+        </div>
+
+        <!-- DROP-DOWN 2: WATERBEHOEFTE -->
+        <div class="form-group">
+          <label for="new-water">💧 Waterbehoefte:</label>
+          <select id="new-water">
+            <option value="">-- Kies waterbehoefte --</option>
+
+            <option value="Wéinig (droogtebestendig)">Wéinig (droogtebestendig)</option>
+            <option value="Gemiddeld (regelmatig)">Gemiddeld (regelmatig)</option>
+            <option value="Veel (vochtige grond)">Veel (vochtige grond)</option>
+          </select>
+        </div>
+
+        <!-- DROP-DOWN 3: BLADBEHOUD -->
+        <div class="form-group">
+          <label for="new-blad">🍃 Bladbehoud:</label>
+          <select id="new-blad">
+            <option value="">-- Kies bladbehoud --</option>
+            <option value="Groenblijvend (bladhoudend)">Groenblijvend (bladhoudend)</option>
+            <option value="Bladverliezend">Bladverliezend</option>
+            <option value="Semi-groenblijvend">Semi-groenblijvend</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="new-bloei">🌸 Bloeitijd & Kleur:</label>
+          <input type="text" id="new-bloei" placeholder="bijv. Mei - Juli | Roze / Wit">
+        </div>
+
+        <div class="form-group">
+          <label for="new-vermeerderen">✂️ Vermeerderen:</label>
+          <input type="text" id="new-vermeerderen" placeholder="bijv. Stengelstekken, Scheuren, Zaaigoed">
+        </div>
+
+        <div class="form-group">
+          <label for="new-grootte">📏 Grootte:</label>
+          <input type="text" id="new-grootte" placeholder="bijv. 1 tot 3 meter">
+        </div>
+
         <div class="form-group">
           <label for="new-foto">Afbeelding URL (optioneel):</label>
           <input type="url" id="new-foto" placeholder="https://... (leeg laten = standaard foto)">
         </div>
+
         <div class="form-group">
-          <label for="new-desc">Beschrijving / Tip:</label>
-          <input type="text" id="new-desc" placeholder="Korte beschrijving van de plant" required>
+          <label for="new-desc">Extra opmerking / Tip (optioneel):</label>
+          <input type="text" id="new-desc" placeholder="Extra weetjes of kenmerken">
         </div>
+
         <button type="submit" class="btn primary-btn">➕ Plant Toevoegen</button>
       </form>
 
