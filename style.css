@@ -77,7 +77,7 @@ header h1 {
 }
 
 .tab-content.active {
-  display: block;
+  display: block !important;
 }
 
 .card {
@@ -311,6 +311,6 @@ header h1 {
   margin-top: 4px;
 }
 
-.hidden {
+.tab-content.hidden, .hidden {
   display: none !important;
 }
