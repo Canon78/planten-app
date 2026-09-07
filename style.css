@@ -253,3 +253,12 @@ header h1 {
   background: #2e7d32;
   color: white;
 }
+/* FORMULIER DROP-DOWNS */
+.form-group select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 0.95rem;
+  color: #333;
+}
