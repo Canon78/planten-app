@@ -3,395 +3,487 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlantenAcademie - Herbarium & Oefenapp</title>
-  <link rel="stylesheet" href="style.css">
+  <title>PlantenAcademie</title>
+  <style>
+    :root {
+      --primary-green: #15803d;
+      --light-green: #22c55e;
+      --bg-light: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-dark: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      padding-bottom: 40px;
+    }
+
+    /* HEADER & NAVIGATIE */
+    header {
+      background-color: var(--primary-green);
+      color: white;
+      padding: 15px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background-color: transparent;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .nav-btn.actief {
+      background-color: white !important;
+      color: var(--primary-green) !important;
+      border-color: white !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    /* INHOUD CONTAINERS */
+    main {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 15px;
+    }
+
+    .pagina {
+      display: none; /* Standaard al alles verbergen */
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .pagina.actief {
+      display: block !important; /* Alleen de actieve pagina tonen */
+    }
+
+    h2 {
+      color: var(--primary-green);
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+
+    /* GRID & CARDS */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .plaag-kaart {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+
+    .plaag-kaart:hover {
+      transform: translateY(-3px);
+    }
+
+    .plaag-kaart img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .plaag-kaart-inhoud {
+      padding: 15px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    /* FLASHCARDS */
+    .flashcard-box {
+      max-width: 450px;
+      margin: 0 auto;
+      border: 2px solid var(--light-green);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      background: white;
+      cursor: pointer;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .flashcard-nav {
+      max-width: 450px;
+      margin: 15px auto 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-action {
+      background: var(--light-green);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* TABEL BEHEER */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+      color: #374151;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
+  <!-- HEADER MET HET NAVIGATIEMENU -->
   <header>
-    <h1>🌿 PlantenAcademie - Herbarium</h1>
+    <h1>🌿 PlantenAcademie</h1>
     <nav>
-      <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Herbarium</button>
-      <button class="tab-btn" onclick="switchTab('flashcard-tab', this)">🎴 Flashcards</button>
-      <button class="tab-btn" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
-      <button class="tab-btn" onclick="switchTab('doctor-tab', this)">🩺 Plantendokter</button>
-      <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
+      <button class="nav-btn actief" data-target="herbarium" onclick="toonPagina('herbarium')">📚 Herbarium</button>
+      <button class="nav-btn" data-target="flashcards" onclick="toonPagina('flashcards')">🎴 Flashcards</button>
+      <button class="nav-btn" data-target="quiz" onclick="toonPagina('quiz')">🎯 Quiz</button>
+      <button class="nav-btn" data-target="plantendokter" onclick="toonPagina('plantendokter')">🩺 Plantendokter</button>
+      <button class="nav-btn" data-target="beheer" onclick="toonPagina('beheer')">⚙️ Beheer</button>
     </nav>
   </header>
 
-  <main class="container">
-
-    <!-- TAB 1: BIBLIOTHEEK / HERBARIUM -->
-    <section id="library-tab" class="tab-content active">
-      <h2>📚 Digital Herbarium</h2>
-      
-      <div class="search-container">
-        <input type="text" id="search-input" placeholder="Zoek op Nederlandse/Latijnse naam, familie, bladvorm, vrucht..." oninput="zoekPlanten()">
-      </div>
-
-      <!-- SLIMME FILTERS -->
-      <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; background: #e8f5e9;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Slimme Filters</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">🎓 Leerjaar:</label>
-            <select id="filter-jaar" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Leerjaren --</option>
-              <option value="3">3de Jaar</option>
-              <option value="4">4de Jaar</option>
-              <option value="5">5de Jaar</option>
-              <option value="6">6de Jaar</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Standplaats:</label>
-            <select id="filter-standplaats" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Standplaatsen --</option>
-              <option value="Volle zon">Volle zon</option>
-              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
-              <option value="Schaduw">Schaduw</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Bladbehoud:</label>
-            <select id="filter-blad" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Bladsoorten --</option>
-              <option value="Groenblijvend (bladhoudend)">Groenblijvend</option>
-              <option value="Bladverliezend">Bladverliezend</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Categorie:</label>
-            <select id="filter-categorie" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle Categorieën --</option>
-              <option value="Kamerplant">Kamerplant</option>
-              <option value="Boom">Boom</option>
-              <option value="Struik / Plant">Struik / Plant</option>
-              <option value="Kruid / Vaste plant">Kruid / Vaste plant</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Alfabet Filter -->
-      <div id="alphabet-filter" class="alphabet-container"></div>
-
-      <div id="plant-grid" class="plant-grid"></div>
+  <!-- INHOUD PER TABBLAD -->
+  <main>
+    <!-- 1. HERBARIUM -->
+    <section id="herbarium" class="pagina actief">
+      <h2>Herbarium Overzicht</h2>
+      <p>Hier vind je een overzicht van veelvoorkomende plagen en ziektes op planten.</p>
+      <div id="herbariumGrid" class="grid-container"></div>
     </section>
 
-    <!-- TAB 2: FLASHCARDS -->
-    <section id="flashcard-tab" class="tab-content">
-      <h2>🎴 Flashcards Stampen</h2>
-      
-      <div class="card" style="margin-bottom: 1rem; padding: 0.8rem; background: #f0f4c3;">
-        <label for="fc-jaar-select" style="font-weight: bold;">🎓 Kies jouw leerjaar:</label>
-        <select id="fc-jaar-select" onchange="filterFlashcardsOpJaar()" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc; margin-left: 10px;">
-          <option value="alle">Alle Leerjaren</option>
-          <option value="3">3de Jaar</option>
-          <option value="4">4de Jaar</option>
-          <option value="5">5de Jaar</option>
-          <option value="6">6de Jaar</option>
-        </select>
-      </div>
-
-      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & herbariumkenmerken) te bekijken.</p>
-
-      <div class="flashcard-wrapper">
-        <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
-          <div class="flashcard-front">
-            <img id="fc-img" src="" alt="Plant">
-            <p class="fc-hint">💡 Klik op de kaart om om te draaien</p>
-          </div>
-          <div class="flashcard-back">
-            <h3 id="fc-nl"></h3>
-            <p><em id="fc-lat"></em></p>
-            <div id="fc-details" class="plant-details" style="margin-top: 1rem; text-align: left;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flashcard-controls">
-        <button class="secondary-btn" onclick="vorigeFlashcard()">⬅️ Vorige</button>
-        <span id="fc-counter" style="font-weight: bold; align-self: center;">1 / 1</span>
-        <button class="primary-btn" onclick="volgendeFlashcard()">Volgende ➡️</button>
-        <button class="secondary-btn" onclick="schudFlashcards()" style="background-color: #f57c00;">🔀 Schudden</button>
+    <!-- 2. FLASHCARDS -->
+    <section id="flashcards" class="pagina">
+      <h2>Flashcards Oefenen</h2>
+      <p style="text-align:center; margin-bottom:15px; color:#666;">Klik op de kaart om het antwoord te zien.</p>
+      <div id="flashcardBox" class="flashcard-box" onclick="draaiFlashcardOm()"></div>
+      <div class="flashcard-nav">
+        <button class="btn-action" style="background:#6b7280;" onclick="vorigeFlashcard()">⬅ Vorige</button>
+        <span id="flashcardTeller" style="font-weight:bold;">1 / 1</span>
+        <button class="btn-action" onclick="volgendeFlashcard()">Volgende ➡</button>
       </div>
     </section>
 
-    <!-- TAB 3: QUIZ -->
-    <section id="quiz-tab" class="tab-content">
-      <div id="quiz-settings-card" class="card">
-        <h2>🎯 Quiz Instellingen</h2>
-        <p style="margin-bottom: 1.5rem; color: #555;">Kies jouw leerjaar en spelvorm voordat je begint:</p>
-
-        <div class="form-group">
-          <label for="quiz-jaar-select">🎓 Leerjaar:</label>
-          <select id="quiz-jaar-select">
-            <option value="alle">Alle Leerjaren (Gecombineerd)</option>
-            <option value="3">3de Jaar</option>
-            <option value="4">4de Jaar</option>
-            <option value="5">5de Jaar</option>
-            <option value="6">6de Jaar</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="quiz-mode-select">🎮 Spelvorm:</label>
-          <select id="quiz-mode-select">
-            <option value="foto-naar-naam">🖼️ Foto ➔ Naam raden</option>
-            <option value="naam-naar-foto">🏷️ Naam ➔ Foto kiezen</option>
-            <option value="eigenschap-naar-naam">🔍 Herbariumkenmerken ➔ Naam raden</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="timer-select">⏱️ Timer per vraag:</label>
-          <select id="timer-select">
-            <option value="0">Geen timer (Rustig oefenen)</option>
-            <option value="30">30 seconden per vraag</option>
-            <option value="15">15 seconden per vraag (Spannend!)</option>
-            <option value="10">10 seconden per vraag (Expert!)</option>
-          </select>
-        </div>
-
-        <button class="primary-btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="startQuizMetInstellingen()">🚀 Start Quiz!</button>
-      </div>
-
-      <div id="quiz-card" class="card hidden">
-        <div class="quiz-header">
-          <span id="question-count">Vraag 1</span>
-          <span id="timer-display" class="timer-badge hidden">⏱️ <span id="time-left">15</span>s</span>
-          <span id="score-display">Score: 0</span>
-        </div>
-
-        <div class="progress-container">
-          <div id="progress-bar" class="progress-bar"></div>
-        </div>
-
-        <div id="timer-bar-container" class="timer-bar-container hidden">
-          <div id="timer-bar" class="timer-bar"></div>
-        </div>
-
-        <div id="image-container" class="image-container">
-          <img id="plant-img" src="" alt="Plantenfoto">
-        </div>
-
-        <div class="question-info">
-          <h3 id="question-title" class="hidden" style="text-align: center; font-size: 1.4rem; color: #2e7d32; margin-bottom: 0.5rem;"></h3>
-          <p id="question-desc" class="hint-text"></p>
-        </div>
-
-        <div id="options-container" class="options-grid"></div>
-        <div id="feedback-box" class="feedback-box hidden"></div>
-
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button id="next-btn" class="primary-btn hidden" onclick="volgendeVraag()">Volgende Vraag ➔</button>
-          <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Instellingen wijzigen</button>
-        </div>
-      </div>
-
-      <div id="result-card" class="card hidden">
-        <h2>🎉 Quiz Afgerond!</h2>
-        <p>Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed geantwoord.</p>
-        
-        <div class="student-form">
-          <label for="student-name">Jouw naam/klas:</label>
-          <input type="text" id="student-name" placeholder="Bijv. Jan - Klas 3B">
-          <button class="secondary-btn" onclick="verstuurNaarGoogleForms()">Score versturen naar docent 📤</button>
-          <p id="submit-status" class="status-msg"></p>
-        </div>
-
-        <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
-        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm / Leerjaar Kiezen</button>
+    <!-- 3. QUIZ -->
+    <section id="quiz" class="pagina">
+      <h2>Kennis Quiz</h2>
+      <p>Test je kennis over plagen en bestrijding!</p>
+      <div id="quizContainer" style="margin-top:20px;">
+        <p><em>Quizmodule laadt hier...</em></p>
       </div>
     </section>
 
-    <!-- TAB 4: PLANTENDOKTER (SCHADELIJKE INSECTEN & ZIEKTEN) -->
-    <section id="doctor-tab" class="tab-content">
-      <h2>🩺 De Plantendokter</h2>
-      <p style="margin-bottom: 1rem; color: #555;">Diagnosticeer en behandel schadelijke insecten, schimmels en aandoeningen bij planten.</p>
-
-      <!-- DIAGNOSE FILTER -->
-      <div class="card" style="background: #fffde7; border: 1px solid #fff59d;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Wat zie je aan de plant?</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px;">
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Symptoom / Schade:</label>
-            <select id="doctor-symptom" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle symptomen --</option>
-              <option value="pluis">Witte pluis / wol</option>
-              <option value="plakkerig">Plakkerig blad (honingdauw)</option>
-              <option value="spinnenweb">Fijne webben / spikkeling</option>
-              <option value="vlekken">Bruine, grijze of zwarte vlekken</option>
-              <option value="geel">Vergelend / slap blad</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 0.85rem; font-weight: bold;">Aangedaan onderdeel:</label>
-            <select id="doctor-part" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
-              <option value="">-- Alle onderdelen --</option>
-              <option value="blad">Blad (boven-/onderkant)</option>
-              <option value="stengel">Stengel / Oksels</option>
-              <option value="wortel">Wortels / Potgrond</option>
-            </select>
-          </div>
-        </div>
+    <!-- 4. PLANTENDOKTER -->
+    <section id="plantendokter" class="pagina">
+      <h2>Plantendokter</h2>
+      <p>Zoek hier op symptomen of plantonderdeel om de juiste diagnose te stellen.</p>
+      <div style="margin:20px 0;">
+        <input type="text" id="dokterZoek" placeholder="Typ bijv. spinnenweb, geel, blad..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" onkeyup="filterDokter()">
       </div>
-
-      <!-- RASTER MET ZIEKTEN EN INSECTEN -->
-      <div id="doctor-grid" class="plant-grid"></div>
+      <div id="dokterResultaten" class="grid-container"></div>
     </section>
 
-    <!-- TAB 5: BEHEER -->
-    <section id="admin-tab" class="tab-content">
-      <h2>⚙️ Herbarium Beheren</h2>
-      
-      <div class="card">
-        <h3>Plant Toevoegen of Bewerken</h3>
-        <form id="add-plant-form" onsubmit="voegPlantToe(event)">
-          
-          <div class="form-group">
-            <label for="new-nl">Nederlandse Naam *</label>
-            <input type="text" id="new-nl" required placeholder="Bijv. Gewone esdoorn">
-          </div>
-
-          <div class="form-group">
-            <label for="new-lat">Latijnse Naam *</label>
-            <input type="text" id="new-lat" required placeholder="Bijv. Acer pseudoplatanus">
-          </div>
-
-          <div class="form-group">
-            <label for="new-familie">Plantenfamilie (Latijn / NL)</label>
-            <input type="text" id="new-familie" placeholder="Bijv. Sapindaceae (Zeepboomfamilie)">
-          </div>
-
-          <!-- CHECKBOXES LEERJAREN -->
-          <div class="form-group" style="background: #e8f5e9; padding: 10px; border-radius: 6px;">
-            <label style="font-weight: bold; margin-bottom: 5px; display: block;">🎓 Bestemd voor Leerjaar (meerdere mogelijk):</label>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-              <label><input type="checkbox" id="jaar-3" value="3" checked> 3de Jaar</label>
-              <label><input type="checkbox" id="jaar-4" value="4"> 4de Jaar</label>
-              <label><input type="checkbox" id="jaar-5" value="5"> 5de Jaar</label>
-              <label><input type="checkbox" id="jaar-6" value="6"> 6de Jaar</label>
-            </div>
-          </div>
-
-          <!-- SPECIFIEKE HERBARIUM KENMERKEN -->
-          <div style="background: #f1f8e9; padding: 10px; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #c8e6c9;">
-            <h4 style="margin-top: 0; color: #2e7d32; font-size: 0.95rem;">🌿 Herbarium & Determinatiekenmerken</h4>
-            
-            <div class="form-group">
-              <label for="new-bladvorm">Bladvorm</label>
-              <input type="text" id="new-bladvorm" placeholder="Bijv. Handlobbig, Eivormig, Geveerd, Naaldvormig">
-            </div>
-
-            <div class="form-group">
-              <label for="new-bladrand">Bladrand</label>
-              <input type="text" id="new-bladrand" placeholder="Bijv. Gesegmenteerd, Getand, Gekarteld, Gaafrandig">
-            </div>
-
-            <div class="form-group">
-              <label for="new-vrucht">Vrucht / Zaad</label>
-              <input type="text" id="new-vrucht" placeholder="Bijv. Gefleugelde splitvrucht (helikoptertje), Bessen, Eikel">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="new-categorie">Type / Categorie *</label>
-            <select id="new-categorie">
-              <option value="Struik / Plant">🌿 Struik / Plant</option>
-              <option value="Boom">🌲 Boom</option>
-              <option value="Kruid / Vaste plant">🌾 Kruid / Vaste plant</option>
-              <option value="Kamerplant">🌺 Kamerplant</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="new-standplaats">Standplaats</label>
-            <select id="new-standplaats">
-              <option value="">-- Kies standplaats --</option>
-              <option value="Volle zon">Volle zon</option>
-              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
-              <option value="Schaduw">Schaduw</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="new-water">Waterbehoefte</label>
-            <select id="new-water">
-              <option value="">-- Kies waterbehoefte --</option>
-              <option value="Veel (grond vochtig houden)">Veel (grond vochtig houden)</option>
-              <option value="Gemiddeld (regelmatig)">Gemiddeld (regelmatig)</option>
-              <option value="Weinig (laat grond opdrogen)">Weinig (laat grond opdrogen)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="new-blad">Bladbehoud</label>
-            <select id="new-blad">
-              <option value="">-- Kies bladbehoud --</option>
-              <option value="Groenblijvend (bladhoudend)">Groenblijvend (bladhoudend)</option>
-              <option value="Bladverliezend">Bladverliezend</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="new-bloei">Bloeitijd & Bloeiwijze</label>
-            <input type="text" id="new-bloei" placeholder="Bijv. April - Mei, Hangende trossen">
-          </div>
-
-          <div class="form-group">
-            <label for="new-vermeerderen">Vermeerderen</label>
-            <input type="text" id="new-vermeerderen" placeholder="Bijv. Zaaien / Stekken">
-          </div>
-
-          <div class="form-group">
-            <label for="new-grootte">Grootte / Hoogte</label>
-            <input type="text" id="new-grootte" placeholder="Bijv. 20 tot 30 meter">
-          </div>
-
-          <div class="form-group">
-            <label for="new-foto">Foto URL (Optioneel)</label>
-            <input type="url" id="new-foto" placeholder="https://images.unsplash.com/...">
-          </div>
-
-          <div class="form-group">
-            <label>Of plak/upload hier een herbariumfoto:</label>
-            <div id="paste-area" class="paste-zone">
-              📋 Klik hier en druk op <strong>Ctrl+V</strong> om een gekopieerde foto te plakken<br>
-              of kies een bestand:
-              <input type="file" id="file-upload" accept="image/*" onchange="verwerkBestandUpload(this)">
-            </div>
-            <input type="hidden" id="new-foto-data">
-            <div id="img-preview-container" class="hidden">
-              <p>Voorbeeld geüploade foto:</p>
-              <img id="img-preview" src="" alt="Voorbeeld" style="max-height: 120px; border-radius: 6px;">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="new-desc">Extra Herkenningspunten / Opmerkingen</label>
-            <textarea id="new-desc" rows="3" placeholder="Bijv. Opvallende rode bladstelen, knoppen, schorskenmerken..."></textarea>
-          </div>
-
-          <button type="submit" class="primary-btn">➕ Plant Toevoegen aan Herbarium</button>
-          <button type="button" class="secondary-btn" onclick="resetFormulier()">❌ Annuleren / Reset</button>
-        </form>
-      </div>
-
-      <div class="card">
-        <h3>Bestaande Planten in Herbarium</h3>
-        <div id="admin-plant-list"></div>
-      </div>
+    <!-- 5. BEHEER -->
+    <section id="beheer" class="pagina">
+      <h2>Database Beheer</h2>
+      <p>Overzicht van huidige plagen in de database:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Naam</th>
+            <th>Type</th>
+            <th>Actie</th>
+          </tr>
+        </thead>
+        <tbody id="beheerTabelBody"></tbody>
+      </table>
     </section>
-
   </main>
 
-  <!-- KNOP: TERUG NAAR BOVEN -->
-  <button id="back-to-top-btn" class="back-to-top-btn" onclick="scrollToTop()" title="Terug naar boven">
-    ⬆️
-  </button>
+  <!-- JAVASCRIPT LOGICA -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. DATABASE
+    // -------------------------------------------------------------
+    const plagenDatabase = [
+      {
+        id: "p1",
+        naam: "Spintmijt",
+        type: "Mijt",
+        herkenning: "Fijne spinnenwebjes onder het blad en gele spikkeling.",
+        bestrijding: "Luchtvochtigheid verhogen, plant afspoelen of roofmijten inzetten.",
+        foto: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: "p2",
+        naam: "Trips",
+        type: "Schadelijk insect",
+        herkenning: "Zilverachtige of grijze vlekken op het blad met zwarte stipjes.",
+        bestrijding: "Aangedane bladeren wegsnijden of biologische aaltjes inzetten.",
+        foto: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: "p3",
+        naam: "Wolluis",
+        type: "Schadelijk insect",
+        herkenning: "Witte, pluizige/wollige bultjes in de bladoksels.",
+        bestrijding: "Aanstippen met alcohol op een wattenstaafje of neemolie gebruiken.",
+        foto: "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=600&q=80"
+      }
+    ];
 
-  <script src="script.js"></script>
+    let huidigeFlashcardIndex = 0;
+    let isFlashcardOmgedraaid = false;
+
+    // -------------------------------------------------------------
+    // 2. NAVIGATIE (VERBERGTPAGINA'S ZONDER TE CRASHEN)
+    // -------------------------------------------------------------
+    function toonPagina(paginaId) {
+      // Verberg alle pagina's
+      const allePaginas = document.querySelectorAll('.pagina');
+      allePaginas.forEach(p => p.classList.remove('actief'));
+
+      // Toon de gekozen pagina
+      const doelPagina = document.getElementById(paginaId);
+      if (doelPagina) {
+        doelPagina.classList.add('actief');
+      }
+
+      // Update knopstijlen
+      const alleKnoppen = document.querySelectorAll('.nav-btn');
+      alleKnoppen.forEach(k => k.classList.remove('actief'));
+      
+      const actieveKnop = document.querySelector(`[data-target="${paginaId}"]`);
+      if (actieveKnop) {
+        actieveKnop.classList.add('actief');
+      }
+
+      // Specifieke acties per tab
+      if (paginaId === 'flashcards') {
+        startFlashcards();
+      } else if (paginaId === 'beheer') {
+        laadBeheerTabel();
+      } else if (paginaId === 'plantendokter') {
+        filterDokter();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 3. HERBARIUM WEERGEVEN
+    // -------------------------------------------------------------
+    function toonHerbarium() {
+      const container = document.getElementById('herbariumGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      plagenDatabase.forEach(item => {
+        container.innerHTML += `
+          <div class="plaag-kaart">
+            <img src="${item.foto}" alt="${item.naam}">
+            <div class="plaag-kaart-inhoud">
+              <span class="badge">${item.type}</span>
+              <h3 style="margin-bottom:5px;">${item.naam}</h3>
+              <p style="font-size:13px; color:#4b5563; margin-bottom:8px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
+              <p style="font-size:13px; color:#15803d;"><strong>Bestrijding:</strong> ${item.bestrijding}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 4. FLASHCARDS LOGICA
+    // -------------------------------------------------------------
+    function startFlashcards() {
+      huidigeFlashcardIndex = 0;
+      toonFlashcard();
+    }
+
+    function toonFlashcard() {
+      const box = document.getElementById('flashcardBox');
+      const teller = document.getElementById('flashcardTeller');
+      const item = plagenDatabase[huidigeFlashcardIndex];
+
+      if (!box || !item) return;
+      isFlashcardOmgedraaid = false;
+
+      box.innerHTML = `
+        <img src="${item.foto}" style="max-height:140px; width:100%; object-fit:cover; border-radius:6px; margin-bottom:10px;">
+        <h3 style="color:#111827;">Wat is deze plaag?</h3>
+        <p style="font-size:12px; color:#6b7280; margin-top:5px;">(Klik om om te draaien)</p>
+      `;
+
+      if (teller) {
+        teller.innerText = `${huidigeFlashcardIndex + 1} / ${plagenDatabase.length}`;
+      }
+    }
+
+    function draaiFlashcardOm() {
+      const box = document.getElementById('flashcardBox');
+      const item = plagenDatabase[huidigeFlashcardIndex];
+      if (!box || !item) return;
+
+      if (!isFlashcardOmgedraaid) {
+        box.innerHTML = `
+          <span class="badge">${item.type}</span>
+          <h2 style="color:#15803d; margin:10px 0;">${item.naam}</h2>
+          <p style="font-size:13px; text-align:left; background:#f9fafb; padding:8px; border-radius:4px; margin-bottom:5px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
+          <p style="font-size:13px; text-align:left; background:#f0fdf4; padding:8px; border-radius:4px;"><strong>Bestrijding:</strong> ${item.bestrijding}</p>
+        `;
+        isFlashcardOmgedraaid = true;
+      } else {
+        toonFlashcard();
+      }
+    }
+
+    function volgendeFlashcard() {
+      huidigeFlashcardIndex = (huidigeFlashcardIndex + 1) % plagenDatabase.length;
+      toonFlashcard();
+    }
+
+    function vorigeFlashcard() {
+      huidigeFlashcardIndex = (huidigeFlashcardIndex - 1 + plagenDatabase.length) % plagenDatabase.length;
+      toonFlashcard();
+    }
+
+    // -------------------------------------------------------------
+    // 5. PLANTENDOKTER FILTER
+    // -------------------------------------------------------------
+    function filterDokter() {
+      const zoekTekst = (document.getElementById('dokterZoek')?.value || '').toLowerCase();
+      const container = document.getElementById('dokterResultaten');
+      if (!container) return;
+
+      container.innerHTML = '';
+      const gefilterd = plagenDatabase.filter(p => 
+        p.naam.toLowerCase().includes(zoekTekst) || 
+        p.herkenning.toLowerCase().includes(zoekTekst) ||
+        p.type.toLowerCase().includes(zoekTekst)
+      );
+
+      gefilterd.forEach(item => {
+        container.innerHTML += `
+          <div class="plaag-kaart">
+            <img src="${item.foto}" alt="${item.naam}">
+            <div class="plaag-kaart-inhoud">
+              <span class="badge">${item.type}</span>
+              <h3>${item.naam}</h3>
+              <p style="font-size:13px; color:#4b5563;">${item.herkenning}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 6. BEHEER TABEL
+    // -------------------------------------------------------------
+    function laadBeheerTabel() {
+      const tbody = document.getElementById('beheerTabelBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      plagenDatabase.forEach((item, index) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.naam}</td>
+            <td>${item.type}</td>
+            <td><button class="btn-danger" onclick="verwijderItem(${index})">Verwijder</button></td>
+          </tr>
+        `;
+      });
+    }
+
+    function verwijderItem(index) {
+      plagenDatabase.splice(index, 1);
+      laadBeheerTabel();
+      toonHerbarium();
+    }
+
+    // STARTUP
+    document.addEventListener("DOMContentLoaded", () => {
+      toonHerbarium();
+    });
+  </script>
 </body>
 </html>
