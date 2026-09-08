@@ -20,6 +20,7 @@ const plagenDatabase = [
     naam: "Trips",
     wetenschappelijkeNaam: "Thripidae",
     type: "Schadelijk insect",
+    omgeving: "Binnen & Kas",
     symptomen: ["vlekken", "geel"],
     onderdeel: "blad",
     herkenning: "Zilverachtige of grijze vlekken op het blad met kleine zwarte stipjes (uitwerpselen). Vervellingshuidjes zichtbaar.",
@@ -34,6 +35,7 @@ const plagenDatabase = [
     naam: "Wolluis",
     wetenschappelijkeNaam: "Pseudococcidae",
     type: "Schadelijk insect",
+    omgeving: "Binnen & Kas",
     symptomen: ["pluis", "plakkerig"],
     onderdeel: "stengel",
     herkenning: "Witte, pluizige/wollige bultjes in de bladoksels, stengels en onder de bladeren.",
@@ -48,6 +50,7 @@ const plagenDatabase = [
     naam: "Bladluis",
     wetenschappelijkeNaam: "Aphidoidea",
     type: "Schadelijk insect",
+    omgeving: "Buiten & Kas",
     symptomen: ["plakkerig", "geel"],
     onderdeel: "blad",
     herkenning: "Groene, zwarte of witte beestjes op jonge scheuten. Veroorzaken krullend blad en plakkerige honingdauw.",
@@ -62,13 +65,14 @@ const plagenDatabase = [
     naam: "Witte Vlieg",
     wetenschappelijkeNaam: "Trialeurodes vaporariorum",
     type: "Schadelijk insect",
+    omgeving: "Kas",
     symptomen: ["plakkerig", "geel"],
     onderdeel: "blad",
     herkenning: "Kleine witte motvlindertjes aan de onderzijde van het blad die massaal opvliegen bij aanraking.",
     oorzaak: "Hoge temperatuur en stilstaande, warme lucht.",
     ipmPreventie: "Gele vangplaten ophangen voor vroegtijdige signalering.",
     biologischeBestrijder: "Sluipwesp (Encarsia formosa)",
-    biologischeWerking: "Legt een eitje in de pupen van de witte vlieg, waardoor deze zwart verkleurt en afsterft.",
+    biologischeWerking: "Legt een eitje in de poppen van de witte vlieg, waardoor deze zwart verkleurt en afsterft.",
     foto: "https://images.unsplash.com/photo-1535242208474-9a279b26287e?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -76,6 +80,7 @@ const plagenDatabase = [
     naam: "Rouwvliegjes (Varenrouwmug)",
     wetenschappelijkeNaam: "Sciaridae",
     type: "Schadelijk insect",
+    omgeving: "Binnen & Kas",
     symptomen: ["geel"],
     onderdeel: "wortel",
     herkenning: "Kleine zwarte vliegjes op de potgrond. Larven vreten aan jonge wortels en stekken.",
@@ -87,17 +92,17 @@ const plagenDatabase = [
   },
   {
     id: "p7",
-    naam: "Taxuskever (Gegroefde lapsnuitkever)",
+    naam: "Taxuskever",
     wetenschappelijkeNaam: "Otiorhynchus sulcatus",
     type: "Schadelijk insect",
+    omgeving: "Buiten",
     symptomen: ["vreterij"],
     onderdeel: "blad",
-    herkenning: "Ronde 'halve maantjes' uitgevreten aan de bladranden (volwassen kever). Larven vreten de wortels aan.",
+    herkenning: "Ronde 'halve maantjes' uitgevreten aan de bladranden. Larven vreten de wortelhals aan.",
     oorzaak: "Aanwezigheid van waardplanten (Taxus, Rhododendron, Heuchera).",
-    bestrijding: "Avond controle en handmatig vangen van kevers.",
     ipmPreventie: "Schoon uitgangsmateriaal gebruiken.",
     biologischeBestrijder: "Aaltjes / Nematoden (Heterorhabditis bacteriophora)",
-    biologischeWerking: "Aaltjes worden in het voor- en najaar via gietwater over de bodem verspreid om larven op te sporen.",
+    biologischeWerking: "Aaltjes worden via gietwater over de bodem verspreid om de keverlarven op te sporen.",
     foto: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -105,45 +110,70 @@ const plagenDatabase = [
     naam: "Dop- / Schildluis",
     wetenschappelijkeNaam: "Coccidae",
     type: "Schadelijk insect",
+    omgeving: "Binnen & Kas",
     symptomen: ["plakkerig", "vlekken"],
     onderdeel: "stengel",
     herkenning: "Harde bruine schildjes op takken en bladnerven met veel plakkerige honingdauw.",
     oorzaak: "Warme, beschutte omstandigheden en droge lucht.",
     ipmPreventie: "Vroegtijdig handmatig verwijderen en plantconditie op peil houden.",
-    biologischeBestrijder: "Sluipwesp (Metaphycus helvolus) of Lieveheersbeestje (Chilocorus nigritus)",
-    biologischeWerking: "Eten de jonge beweeglijke stadia ('crawlers') of parasiteren de schildluis onder het schild.",
+    biologischeBestrijder: "Sluipwesp (Metaphycus helvolus) of Lieveheersbeestje",
+    biologischeWerking: "Eten de jonge beweeglijke stadia ('crawlers') of parasiteren de schildluis.",
     foto: "https://images.unsplash.com/photo-1615228103105-0219c6368305?auto=format&fit=crop&w=600&q=80"
   }
 ];
 
-// FUNCTIE OM KAARTEN TE GENEREREN MET GEFOCUSTE BIOLOGISCHE INFO
-function toonPlagen(lijst) {
-  const container = document.getElementById("plagenGrid");
+// VARIABELE OM HUIDIGE FILTER-TOESTAND BIJ TE HOUDEN
+let actiefFilter = "alles";
+let zoekTerm = "";
+
+// KAARTEN RENDERING
+function toonPlagen() {
+  const container = document.getElementById("plagenGrid") || document.querySelector(".grid-container") || document.getElementById("resultaten");
   if (!container) return;
-  
+
   container.innerHTML = "";
 
-  lijst.forEach(item => {
+  // Filteren van de database
+  const gefilterdeLijst = plagenDatabase.filter(item => {
+    const komtOvereenMetZoek = item.naam.toLowerCase().includes(zoekTerm) || 
+                              item.wetenschappelijkeNaam.toLowerCase().includes(zoekTerm) ||
+                              item.herkenning.toLowerCase().includes(zoekTerm);
+
+    const komtOvereenMetFilter = (actiefFilter === "alles") || 
+                                 (item.type.toLowerCase().includes(actiefFilter.toLowerCase())) ||
+                                 (item.omgeving.toLowerCase().includes(actiefFilter.toLowerCase())) ||
+                                 (item.onderdeel.toLowerCase().includes(actiefFilter.toLowerCase()));
+
+    return komtOvereenMetZoek && komtOvereenMetFilter;
+  });
+
+  if (gefilterdeLijst.length === 0) {
+    container.innerHTML = `<p class="geen-resultaat">Geen plagen of ziekten gevonden voor deze selectie.</p>`;
+    return;
+  }
+
+  // Kaarten opbouwen
+  gefilterdeLijst.forEach(item => {
     const kaart = document.createElement("div");
     kaart.className = "plaag-kaart";
     kaart.innerHTML = `
-      <img src="${item.foto}" alt="${item.naam}">
-      <div class="plaag-inhoud">
-        <span class="badge ${item.type.toLowerCase().includes('insect') ? 'badge-insect' : 'badge-overig'}">${item.type}</span>
-        <h3>${item.naam}</h3>
-        <p class="wetenschappelijk"><em>${item.wetenschappelijkeNaam}</em></p>
+      <img src="${item.foto}" alt="${item.naam}" style="width:100%; height:180px; object-fit:cover; border-radius:8px 8px 0 0;">
+      <div style="padding: 15px;">
+        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:bold;">${item.type}</span>
+        <h3 style="margin:8px 0 2px 0;">${item.naam}</h3>
+        <p style="font-style:italic; color:#666; font-size:13px; margin-bottom:10px;">${item.wetenschappelijkeNaam}</p>
         
-        <p><strong>Symptomen:</strong> ${item.herkenning}</p>
+        <p style="font-size:14px; margin-bottom:12px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
         
-        <div class="ipm-box">
-          <h4>🌱 Biologische Bestrijder:</h4>
-          <p class="bio-naam"><strong>${item.biologischeBestrijder}</strong></p>
-          <p class="bio-werking">${item.biologischeWerking}</p>
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+          <h4 style="margin:0 0 4px 0; color:#166534; font-size:14px;">🌱 Biologische Bestrijder:</h4>
+          <p style="margin:0; font-weight:bold; font-size:13px; color:#15803d;">${item.biologischeBestrijder}</p>
+          <p style="margin:4px 0 0 0; font-size:12px; color:#374151;">${item.biologischeWerking}</p>
         </div>
 
-        <div class="preventie-box">
-          <h4>🛡️ IPM Preventie:</h4>
-          <p>${item.ipmPreventie}</p>
+        <div style="background:#fffbe0; border:1px solid #fef08a; padding:10px; border-radius:6px;">
+          <h4 style="margin:0 0 4px 0; color:#854d0e; font-size:14px;">🛡️ IPM Preventie:</h4>
+          <p style="margin:0; font-size:12px; color:#374151;">${item.ipmPreventie}</p>
         </div>
       </div>
     `;
@@ -151,7 +181,31 @@ function toonPlagen(lijst) {
   });
 }
 
-// INITIALISATIE
+// EVENEVENT LISTENERS INSTELLEN (TABBLADEN, FILTERS EN ZOEKBALK)
 document.addEventListener("DOMContentLoaded", () => {
-  toonPlagen(plagenDatabase);
+  // 1. Eerste keer kaarten laden
+  toonPlagen();
+
+  // 2. Zoekbalk werkend maken
+  const zoekInput = document.getElementById("zoekInput") || document.querySelector("input[type='text']");
+  if (zoekInput) {
+    zoekInput.addEventListener("input", (e) => {
+      zoekTerm = e.target.value.toLowerCase();
+      toonPlagen();
+    });
+  }
+
+  // 3. Tabbladen / Filterknoppen werkend maken
+  const filterKnoppen = document.querySelectorAll(".tab-knop, .filter-btn, button[data-filter]");
+  filterKnoppen.forEach(knop => {
+    knop.addEventListener("click", (e) => {
+      // Actieve stijl omzetten
+      filterKnoppen.forEach(k => k.classList.remove("active", "actief"));
+      e.target.classList.add("active", "actief");
+
+      // Filterwaarde ophalen
+      actiefFilter = e.target.getAttribute("data-filter") || e.target.innerText.trim();
+      toonPlagen();
+    });
+  });
 });
