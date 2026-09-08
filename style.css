@@ -162,6 +162,31 @@ nav {
   margin-bottom: 4px;
 }
 
+/* PLANTENDOKTER STYLING */
+.doctor-card {
+  border-top: 4px solid #e65100;
+}
+
+.doctor-badge {
+  display: inline-block;
+  background: #ffe0b2;
+  color: #e65100;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.treatment-box {
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+}
+
 /* FLASHCARDS */
 .flashcard-wrapper {
   perspective: 1000px;
