@@ -20,7 +20,7 @@
 
   <main class="container">
 
-    <!-- TAB 1: BIBLIOTHEEK (STANDAARD ACTIEF) -->
+    <!-- TAB 1: BIBLIOTHEEK -->
     <section id="library-tab" class="tab-content active">
       <h2>📚 Plantenbibliotheek</h2>
       
@@ -31,7 +31,17 @@
       <!-- SLIMME FILTERS -->
       <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; background: #e8f5e9;">
         <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Slimme Filters</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">🎓 Leerjaar:</label>
+            <select id="filter-jaar" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Leerjaren --</option>
+              <option value="3">3de Jaar</option>
+              <option value="4">4de Jaar</option>
+              <option value="5">5de Jaar</option>
+              <option value="6">6de Jaar</option>
+            </select>
+          </div>
           <div>
             <label style="font-size: 0.85rem; font-weight: bold;">Standplaats:</label>
             <select id="filter-standplaats" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
@@ -71,16 +81,26 @@
     <!-- TAB 2: FLASHCARDS -->
     <section id="flashcard-tab" class="tab-content">
       <h2>🎴 Flashcards Stampen</h2>
+      
+      <div class="card" style="margin-bottom: 1rem; padding: 0.8rem; background: #f0f4c3;">
+        <label for="fc-jaar-select" style="font-weight: bold;">🎓 Kies jouw leerjaar:</label>
+        <select id="fc-jaar-select" onchange="filterFlashcardsOpJaar()" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc; margin-left: 10px;">
+          <option value="alle">Alle Leerjaren</option>
+          <option value="3">3de Jaar</option>
+          <option value="4">4de Jaar</option>
+          <option value="5">5de Jaar</option>
+          <option value="6">6de Jaar</option>
+        </select>
+      </div>
+
       <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & kenmerken) te bekijken.</p>
 
       <div class="flashcard-wrapper">
         <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
-          <!-- VOORKANT -->
           <div class="flashcard-front">
             <img id="fc-img" src="" alt="Plant">
             <p class="fc-hint">💡 Klik op de kaart om om te draaien</p>
           </div>
-          <!-- ACHTERKANT -->
           <div class="flashcard-back">
             <h3 id="fc-nl"></h3>
             <p><em id="fc-lat"></em></p>
@@ -101,7 +121,18 @@
     <section id="quiz-tab" class="tab-content">
       <div id="quiz-settings-card" class="card">
         <h2>🎯 Quiz Instellingen</h2>
-        <p style="margin-bottom: 1.5rem; color: #555;">Kies hoe je wilt oefenen voordat je begint:</p>
+        <p style="margin-bottom: 1.5rem; color: #555;">Kies jouw leerjaar en spelvorm voordat je begint:</p>
+
+        <div class="form-group">
+          <label for="quiz-jaar-select">🎓 Leerjaar:</label>
+          <select id="quiz-jaar-select">
+            <option value="alle">Alle Leerjaren (Gecombineerd)</option>
+            <option value="3">3de Jaar</option>
+            <option value="4">4de Jaar</option>
+            <option value="5">5de Jaar</option>
+            <option value="6">6de Jaar</option>
+          </select>
+        </div>
 
         <div class="form-group">
           <label for="quiz-mode-select">🎮 Spelvorm:</label>
@@ -164,13 +195,13 @@
         
         <div class="student-form">
           <label for="student-name">Jouw naam/klas:</label>
-          <input type="text" id="student-name" placeholder="Bijv. Jan - Klas 2B">
+          <input type="text" id="student-name" placeholder="Bijv. Jan - Klas 3B">
           <button class="secondary-btn" onclick="verstuurNaarGoogleForms()">Score versturen naar docent 📤</button>
           <p id="submit-status" class="status-msg"></p>
         </div>
 
         <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
-        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm Kiezen</button>
+        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm / Leerjaar Kiezen</button>
       </div>
     </section>
 
@@ -190,6 +221,17 @@
           <div class="form-group">
             <label for="new-lat">Latijnse Naam *</label>
             <input type="text" id="new-lat" required placeholder="Bijv. Monstera deliciosa">
+          </div>
+
+          <!-- CHECKBOXES LEERJAREN -->
+          <div class="form-group" style="background: #e8f5e9; padding: 10px; border-radius: 6px;">
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;">🎓 Bestemd voor Leerjaar (meerdere mogelijk):</label>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <label><input type="checkbox" id="jaar-3" value="3" checked> 3de Jaar</label>
+              <label><input type="checkbox" id="jaar-4" value="4"> 4de Jaar</label>
+              <label><input type="checkbox" id="jaar-5" value="5"> 5de Jaar</label>
+              <label><input type="checkbox" id="jaar-6" value="6"> 6de Jaar</label>
+            </div>
           </div>
 
           <div class="form-group">
