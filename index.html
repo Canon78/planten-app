@@ -176,6 +176,24 @@
       font-weight: bold;
     }
 
+    /* QUIZ OPTIES */
+    .quiz-optie {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .quiz-optie:hover {
+      background: #f3f4f6;
+    }
+
     /* TABEL BEHEER */
     table {
       width: 100%;
@@ -202,6 +220,17 @@
       border-radius: 4px;
       cursor: pointer;
     }
+
+    /* BEHEER VERGRENDELING */
+    .pincode-box {
+      max-width: 350px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      background: #f9fafb;
+    }
   </style>
 </head>
 <body>
@@ -222,7 +251,7 @@
     <!-- 1. HERBARIUM -->
     <section id="herbarium" class="pagina actief">
       <h2>Herbarium Overzicht</h2>
-      <p>Hier vind je een overzicht van veelvoorkomende plagen en ziektes op planten.</p>
+      <p>Hier vind je een overzicht van veelvoorkomende planten, plagen en ziektes.</p>
       <div id="herbariumGrid" class="grid-container"></div>
     </section>
 
@@ -241,10 +270,8 @@
     <!-- 3. QUIZ -->
     <section id="quiz" class="pagina">
       <h2>Kennis Quiz</h2>
-      <p>Test je kennis over plagen en bestrijding!</p>
-      <div id="quizContainer" style="margin-top:20px;">
-        <p><em>Quizmodule laadt hier...</em></p>
-      </div>
+      <p style="margin-bottom: 15px;">Test je kennis over plagen en bestrijding!</p>
+      <div id="quizContainer"></div>
     </section>
 
     <!-- 4. PLANTENDOKTER -->
@@ -252,7 +279,7 @@
       <h2>Plantendokter</h2>
       <p>Zoek hier op symptomen of plantonderdeel om de juiste diagnose te stellen.</p>
       <div style="margin:20px 0;">
-        <input type="text" id="dokterZoek" placeholder="Typ bijv. spinnenweb, geel, blad..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" onkeyup="filterDokter()">
+        <input type="text" id="dokterZoek" placeholder="Typ bijv. spinnenweb, geel, blad, Monstera..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" onkeyup="filterDokter()">
       </div>
       <div id="dokterResultaten" class="grid-container"></div>
     </section>
@@ -261,35 +288,59 @@
     <section id="beheer" class="pagina">
       <h2>Database Beheer</h2>
 
-      <!-- INVOERFORMULIER -->
-      <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 25px;">
-        <h3 style="margin-bottom: 10px; font-size: 16px; color: #15803d;">➕ Nieuwe Plaag / Ziekte Toevoegen</h3>
-        <form id="voegPlaagToeForm" onsubmit="voegPlaagToe(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <input type="text" id="nieuwNaam" placeholder="Naam (bijv. Wolluis op Ficus)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-          <input type="text" id="nieuwType" placeholder="Type (bijv. Schadelijk insect)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-          <input type="text" id="nieuwFoto" placeholder="Afbeelding URL (https://...)" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-          <textarea id="nieuwHerkenning" placeholder="Herkenning / Symptomen" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-          <textarea id="nieuwBestrijding" placeholder="Bestrijding" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-          <button type="submit" class="btn-action" style="grid-column: span 2; background: #15803d; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Opslaan in Database</button>
-        </form>
+      <!-- TOEGANGSCODE SCHERM -->
+      <div id="beheerSlot" class="pincode-box">
+        <h3>🔒 Toegang Beveiligd</h3>
+        <p style="font-size:13px; color:#666; margin: 10px 0;">Voer de docent-toegangscode in om de database te bewerken.</p>
+        <input type="password" id="pincodeInvoer" placeholder="Toegangscode" style="padding: 8px; width: 80%; margin-bottom: 10px; text-align: center;">
+        <button class="btn-action" onclick="controleerPincode()">Ontgrendelen</button>
       </div>
 
-      <p><strong>Overzicht van huidige plagen in de database:</strong></p>
-      <table>
-        <thead>
-          <tr>
-            <th>Naam</th>
-            <th>Type</th>
-            <th>Actie</th>
-          </tr>
-        </thead>
-        <tbody id="beheerTabelBody"></tbody>
-      </table>
+      <!-- INHOUD VAN BEHEER (VERBORGEN TOT TOEGANGSCODE) -->
+      <div id="beheerInhoud" style="display: none;">
+        
+        <!-- INVOERFORMULIER -->
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 25px;">
+          <h3 style="margin-bottom: 10px; font-size: 16px; color: #15803d;">➕ Nieuw Item Toevoegen</h3>
+          <form id="voegPlaagToeForm" onsubmit="voegPlaagToe(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            
+            <select id="nieuwCategorie" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; grid-column: span 2;">
+              <option value="Plaag / Ziekte">Categorie: Plaag / Ziekte</option>
+              <option value="Kamerplant">Categorie: Kamerplant</option>
+              <option value="Tuinplant">Categorie: Tuinplant</option>
+            </select>
+
+            <input type="text" id="nieuwNaam" placeholder="Naam (bijv. Monstera Deliciosa of Wolluis)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="text" id="nieuwType" placeholder="Type (bijv. Schadelijk insect of Groene plant)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <input type="text" id="nieuwFoto" placeholder="Afbeelding URL (https://...)" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <textarea id="nieuwHerkenning" placeholder="Herkenning / Omschrijving" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+            <textarea id="nieuwBestrijding" placeholder="Bestrijding / Verzorgingstip" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+            <button type="submit" class="btn-action" style="grid-column: span 2; background: #15803d; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Opslaan in Database</button>
+          </form>
+        </div>
+
+        <p><strong>Overzicht van alle items in de database:</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Type</th>
+              <th>Actie</th>
+            </tr>
+          </thead>
+          <tbody id="beheerTabelBody"></tbody>
+        </table>
+        
+        <button class="btn-action" onclick="vergrendelBeheer()" style="margin-top: 20px; background: #6b7280;">🔒 Sluit Beheer</button>
+      </div>
+
     </section>
   </main>
 
   <script>
-    // BOTANISCHE DATABASE WITH JUISTE PLANTENFOTO'S
+    const BEHEER_CODE = "docent123";
+
+    // DATABASE WITH PLANTEN & PLAGEN
     const plagenDatabase = [
       {
         id: "p1",
@@ -317,8 +368,59 @@
       }
     ];
 
+    // QUIZ DATABASE
+    const quizVragen = [
+      {
+        vraag: "Waaraan herken je een spintmijtinfectie als eerste?",
+        opties: [
+          "Zilverachtige vlekken met zwarte stipjes",
+          "Fijne spinnenwebjes en gele spikkeling op het blad",
+          "Witte pluizige bultjes op de stengel"
+        ],
+        correct: 1
+      },
+      {
+        vraag: "Wat is de beste aanpak tegen wolluis?",
+        opties: [
+          "Aanstippen met alcohol of neemolie gebruiken",
+          "De plant heel veel water geven",
+          "De plant direct in de volle zon zetten"
+        ],
+        correct: 0
+      },
+      {
+        vraag: "Hoe herken je de schade van trips op het blad?",
+        opties: [
+          "Grote gaten in het midden van het blad",
+          "Zilverachtige of grijze vlekken met kleine zwarte stipjes",
+          "Witte vlekken op de potgrond"
+        ],
+        correct: 1
+      }
+    ];
+
+    let huidigeQuizVraag = 0;
+    let quizScore = 0;
     let huidigeFlashcardIndex = 0;
     let isFlashcardOmgedraaid = false;
+
+    // TOEGANGSCODE LOGICA
+    function controleerPincode() {
+      const code = document.getElementById('pincodeInvoer').value;
+      if (code === BEHEER_CODE) {
+        document.getElementById('beheerSlot').style.display = 'none';
+        document.getElementById('beheerInhoud').style.display = 'block';
+        laadBeheerTabel();
+      } else {
+        alert("Onjuiste code! Probeer opnieuw.");
+      }
+    }
+
+    function vergrendelBeheer() {
+      document.getElementById('beheerSlot').style.display = 'block';
+      document.getElementById('beheerInhoud').style.display = 'none';
+      document.getElementById('pincodeInvoer').value = '';
+    }
 
     // NAVIGATIE
     function toonPagina(paginaId) {
@@ -339,7 +441,7 @@
       }
 
       if (paginaId === 'flashcards') startFlashcards();
-      if (paginaId === 'beheer') laadBeheerTabel();
+      if (paginaId === 'quiz') laadQuiz();
       if (paginaId === 'plantendokter') filterDokter();
       if (paginaId === 'herbarium') toonHerbarium();
     }
@@ -357,8 +459,8 @@
             <div class="plaag-kaart-inhoud">
               <span class="badge">${item.type}</span>
               <h3 style="margin-bottom:5px;">${item.naam}</h3>
-              <p style="font-size:13px; color:#4b5563; margin-bottom:8px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
-              <p style="font-size:13px; color:#15803d;"><strong>Bestrijding:</strong> ${item.bestrijding}</p>
+              <p style="font-size:13px; color:#4b5563; margin-bottom:8px;"><strong>Herkenning / Omschrijving:</strong> ${item.herkenning}</p>
+              <p style="font-size:13px; color:#15803d;"><strong>Bestrijding / Zorg:</strong> ${item.bestrijding}</p>
             </div>
           </div>
         `;
@@ -381,7 +483,7 @@
 
       box.innerHTML = `
         <img src="${item.foto}" style="max-height:140px; width:100%; object-fit:cover; border-radius:6px; margin-bottom:10px;">
-        <h3 style="color:#111827;">Wat is deze plaag?</h3>
+        <h3 style="color:#111827;">Wat is dit?</h3>
         <p style="font-size:12px; color:#6b7280; margin-top:5px;">(Klik om om te draaien)</p>
       `;
 
@@ -398,7 +500,7 @@
           <span class="badge">${item.type}</span>
           <h2 style="color:#15803d; margin:10px 0;">${item.naam}</h2>
           <p style="font-size:13px; text-align:left; background:#f9fafb; padding:8px; border-radius:4px; margin-bottom:5px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
-          <p style="font-size:13px; text-align:left; background:#f0fdf4; padding:8px; border-radius:4px;"><strong>Bestrijding:</strong> ${item.bestrijding}</p>
+          <p style="font-size:13px; text-align:left; background:#f0fdf4; padding:8px; border-radius:4px;"><strong>Bestrijding/Zorg:</strong> ${item.bestrijding}</p>
         `;
         isFlashcardOmgedraaid = true;
       } else {
@@ -414,6 +516,50 @@
     function vorigeFlashcard() {
       huidigeFlashcardIndex = (huidigeFlashcardIndex - 1 + plagenDatabase.length) % plagenDatabase.length;
       toonFlashcard();
+    }
+
+    // QUIZ LOGICA
+    function laadQuiz() {
+      huidigeQuizVraag = 0;
+      quizScore = 0;
+      toonQuizVraag();
+    }
+
+    function toonQuizVraag() {
+      const container = document.getElementById('quizContainer');
+      if (!container) return;
+
+      if (huidigeQuizVraag >= quizVragen.length) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:20px;">
+            <h3 style="color:#15803d; font-size:22px;">🎉 Quiz Afgerond!</h3>
+            <p style="font-size:16px; margin:10px 0;">Je score is <strong>${quizScore} / ${quizVragen.length}</strong></p>
+            <button class="btn-action" onclick="laadQuiz()">Opnieuw Proberen</button>
+          </div>
+        `;
+        return;
+      }
+
+      const q = quizVragen[huidigeQuizVraag];
+      let html = `<h3 style="margin-bottom:15px;">Vraag ${huidigeQuizVraag + 1}: ${q.vraag}</h3>`;
+      
+      q.opties.forEach((optie, i) => {
+        html += `<button class="quiz-optie" onclick="controleerQuizAntwoord(${i})">${optie}</button>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function controleerQuizAntwoord(gekozenIndex) {
+      const q = quizVragen[huidigeQuizVraag];
+      if (gekozenIndex === q.correct) {
+        quizScore++;
+        alert("Correct! 🎉");
+      } else {
+        alert("Helaas, dat is niet juist.");
+      }
+      huidigeQuizVraag++;
+      toonQuizVraag();
     }
 
     // PLANTENDOKTER
@@ -463,6 +609,7 @@
     function voegPlaagToe(event) {
       event.preventDefault();
 
+      const categorie = document.getElementById('nieuwCategorie').value;
       const naam = document.getElementById('nieuwNaam').value;
       const type = document.getElementById('nieuwType').value;
       const foto = document.getElementById('nieuwFoto').value || "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80";
@@ -471,7 +618,7 @@
 
       plagenDatabase.push({
         id: "p" + (plagenDatabase.length + 1),
-        naam: naam,
+        naam: `${naam} (${categorie})`,
         type: type,
         foto: foto,
         herkenning: herkenning,
@@ -481,7 +628,7 @@
       document.getElementById('voegPlaagToeForm').reset();
       laadBeheerTabel();
       toonHerbarium();
-      alert("Nieuwe plaag succesvol toegevoegd aan het Beheer en Herbarium!");
+      alert("Succesvol toegevoegd aan de database en het Herbarium!");
     }
 
     function verwijderItem(index) {
