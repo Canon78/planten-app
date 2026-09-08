@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlantenAcademie - Zoek & Kennis Oefenen</title>
+  <title>PlantenAcademie - Herbarium & Oefenapp</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header>
-    <h1>🌿 PlantenAcademie</h1>
+    <h1>🌿 PlantenAcademie - Herbarium</h1>
     <nav>
-      <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
+      <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Herbarium</button>
       <button class="tab-btn" onclick="switchTab('flashcard-tab', this)">🎴 Flashcards</button>
       <button class="tab-btn" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
       <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
@@ -20,12 +20,12 @@
 
   <main class="container">
 
-    <!-- TAB 1: BIBLIOTHEEK -->
+    <!-- TAB 1: BIBLIOTHEEK / HERBARIUM -->
     <section id="library-tab" class="tab-content active">
-      <h2>📚 Plantenbibliotheek</h2>
+      <h2>📚 Digital Herbarium</h2>
       
       <div class="search-container">
-        <input type="text" id="search-input" placeholder="Zoek op Nederlandse of Latijnse naam..." oninput="zoekPlanten()">
+        <input type="text" id="search-input" placeholder="Zoek op Nederlandse/Latijnse naam, familie, bladvorm, vrucht..." oninput="zoekPlanten()">
       </div>
 
       <!-- SLIMME FILTERS -->
@@ -93,7 +93,7 @@
         </select>
       </div>
 
-      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & kenmerken) te bekijken.</p>
+      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & herbariumkenmerken) te bekijken.</p>
 
       <div class="flashcard-wrapper">
         <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
@@ -139,7 +139,7 @@
           <select id="quiz-mode-select">
             <option value="foto-naar-naam">🖼️ Foto ➔ Naam raden</option>
             <option value="naam-naar-foto">🏷️ Naam ➔ Foto kiezen</option>
-            <option value="eigenschap-naar-naam">☀️ Standplaats / Eigenschap ➔ Naam raden</option>
+            <option value="eigenschap-naar-naam">🔍 Herbariumkenmerken ➔ Naam raden</option>
           </select>
         </div>
 
@@ -207,7 +207,7 @@
 
     <!-- TAB 4: BEHEER -->
     <section id="admin-tab" class="tab-content">
-      <h2>⚙️ Planten Beheren</h2>
+      <h2>⚙️ Herbarium Beheren</h2>
       
       <div class="card">
         <h3>Plant Toevoegen of Bewerken</h3>
@@ -215,12 +215,17 @@
           
           <div class="form-group">
             <label for="new-nl">Nederlandse Naam *</label>
-            <input type="text" id="new-nl" required placeholder="Bijv. Monstera (Gatenplant)">
+            <input type="text" id="new-nl" required placeholder="Bijv. Gewone esdoorn">
           </div>
 
           <div class="form-group">
             <label for="new-lat">Latijnse Naam *</label>
-            <input type="text" id="new-lat" required placeholder="Bijv. Monstera deliciosa">
+            <input type="text" id="new-lat" required placeholder="Bijv. Acer pseudoplatanus">
+          </div>
+
+          <div class="form-group">
+            <label for="new-familie">Plantenfamilie (Latijn / NL)</label>
+            <input type="text" id="new-familie" placeholder="Bijv. Sapindaceae (Zeepboomfamilie)">
           </div>
 
           <!-- CHECKBOXES LEERJAREN -->
@@ -234,13 +239,33 @@
             </div>
           </div>
 
+          <!-- SPECIFIEKE HERBARIUM KENMERKEN -->
+          <div style="background: #f1f8e9; padding: 10px; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #c8e6c9;">
+            <h4 style="margin-top: 0; color: #2e7d32; font-size: 0.95rem;">🌿 Herbarium & Determinatiekenmerken</h4>
+            
+            <div class="form-group">
+              <label for="new-bladvorm">Bladvorm</label>
+              <input type="text" id="new-bladvorm" placeholder="Bijv. Handlobbig, Eivormig, Geveerd, Naaldvormig">
+            </div>
+
+            <div class="form-group">
+              <label for="new-bladrand">Bladrand</label>
+              <input type="text" id="new-bladrand" placeholder="Bijv. Gesegmenteerd, Getand, Gekarteld, Gaafrandig">
+            </div>
+
+            <div class="form-group">
+              <label for="new-vrucht">Vrucht / Zaad</label>
+              <input type="text" id="new-vrucht" placeholder="Bijv. Gefleugelde splitvrucht (helikoptertje), Bessen, Eikel">
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="new-categorie">Type / Categorie *</label>
             <select id="new-categorie">
-              <option value="Kamerplant">🌺 Kamerplant</option>
-              <option value="Boom">🌲 Boom</option>
               <option value="Struik / Plant">🌿 Struik / Plant</option>
+              <option value="Boom">🌲 Boom</option>
               <option value="Kruid / Vaste plant">🌾 Kruid / Vaste plant</option>
+              <option value="Kamerplant">🌺 Kamerplant</option>
             </select>
           </div>
 
@@ -274,18 +299,18 @@
           </div>
 
           <div class="form-group">
-            <label for="new-bloei">Bloeitijd</label>
-            <input type="text" id="new-bloei" placeholder="Bijv. Mei - Juli">
+            <label for="new-bloei">Bloeitijd & Bloeiwijze</label>
+            <input type="text" id="new-bloei" placeholder="Bijv. April - Mei, Hangende trossen">
           </div>
 
           <div class="form-group">
             <label for="new-vermeerderen">Vermeerderen</label>
-            <input type="text" id="new-vermeerderen" placeholder="Bijv. Stengelstek / Zaaien">
+            <input type="text" id="new-vermeerderen" placeholder="Bijv. Zaaien / Stekken">
           </div>
 
           <div class="form-group">
-            <label for="new-grootte">Grootte</label>
-            <input type="text" id="new-grootte" placeholder="Bijv. 1,5 tot 3 meter">
+            <label for="new-grootte">Grootte / Hoogte</label>
+            <input type="text" id="new-grootte" placeholder="Bijv. 20 tot 30 meter">
           </div>
 
           <div class="form-group">
@@ -294,7 +319,7 @@
           </div>
 
           <div class="form-group">
-            <label>Of plak/upload hier een afbeelding:</label>
+            <label>Of plak/upload hier een herbariumfoto:</label>
             <div id="paste-area" class="paste-zone">
               📋 Klik hier en druk op <strong>Ctrl+V</strong> om een gekopieerde foto te plakken<br>
               of kies een bestand:
@@ -308,17 +333,17 @@
           </div>
 
           <div class="form-group">
-            <label for="new-desc">Extra beschrijving / Tips</label>
-            <textarea id="new-desc" rows="3" placeholder="Bijv. Oorsprong, verzorgingstips, herkenningspunten..."></textarea>
+            <label for="new-desc">Extra Herkenningspunten / Opmerkingen</label>
+            <textarea id="new-desc" rows="3" placeholder="Bijv. Opvallende rode bladstelen, knoppen, schorskenmerken..."></textarea>
           </div>
 
-          <button type="submit" class="primary-btn">➕ Plant Toevoegen</button>
+          <button type="submit" class="primary-btn">➕ Plant Toevoegen aan Herbarium</button>
           <button type="button" class="secondary-btn" onclick="resetFormulier()">❌ Annuleren / Reset</button>
         </form>
       </div>
 
       <div class="card">
-        <h3>Bestaande Planten</h3>
+        <h3>Bestaande Planten in Herbarium</h3>
         <div id="admin-plant-list"></div>
       </div>
     </section>
