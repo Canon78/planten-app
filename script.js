@@ -3,6 +3,7 @@ const standaardPlanten = [
     id: 1,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
+    leerjaren: ["3", "4", "5", "6"],
     categorie: "Kamerplant",
     standplaats: "Halfschaduw / Lichte plek",
     waterbehoefte: "Gemiddeld (regelmatig)",
@@ -17,6 +18,7 @@ const standaardPlanten = [
     id: 2,
     nlNaam: "Pannenkoekenplant",
     latNaam: "Pilea peperomioides",
+    leerjaren: ["3", "4"],
     categorie: "Kamerplant",
     standplaats: "Halfschaduw / Lichte plek",
     waterbehoefte: "Gemiddeld (regelmatig)",
@@ -68,16 +70,13 @@ function opslaanInStorage() {
 
 // TAB NAVIGATION MET WACHTWOORDBEVEILIGING FOR BEHEER
 function switchTab(tabId, btnElement) {
-  // Controleer of de gebruiker naar het Beheer-tabblad wil
   if (tabId === 'admin-tab') {
     const ingevoerdWachtwoord = prompt("🔒 Voer het beheerderswachtwoord in:");
-    
-    // VERANDER 'docent123' HIERONDER NAAR JOUW EIGEN WACHTWOORD
     if (ingevoerdWachtwoord !== 'docent123') {
       if (ingevoerdWachtwoord !== null) {
         alert("❌ Onjuist wachtwoord! Toegang geweigerd.");
       }
-      return; // Stop de functie, gebruiker blijft op het huidige tabblad
+      return;
     }
   }
 
@@ -95,7 +94,16 @@ function switchTab(tabId, btnElement) {
 
 // FLASHCARDS LOGICA
 function initFlashcards() {
-  fcLijst = [...plantenDatabase];
+  filterFlashcardsOpJaar();
+}
+
+function filterFlashcardsOpJaar() {
+  const gekozenJaar = document.getElementById("fc-jaar-select").value;
+  if (gekozenJaar === "alle") {
+    fcLijst = [...plantenDatabase];
+  } else {
+    fcLijst = plantenDatabase.filter(p => p.leerjaren && p.leerjaren.includes(gekozenJaar));
+  }
   fcIndex = 0;
   toonFlashcard();
 }
@@ -104,7 +112,13 @@ function toonFlashcard() {
   const cardEl = document.getElementById("flashcard");
   if (cardEl) cardEl.classList.remove("flipped");
 
-  if (fcLijst.length === 0) return;
+  if (fcLijst.length === 0) {
+    document.getElementById("fc-nl").innerText = "Geen planten gevonden";
+    document.getElementById("fc-lat").innerText = "Kies een ander leerjaar";
+    document.getElementById("fc-details").innerText = "";
+    document.getElementById("fc-counter").innerText = "0 / 0";
+    return;
+  }
 
   const plant = fcLijst[fcIndex];
 
@@ -113,6 +127,7 @@ function toonFlashcard() {
   document.getElementById("fc-lat").innerText = plant.latNaam;
 
   let hint = [];
+  if (plant.leerjaren && plant.leerjaren.length > 0) hint.push("🎓 <strong>Leerjaar:</strong> " + plant.leerjaren.map(j => j + "e").join(", "));
   if (plant.categorie) hint.push("🏷️ <strong>Type:</strong> " + plant.categorie);
   if (plant.standplaats) hint.push("☀️ <strong>Standplaats:</strong> " + plant.standplaats);
   if (plant.waterbehoefte) hint.push("💧 <strong>Water:</strong> " + plant.waterbehoefte);
@@ -124,7 +139,9 @@ function toonFlashcard() {
 }
 
 function draaiFlashcardOm() {
-  document.getElementById("flashcard").classList.toggle("flipped");
+  if (fcLijst.length > 0) {
+    document.getElementById("flashcard").classList.toggle("flipped");
+  }
 }
 
 function volgendeFlashcard() {
@@ -151,6 +168,19 @@ function schudFlashcards() {
 function startQuizMetInstellingen() {
   gekozenSpelvorm = document.getElementById("quiz-mode-select").value;
   ingesteldeTimerSec = parseInt(document.getElementById("timer-select").value, 10);
+  const gekozenJaar = document.getElementById("quiz-jaar-select").value;
+
+  let gefilterdePlanten = [...plantenDatabase];
+  if (gekozenJaar !== "alle") {
+    gefilterdePlanten = plantenDatabase.filter(p => p.leerjaren && p.leerjaren.includes(gekozenJaar));
+  }
+
+  if (gefilterdePlanten.length === 0) {
+    alert("⚠️ Er zijn nog geen planten ingevoerd voor dit leerjaar.");
+    return;
+  }
+
+  quizVragen = gefilterdePlanten.sort(() => Math.random() - 0.5);
 
   document.getElementById("quiz-settings-card").classList.add("hidden");
   document.getElementById("quiz-card").classList.remove("hidden");
@@ -169,7 +199,6 @@ function herstartQuiz() {
   clearInterval(timerInterval);
   huidigeVraagIndex = 0;
   score = 0;
-  quizVragen = [...plantenDatabase].sort(() => Math.random() - 0.5);
   
   document.getElementById("quiz-card").classList.remove("hidden");
   document.getElementById("result-card").classList.add("hidden");
@@ -348,7 +377,7 @@ function toonResultaten() {
   document.getElementById("total-questions").innerText = quizVragen.length;
 }
 
-// BIBLIOTHEEK & SLIMME FILTERS
+// BIBLIOTHEEK & FILTERS
 function laadBibliotheek() {
   const grid = document.getElementById("plant-grid");
   if (!grid) return;
@@ -365,6 +394,7 @@ function laadBibliotheek() {
     card.setAttribute("data-cat", plant.categorie || "");
     card.setAttribute("data-standplaats", plant.standplaats || "");
     card.setAttribute("data-blad", plant.bladbehoud || "");
+    card.setAttribute("data-jaren", JSON.stringify(plant.leerjaren || []));
 
     const zoekData = [
       plant.nlNaam, plant.latNaam, plant.categorie, plant.standplaats, plant.waterbehoefte,
@@ -373,6 +403,10 @@ function laadBibliotheek() {
 
     card.setAttribute("data-search", zoekData);
 
+    const leerjarenTekst = plant.leerjaren && plant.leerjaren.length > 0 
+      ? plant.leerjaren.map(j => j + "e").join(", ") 
+      : "Alle";
+
     card.innerHTML = `
       <img src="${plant.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80'}" alt="${plant.nlNaam}">
       <div class="plant-card-content">
@@ -380,6 +414,7 @@ function laadBibliotheek() {
         <p><em>${plant.latNaam}</em></p>
         
         <div class="plant-details">
+          <span>🎓 <strong>Leerjaar:</strong> ${leerjarenTekst}</span>
           ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
           ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
           ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
@@ -398,6 +433,7 @@ function laadBibliotheek() {
 }
 
 function pasFiltersToe() {
+  const gekozenJaar = document.getElementById("filter-jaar").value;
   const standplaats = document.getElementById("filter-standplaats").value;
   const blad = document.getElementById("filter-blad").value;
   const categorie = document.getElementById("filter-categorie").value;
@@ -408,9 +444,11 @@ function pasFiltersToe() {
     const kStand = kaart.getAttribute("data-standplaats");
     const kBlad = kaart.getAttribute("data-blad");
     const kCat = kaart.getAttribute("data-cat");
+    const kJaren = JSON.parse(kaart.getAttribute("data-jaren") || "[]");
 
     let toon = true;
 
+    if (gekozenJaar && !kJaren.includes(gekozenJaar)) toon = false;
     if (standplaats && kStand !== standplaats) toon = false;
     if (blad && kBlad !== blad) toon = false;
     if (categorie && kCat !== categorie) toon = false;
@@ -506,6 +544,13 @@ function voegPlantToe(e) {
 
   let gekozenFoto = geplakteOfUploadFoto || urlFoto || standaardFoto;
 
+  // LEERJAREN OPHALEN
+  const gekozenLeerjaren = [];
+  if (document.getElementById("jaar-3").checked) gekozenLeerjaren.push("3");
+  if (document.getElementById("jaar-4").checked) gekozenLeerjaren.push("4");
+  if (document.getElementById("jaar-5").checked) gekozenLeerjaren.push("5");
+  if (document.getElementById("jaar-6").checked) gekozenLeerjaren.push("6");
+
   if (bewerkId !== null) {
     const index = plantenDatabase.findIndex(p => p.id === bewerkId);
     if (index !== -1) {
@@ -517,6 +562,7 @@ function voegPlantToe(e) {
         id: bewerkId,
         nlNaam: document.getElementById("new-nl").value.trim(),
         latNaam: document.getElementById("new-lat").value.trim(),
+        leerjaren: gekozenLeerjaren,
         categorie: document.getElementById("new-categorie").value,
         standplaats: document.getElementById("new-standplaats").value,
         waterbehoefte: document.getElementById("new-water").value,
@@ -535,6 +581,7 @@ function voegPlantToe(e) {
       id: Date.now(),
       nlNaam: document.getElementById("new-nl").value.trim(),
       latNaam: document.getElementById("new-lat").value.trim(),
+      leerjaren: gekozenLeerjaren,
       categorie: document.getElementById("new-categorie").value,
       standplaats: document.getElementById("new-standplaats").value,
       waterbehoefte: document.getElementById("new-water").value,
@@ -561,6 +608,14 @@ function startBewerken(id) {
   bewerkId = plant.id;
   document.getElementById("new-nl").value = plant.nlNaam || "";
   document.getElementById("new-lat").value = plant.latNaam || "";
+  
+  // LEERJAREN VINKJES ZETTEN
+  const j = plant.leerjaren || [];
+  document.getElementById("jaar-3").checked = j.includes("3");
+  document.getElementById("jaar-4").checked = j.includes("4");
+  document.getElementById("jaar-5").checked = j.includes("5");
+  document.getElementById("jaar-6").checked = j.includes("6");
+
   document.getElementById("new-categorie").value = plant.categorie || "Kamerplant";
   document.getElementById("new-standplaats").value = plant.standplaats || "";
   document.getElementById("new-water").value = plant.waterbehoefte || "";
@@ -583,6 +638,11 @@ function startBewerken(id) {
 
 function resetFormulier() {
   document.getElementById("add-plant-form").reset();
+  document.getElementById("jaar-3").checked = true;
+  document.getElementById("jaar-4").checked = false;
+  document.getElementById("jaar-5").checked = false;
+  document.getElementById("jaar-6").checked = false;
+
   document.getElementById("new-foto-data").value = "";
   document.getElementById("img-preview-container").classList.add("hidden");
   bewerkId = null;
@@ -608,8 +668,11 @@ function laadBeheerLijst() {
   plantenDatabase.forEach(plant => {
     const item = document.createElement("div");
     item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 5px;";
+    
+    const leerjarenLabel = plant.leerjaren && plant.leerjaren.length > 0 ? " [Jaar: " + plant.leerjaren.join(",") + "]" : "";
+
     item.innerHTML = `
-      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)</span>
+      <span><strong>${plant.nlNaam}</strong> (<em>${plant.latNaam}</em>)<small style="color: #666;">${leerjarenLabel}</small></span>
       <div>
         <button onclick="startBewerken(${plant.id})" style="background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Bewerken</button>
         <button onclick="verwijderPlant(${plant.id})" style="background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Wissen</button>
