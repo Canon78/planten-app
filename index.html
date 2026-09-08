@@ -85,7 +85,7 @@
     }
 
     .pagina {
-      display: none; /* Standaard al alles verbergen */
+      display: none;
       background: var(--card-bg);
       padding: 25px;
       border-radius: 12px;
@@ -93,7 +93,7 @@
     }
 
     .pagina.actief {
-      display: block !important; /* Alleen de actieve pagina tonen */
+      display: block !important;
     }
 
     h2 {
@@ -117,11 +117,6 @@
       overflow: hidden;
       background: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
-    }
-
-    .plaag-kaart:hover {
-      transform: translateY(-3px);
     }
 
     .plaag-kaart img {
@@ -211,7 +206,7 @@
 </head>
 <body>
 
-  <!-- HEADER MET HET NAVIGATIEMENU -->
+  <!-- HEADER MET NAVIGATIE -->
   <header>
     <h1>🌿 PlantenAcademie</h1>
     <nav>
@@ -223,7 +218,6 @@
     </nav>
   </header>
 
-  <!-- INHOUD PER TABBLAD -->
   <main>
     <!-- 1. HERBARIUM -->
     <section id="herbarium" class="pagina actief">
@@ -266,7 +260,21 @@
     <!-- 5. BEHEER -->
     <section id="beheer" class="pagina">
       <h2>Database Beheer</h2>
-      <p>Overzicht van huidige plagen in de database:</p>
+
+      <!-- INVOERFORMULIER -->
+      <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 25px;">
+        <h3 style="margin-bottom: 10px; font-size: 16px; color: #15803d;">➕ Nieuwe Plaag / Ziekte Toevoegen</h3>
+        <form id="voegPlaagToeForm" onsubmit="voegPlaagToe(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <input type="text" id="nieuwNaam" placeholder="Naam (bijv. Wolluis op Ficus)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="text" id="nieuwType" placeholder="Type (bijv. Schadelijk insect)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <input type="text" id="nieuwFoto" placeholder="Afbeelding URL (https://...)" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <textarea id="nieuwHerkenning" placeholder="Herkenning / Symptomen" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+          <textarea id="nieuwBestrijding" placeholder="Bestrijding" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+          <button type="submit" class="btn-action" style="grid-column: span 2; background: #15803d; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Opslaan in Database</button>
+        </form>
+      </div>
+
+      <p><strong>Overzicht van huidige plagen in de database:</strong></p>
       <table>
         <thead>
           <tr>
@@ -280,56 +288,48 @@
     </section>
   </main>
 
-  <!-- JAVASCRIPT LOGICA -->
   <script>
-    // -------------------------------------------------------------
-    // 1. DATABASE
-    // -------------------------------------------------------------
+    // BOTANISCHE DATABASE WITH JUISTE PLANTENFOTO'S
     const plagenDatabase = [
       {
         id: "p1",
-        naam: "Spintmijt",
+        naam: "Spintmijt (op Monstera)",
         type: "Mijt",
         herkenning: "Fijne spinnenwebjes onder het blad en gele spikkeling.",
         bestrijding: "Luchtvochtigheid verhogen, plant afspoelen of roofmijten inzetten.",
-        foto: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&w=600&q=80"
+        foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: "p2",
-        naam: "Trips",
+        naam: "Trips (op Calathea)",
         type: "Schadelijk insect",
         herkenning: "Zilverachtige of grijze vlekken op het blad met zwarte stipjes.",
         bestrijding: "Aangedane bladeren wegsnijden of biologische aaltjes inzetten.",
-        foto: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80"
+        foto: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: "p3",
-        naam: "Wolluis",
+        naam: "Wolluis (op Ficus)",
         type: "Schadelijk insect",
         herkenning: "Witte, pluizige/wollige bultjes in de bladoksels.",
         bestrijding: "Aanstippen met alcohol op een wattenstaafje of neemolie gebruiken.",
-        foto: "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=600&q=80"
+        foto: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=600&q=80"
       }
     ];
 
     let huidigeFlashcardIndex = 0;
     let isFlashcardOmgedraaid = false;
 
-    // -------------------------------------------------------------
-    // 2. NAVIGATIE (VERBERGTPAGINA'S ZONDER TE CRASHEN)
-    // -------------------------------------------------------------
+    // NAVIGATIE
     function toonPagina(paginaId) {
-      // Verberg alle pagina's
       const allePaginas = document.querySelectorAll('.pagina');
       allePaginas.forEach(p => p.classList.remove('actief'));
 
-      // Toon de gekozen pagina
       const doelPagina = document.getElementById(paginaId);
       if (doelPagina) {
         doelPagina.classList.add('actief');
       }
 
-      // Update knopstijlen
       const alleKnoppen = document.querySelectorAll('.nav-btn');
       alleKnoppen.forEach(k => k.classList.remove('actief'));
       
@@ -338,19 +338,13 @@
         actieveKnop.classList.add('actief');
       }
 
-      // Specifieke acties per tab
-      if (paginaId === 'flashcards') {
-        startFlashcards();
-      } else if (paginaId === 'beheer') {
-        laadBeheerTabel();
-      } else if (paginaId === 'plantendokter') {
-        filterDokter();
-      }
+      if (paginaId === 'flashcards') startFlashcards();
+      if (paginaId === 'beheer') laadBeheerTabel();
+      if (paginaId === 'plantendokter') filterDokter();
+      if (paginaId === 'herbarium') toonHerbarium();
     }
 
-    // -------------------------------------------------------------
-    // 3. HERBARIUM WEERGEVEN
-    // -------------------------------------------------------------
+    // HERBARIUM
     function toonHerbarium() {
       const container = document.getElementById('herbariumGrid');
       if (!container) return;
@@ -371,9 +365,7 @@
       });
     }
 
-    // -------------------------------------------------------------
-    // 4. FLASHCARDS LOGICA
-    // -------------------------------------------------------------
+    // FLASHCARDS
     function startFlashcards() {
       huidigeFlashcardIndex = 0;
       toonFlashcard();
@@ -393,9 +385,7 @@
         <p style="font-size:12px; color:#6b7280; margin-top:5px;">(Klik om om te draaien)</p>
       `;
 
-      if (teller) {
-        teller.innerText = `${huidigeFlashcardIndex + 1} / ${plagenDatabase.length}`;
-      }
+      if (teller) teller.innerText = `${huidigeFlashcardIndex + 1} / ${plagenDatabase.length}`;
     }
 
     function draaiFlashcardOm() {
@@ -426,9 +416,7 @@
       toonFlashcard();
     }
 
-    // -------------------------------------------------------------
-    // 5. PLANTENDOKTER FILTER
-    // -------------------------------------------------------------
+    // PLANTENDOKTER
     function filterDokter() {
       const zoekTekst = (document.getElementById('dokterZoek')?.value || '').toLowerCase();
       const container = document.getElementById('dokterResultaten');
@@ -455,9 +443,7 @@
       });
     }
 
-    // -------------------------------------------------------------
-    // 6. BEHEER TABEL
-    // -------------------------------------------------------------
+    // BEHEER LOGICA
     function laadBeheerTabel() {
       const tbody = document.getElementById('beheerTabelBody');
       if (!tbody) return;
@@ -474,13 +460,37 @@
       });
     }
 
+    function voegPlaagToe(event) {
+      event.preventDefault();
+
+      const naam = document.getElementById('nieuwNaam').value;
+      const type = document.getElementById('nieuwType').value;
+      const foto = document.getElementById('nieuwFoto').value || "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80";
+      const herkenning = document.getElementById('nieuwHerkenning').value;
+      const bestrijding = document.getElementById('nieuwBestrijding').value;
+
+      plagenDatabase.push({
+        id: "p" + (plagenDatabase.length + 1),
+        naam: naam,
+        type: type,
+        foto: foto,
+        herkenning: herkenning,
+        bestrijding: bestrijding
+      });
+
+      document.getElementById('voegPlaagToeForm').reset();
+      laadBeheerTabel();
+      toonHerbarium();
+      alert("Nieuwe plaag succesvol toegevoegd aan het Beheer en Herbarium!");
+    }
+
     function verwijderItem(index) {
       plagenDatabase.splice(index, 1);
       laadBeheerTabel();
       toonHerbarium();
     }
 
-    // STARTUP
+    // INIT
     document.addEventListener("DOMContentLoaded", () => {
       toonHerbarium();
     });
