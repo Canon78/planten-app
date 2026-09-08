@@ -714,3 +714,22 @@ function verstuurNaarGoogleForms() {
   statusEl.innerText = "ℹ️ Bewaar een screenshot van dit scherm om te laten zien aan je docent.";
   statusEl.style.color = "#1565c0";
 }
+
+// SCROLL TO TOP LOGICA
+window.addEventListener("scroll", function() {
+  const backToTopBtn = document.getElementById("back-to-top-btn");
+  if (backToTopBtn) {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add("show");
+    } else {
+      backToTopBtn.classList.remove("show");
+    }
+  }
+});
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
