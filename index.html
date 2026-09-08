@@ -14,6 +14,7 @@
       <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Herbarium</button>
       <button class="tab-btn" onclick="switchTab('flashcard-tab', this)">🎴 Flashcards</button>
       <button class="tab-btn" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
+      <button class="tab-btn" onclick="switchTab('doctor-tab', this)">🩺 Plantendokter</button>
       <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
     </nav>
   </header>
@@ -205,7 +206,43 @@
       </div>
     </section>
 
-    <!-- TAB 4: BEHEER -->
+    <!-- TAB 4: PLANTENDOKTER (SCHADELIJKE INSECTEN & ZIEKTEN) -->
+    <section id="doctor-tab" class="tab-content">
+      <h2>🩺 De Plantendokter</h2>
+      <p style="margin-bottom: 1rem; color: #555;">Diagnosticeer en behandel schadelijke insecten, schimmels en aandoeningen bij planten.</p>
+
+      <!-- DIAGNOSE FILTER -->
+      <div class="card" style="background: #fffde7; border: 1px solid #fff59d;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Wat zie je aan de plant?</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Symptoom / Schade:</label>
+            <select id="doctor-symptom" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle symptomen --</option>
+              <option value="pluis">Witte pluis / wol</option>
+              <option value="plakkerig">Plakkerig blad (honingdauw)</option>
+              <option value="spinnenweb">Fijne webben / spikkeling</option>
+              <option value="vlekken">Bruine, grijze of zwarte vlekken</option>
+              <option value="geel">Vergelend / slap blad</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Aangedaan onderdeel:</label>
+            <select id="doctor-part" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle onderdelen --</option>
+              <option value="blad">Blad (boven-/onderkant)</option>
+              <option value="stengel">Stengel / Oksels</option>
+              <option value="wortel">Wortels / Potgrond</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- RASTER MET ZIEKTEN EN INSECTEN -->
+      <div id="doctor-grid" class="plant-grid"></div>
+    </section>
+
+    <!-- TAB 5: BEHEER -->
     <section id="admin-tab" class="tab-content">
       <h2>⚙️ Herbarium Beheren</h2>
       
