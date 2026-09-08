@@ -3,644 +3,232 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlantenAcademie</title>
-  <style>
-    :root {
-      --primary-green: #15803d;
-      --light-green: #22c55e;
-      --bg-light: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-dark: #1f2937;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-      padding-bottom: 40px;
-    }
-
-    /* HEADER & NAVIGATIE */
-    header {
-      background-color: var(--primary-green);
-      color: white;
-      padding: 15px 20px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      font-size: 24px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      background-color: transparent;
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 8px 18px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-btn:hover {
-      background-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .nav-btn.actief {
-      background-color: white !important;
-      color: var(--primary-green) !important;
-      border-color: white !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    /* INHOUD CONTAINERS */
-    main {
-      max-width: 900px;
-      margin: 25px auto;
-      padding: 0 15px;
-    }
-
-    .pagina {
-      display: none;
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .pagina.actief {
-      display: block !important;
-    }
-
-    h2 {
-      color: var(--primary-green);
-      margin-bottom: 15px;
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 8px;
-    }
-
-    /* GRID & CARDS */
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 15px;
-    }
-
-    .plaag-kaart {
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      overflow: hidden;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .plaag-kaart img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-    }
-
-    .plaag-kaart-inhoud {
-      padding: 15px;
-    }
-
-    .badge {
-      display: inline-block;
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    /* FLASHCARDS */
-    .flashcard-box {
-      max-width: 450px;
-      margin: 0 auto;
-      border: 2px solid var(--light-green);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      background: white;
-      cursor: pointer;
-      min-height: 250px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    .flashcard-nav {
-      max-width: 450px;
-      margin: 15px auto 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .btn-action {
-      background: var(--light-green);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    /* QUIZ OPTIES */
-    .quiz-optie {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .quiz-optie:hover {
-      background: #f3f4f6;
-    }
-
-    /* TABEL BEHEER */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 10px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    th {
-      background-color: #f9fafb;
-      color: #374151;
-    }
-
-    .btn-danger {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    /* BEHEER VERGRENDELING */
-    .pincode-box {
-      max-width: 350px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      text-align: center;
-      background: #f9fafb;
-    }
-  </style>
+  <title>Plantenkennis App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- HEADER MET NAVIGATIE -->
   <header>
-    <h1>🌿 PlantenAcademie</h1>
+    <h1>🌿 Plantenkennis Oefenapp</h1>
     <nav>
-      <button class="nav-btn actief" data-target="herbarium" onclick="toonPagina('herbarium')">📚 Herbarium</button>
-      <button class="nav-btn" data-target="flashcards" onclick="toonPagina('flashcards')">🎴 Flashcards</button>
-      <button class="nav-btn" data-target="quiz" onclick="toonPagina('quiz')">🎯 Quiz</button>
-      <button class="nav-btn" data-target="plantendokter" onclick="toonPagina('plantendokter')">🩺 Plantendokter</button>
-      <button class="nav-btn" data-target="beheer" onclick="toonPagina('beheer')">⚙️ Beheer</button>
+      <button class="tab-btn active" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
+      <button class="tab-btn" onclick="switchTab('library-tab', this)">📚 Bibliotheek</button>
+      <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
     </nav>
   </header>
 
-  <main>
-    <!-- 1. HERBARIUM -->
-    <section id="herbarium" class="pagina actief">
-      <h2>Herbarium Overzicht</h2>
-      <p>Hier vind je een overzicht van veelvoorkomende planten, plagen en ziektes.</p>
-      <div id="herbariumGrid" class="grid-container"></div>
-    </section>
+  <main class="container">
 
-    <!-- 2. FLASHCARDS -->
-    <section id="flashcards" class="pagina">
-      <h2>Flashcards Oefenen</h2>
-      <p style="text-align:center; margin-bottom:15px; color:#666;">Klik op de kaart om het antwoord te zien.</p>
-      <div id="flashcardBox" class="flashcard-box" onclick="draaiFlashcardOm()"></div>
-      <div class="flashcard-nav">
-        <button class="btn-action" style="background:#6b7280;" onclick="vorigeFlashcard()">⬅ Vorige</button>
-        <span id="flashcardTeller" style="font-weight:bold;">1 / 1</span>
-        <button class="btn-action" onclick="volgendeFlashcard()">Volgende ➡</button>
-      </div>
-    </section>
+    <!-- TAB 1: QUIZ -->
+    <section id="quiz-tab" class="tab-content active">
+      
+      <!-- INSTELLINGEN KAART (Voor de start) -->
+      <div id="quiz-settings-card" class="card">
+        <h2>🎯 Quiz Instellingen</h2>
+        <p style="margin-bottom: 1.5rem; color: #555;">Kies hoe je wilt oefenen voordat je begint:</p>
 
-    <!-- 3. QUIZ -->
-    <section id="quiz" class="pagina">
-      <h2>Kennis Quiz</h2>
-      <p style="margin-bottom: 15px;">Test je kennis over plagen en bestrijding!</p>
-      <div id="quizContainer"></div>
-    </section>
-
-    <!-- 4. PLANTENDOKTER -->
-    <section id="plantendokter" class="pagina">
-      <h2>Plantendokter</h2>
-      <p>Zoek hier op symptomen of plantonderdeel om de juiste diagnose te stellen.</p>
-      <div style="margin:20px 0;">
-        <input type="text" id="dokterZoek" placeholder="Typ bijv. spinnenweb, geel, blad, Monstera..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" onkeyup="filterDokter()">
-      </div>
-      <div id="dokterResultaten" class="grid-container"></div>
-    </section>
-
-    <!-- 5. BEHEER -->
-    <section id="beheer" class="pagina">
-      <h2>Database Beheer</h2>
-
-      <!-- TOEGANGSCODE SCHERM -->
-      <div id="beheerSlot" class="pincode-box">
-        <h3>🔒 Toegang Beveiligd</h3>
-        <p style="font-size:13px; color:#666; margin: 10px 0;">Voer de docent-toegangscode in om de database te bewerken.</p>
-        <input type="password" id="pincodeInvoer" placeholder="Toegangscode" style="padding: 8px; width: 80%; margin-bottom: 10px; text-align: center;">
-        <button class="btn-action" onclick="controleerPincode()">Ontgrendelen</button>
-      </div>
-
-      <!-- INHOUD VAN BEHEER (VERBORGEN TOT TOEGANGSCODE) -->
-      <div id="beheerInhoud" style="display: none;">
-        
-        <!-- INVOERFORMULIER -->
-        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 25px;">
-          <h3 style="margin-bottom: 10px; font-size: 16px; color: #15803d;">➕ Nieuw Item Toevoegen</h3>
-          <form id="voegPlaagToeForm" onsubmit="voegPlaagToe(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            
-            <select id="nieuwCategorie" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; grid-column: span 2;">
-              <option value="Plaag / Ziekte">Categorie: Plaag / Ziekte</option>
-              <option value="Kamerplant">Categorie: Kamerplant</option>
-              <option value="Tuinplant">Categorie: Tuinplant</option>
-            </select>
-
-            <input type="text" id="nieuwNaam" placeholder="Naam (bijv. Monstera Deliciosa of Wolluis)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <input type="text" id="nieuwType" placeholder="Type (bijv. Schadelijk insect of Groene plant)" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <input type="text" id="nieuwFoto" placeholder="Afbeelding URL (https://...)" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <textarea id="nieuwHerkenning" placeholder="Herkenning / Omschrijving" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-            <textarea id="nieuwBestrijding" placeholder="Bestrijding / Verzorgingstip" rows="2" style="grid-column: span 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-            <button type="submit" class="btn-action" style="grid-column: span 2; background: #15803d; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Opslaan in Database</button>
-          </form>
+        <div class="form-group">
+          <label for="quiz-mode-select">🎮 Spelvorm:</label>
+          <select id="quiz-mode-select">
+            <option value="foto-naar-naam">🖼️ Foto ➔ Naam raden</option>
+            <option value="naam-naar-foto">🏷️ Naam ➔ Foto kiezen</option>
+            <option value="eigenschap-naar-naam">☀️ Standplaats / Eigenschap ➔ Naam raden</option>
+          </select>
         </div>
 
-        <p><strong>Overzicht van alle items in de database:</strong></p>
-        <table>
-          <thead>
-            <tr>
-              <th>Naam</th>
-              <th>Type</th>
-              <th>Actie</th>
-            </tr>
-          </thead>
-          <tbody id="beheerTabelBody"></tbody>
-        </table>
-        
-        <button class="btn-action" onclick="vergrendelBeheer()" style="margin-top: 20px; background: #6b7280;">🔒 Sluit Beheer</button>
+        <div class="form-group">
+          <label for="timer-select">⏱️ Timer per vraag:</label>
+          <select id="timer-select">
+            <option value="0">Geen timer (Rustig oefenen)</option>
+            <option value="30">30 seconden per vraag</option>
+            <option value="15">15 seconden per vraag (Spannend!)</option>
+            <option value="10">10 seconden per vraag (Expert!)</option>
+          </select>
+        </div>
+
+        <button class="primary-btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="startQuizMetInstellingen()">🚀 Start Quiz!</button>
       </div>
 
+      <!-- SPEEL KAART -->
+      <div id="quiz-card" class="card hidden">
+        <div class="quiz-header">
+          <span id="question-count">Vraag 1</span>
+          <span id="timer-display" class="timer-badge hidden">⏱️ <span id="time-left">15</span>s</span>
+          <span id="score-display">Score: 0</span>
+        </div>
+
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="timer-bar-container" class="timer-bar-container hidden">
+          <div id="timer-bar" class="timer-bar"></div>
+        </div>
+
+        <!-- VRAAG ELEMENTEN -->
+        <div id="image-container" class="image-container">
+          <img id="plant-img" src="" alt="Plantenfoto">
+        </div>
+
+        <div class="question-info">
+          <h3 id="question-title" class="hidden" style="text-align: center; font-size: 1.4rem; color: #2e7d32; margin-bottom: 0.5rem;"></h3>
+          <p id="question-desc" class="hint-text"></p>
+        </div>
+
+        <!-- ANTWOORDEN (GRID) -->
+        <div id="options-container" class="options-grid"></div>
+
+        <div id="feedback-box" class="feedback-box hidden"></div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="next-btn" class="primary-btn hidden" onclick="volgendeVraag()">Volgende Vraag ➔</button>
+          <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Instellingen wijzigen</button>
+        </div>
+      </div>
+
+      <!-- RESULTAAT KAART -->
+      <div id="result-card" class="card hidden">
+        <h2>🎉 Quiz Afgerond!</h2>
+        <p>Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed geantwoord.</p>
+        
+        <div class="student-form">
+          <label for="student-name">Jouw naam/klas:</label>
+          <input type="text" id="student-name" placeholder="Bijv. Jan - Klas 2B">
+          <button class="secondary-btn" onclick="verstuurNaarGoogleForms()">Score versturen naar docent 📤</button>
+          <p id="submit-status" class="status-msg"></p>
+        </div>
+
+        <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
+        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm Kiezen</button>
+      </div>
     </section>
+
+    <!-- TAB 2: BIBLIOTHEEK -->
+    <section id="library-tab" class="tab-content">
+      <h2>📚 Plantenbibliotheek</h2>
+      
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Zoek op Nederlandse of Latijnse naam..." oninput="zoekPlanten()">
+      </div>
+
+      <!-- Categorie Filter -->
+      <div id="category-filter" class="alphabet-container"></div>
+
+      <!-- Alfabet Filter -->
+      <div id="alphabet-filter" class="alphabet-container"></div>
+
+      <div id="plant-grid" class="plant-grid"></div>
+    </section>
+
+    <!-- TAB 3: BEHEER -->
+    <section id="admin-tab" class="tab-content">
+      <h2>⚙️ Planten Beheren</h2>
+      
+      <div class="card">
+        <h3>Plant Toevoegen of Bewerken</h3>
+        <form id="add-plant-form" onsubmit="voegPlantToe(event)">
+          
+          <div class="form-group">
+            <label for="new-nl">Nederlandse Naam *</label>
+            <input type="text" id="new-nl" required placeholder="Bijv. Monstera (Gatenplant)">
+          </div>
+
+          <div class="form-group">
+            <label for="new-lat">Latijnse Naam *</label>
+            <input type="text" id="new-lat" required placeholder="Bijv. Monstera deliciosa">
+          </div>
+
+          <div class="form-group">
+            <label for="new-categorie">Type / Categorie *</label>
+            <select id="new-categorie">
+              <option value="Kamerplant">🌺 Kamerplant</option>
+              <option value="Boom">🌲 Boom</option>
+              <option value="Struik / Plant">🌿 Struik / Plant</option>
+              <option value="Kruid / Vaste plant">🌾 Kruid / Vaste plant</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-standplaats">Standplaats</label>
+            <select id="new-standplaats">
+              <option value="">-- Kies standplaats --</option>
+              <option value="Volle zon">Volle zon</option>
+              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
+              <option value="Schaduw">Schaduw</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-water">Waterbehoefte</label>
+            <select id="new-water">
+              <option value="">-- Kies waterbehoefte --</option>
+              <option value="Veel (grond vochtig houden)">Veel (grond vochtig houden)</option>
+              <option value="Gemiddeld (regelmatig)">Gemiddeld (regelmatig)</option>
+              <option value="Weinig (laat grond opdrogen)">Weinig (laat grond opdrogen)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-blad">Bladbehoud</label>
+            <select id="new-blad">
+              <option value="">-- Kies bladbehoud --</option>
+              <option value="Groenblijvend (bladhoudend)">Groenblijvend (bladhoudend)</option>
+              <option value="Bladverliezend">Bladverliezend</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-bloei">Bloeitijd</label>
+            <input type="text" id="new-bloei" placeholder="Bijv. Mei - Juli">
+          </div>
+
+          <div class="form-group">
+            <label for="new-vermeerderen">Vermeerderen</label>
+            <input type="text" id="new-vermeerderen" placeholder="Bijv. Stengelstek / Zaaien">
+          </div>
+
+          <div class="form-group">
+            <label for="new-grootte">Grootte</label>
+            <input type="text" id="new-grootte" placeholder="Bijv. 1,5 tot 3 meter">
+          </div>
+
+          <div class="form-group">
+            <label for="new-foto">Foto URL (Optioneel)</label>
+            <input type="url" id="new-foto" placeholder="https://images.unsplash.com/...">
+          </div>
+
+          <div class="form-group">
+            <label>Of plak/upload hier een afbeelding:</label>
+            <div id="paste-area" class="paste-zone">
+              📋 Klik hier en druk op <strong>Ctrl+V</strong> om een gekopieerde foto te plakken<br>
+              of kies een bestand:
+              <input type="file" id="file-upload" accept="image/*" onchange="verwerkBestandUpload(this)">
+            </div>
+            <input type="hidden" id="new-foto-data">
+            <div id="img-preview-container" class="hidden">
+              <p>Voorbeeld geüploade foto:</p>
+              <img id="img-preview" src="" alt="Voorbeeld" style="max-height: 120px; border-radius: 6px;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="new-desc">Extra beschrijving / Tips</label>
+            <textarea id="new-desc" rows="3" placeholder="Bijv. Oorsprong, verzorgingstips, herkenningspunten..."></textarea>
+          </div>
+
+          <button type="submit" class="primary-btn">➕ Plant Toevoegen</button>
+          <button type="button" class="secondary-btn" onclick="resetFormulier()">❌ Annuleren / Reset</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Bestaande Planten</h3>
+        <div id="admin-plant-list"></div>
+      </div>
+    </section>
+
   </main>
 
-  <script>
-    const BEHEER_CODE = "docent123";
-
-    // DATABASE WITH PLANTEN & PLAGEN
-    const plagenDatabase = [
-      {
-        id: "p1",
-        naam: "Spintmijt (op Monstera)",
-        type: "Mijt",
-        herkenning: "Fijne spinnenwebjes onder het blad en gele spikkeling.",
-        bestrijding: "Luchtvochtigheid verhogen, plant afspoelen of roofmijten inzetten.",
-        foto: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80"
-      },
-      {
-        id: "p2",
-        naam: "Trips (op Calathea)",
-        type: "Schadelijk insect",
-        herkenning: "Zilverachtige of grijze vlekken op het blad met zwarte stipjes.",
-        bestrijding: "Aangedane bladeren wegsnijden of biologische aaltjes inzetten.",
-        foto: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80"
-      },
-      {
-        id: "p3",
-        naam: "Wolluis (op Ficus)",
-        type: "Schadelijk insect",
-        herkenning: "Witte, pluizige/wollige bultjes in de bladoksels.",
-        bestrijding: "Aanstippen met alcohol op een wattenstaafje of neemolie gebruiken.",
-        foto: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=600&q=80"
-      }
-    ];
-
-    // QUIZ DATABASE
-    const quizVragen = [
-      {
-        vraag: "Waaraan herken je een spintmijtinfectie als eerste?",
-        opties: [
-          "Zilverachtige vlekken met zwarte stipjes",
-          "Fijne spinnenwebjes en gele spikkeling op het blad",
-          "Witte pluizige bultjes op de stengel"
-        ],
-        correct: 1
-      },
-      {
-        vraag: "Wat is de beste aanpak tegen wolluis?",
-        opties: [
-          "Aanstippen met alcohol of neemolie gebruiken",
-          "De plant heel veel water geven",
-          "De plant direct in de volle zon zetten"
-        ],
-        correct: 0
-      },
-      {
-        vraag: "Hoe herken je de schade van trips op het blad?",
-        opties: [
-          "Grote gaten in het midden van het blad",
-          "Zilverachtige of grijze vlekken met kleine zwarte stipjes",
-          "Witte vlekken op de potgrond"
-        ],
-        correct: 1
-      }
-    ];
-
-    let huidigeQuizVraag = 0;
-    let quizScore = 0;
-    let huidigeFlashcardIndex = 0;
-    let isFlashcardOmgedraaid = false;
-
-    // TOEGANGSCODE LOGICA
-    function controleerPincode() {
-      const code = document.getElementById('pincodeInvoer').value;
-      if (code === BEHEER_CODE) {
-        document.getElementById('beheerSlot').style.display = 'none';
-        document.getElementById('beheerInhoud').style.display = 'block';
-        laadBeheerTabel();
-      } else {
-        alert("Onjuiste code! Probeer opnieuw.");
-      }
-    }
-
-    function vergrendelBeheer() {
-      document.getElementById('beheerSlot').style.display = 'block';
-      document.getElementById('beheerInhoud').style.display = 'none';
-      document.getElementById('pincodeInvoer').value = '';
-    }
-
-    // NAVIGATIE
-    function toonPagina(paginaId) {
-      const allePaginas = document.querySelectorAll('.pagina');
-      allePaginas.forEach(p => p.classList.remove('actief'));
-
-      const doelPagina = document.getElementById(paginaId);
-      if (doelPagina) {
-        doelPagina.classList.add('actief');
-      }
-
-      const alleKnoppen = document.querySelectorAll('.nav-btn');
-      alleKnoppen.forEach(k => k.classList.remove('actief'));
-      
-      const actieveKnop = document.querySelector(`[data-target="${paginaId}"]`);
-      if (actieveKnop) {
-        actieveKnop.classList.add('actief');
-      }
-
-      if (paginaId === 'flashcards') startFlashcards();
-      if (paginaId === 'quiz') laadQuiz();
-      if (paginaId === 'plantendokter') filterDokter();
-      if (paginaId === 'herbarium') toonHerbarium();
-    }
-
-    // HERBARIUM
-    function toonHerbarium() {
-      const container = document.getElementById('herbariumGrid');
-      if (!container) return;
-      container.innerHTML = '';
-
-      plagenDatabase.forEach(item => {
-        container.innerHTML += `
-          <div class="plaag-kaart">
-            <img src="${item.foto}" alt="${item.naam}">
-            <div class="plaag-kaart-inhoud">
-              <span class="badge">${item.type}</span>
-              <h3 style="margin-bottom:5px;">${item.naam}</h3>
-              <p style="font-size:13px; color:#4b5563; margin-bottom:8px;"><strong>Herkenning / Omschrijving:</strong> ${item.herkenning}</p>
-              <p style="font-size:13px; color:#15803d;"><strong>Bestrijding / Zorg:</strong> ${item.bestrijding}</p>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // FLASHCARDS
-    function startFlashcards() {
-      huidigeFlashcardIndex = 0;
-      toonFlashcard();
-    }
-
-    function toonFlashcard() {
-      const box = document.getElementById('flashcardBox');
-      const teller = document.getElementById('flashcardTeller');
-      const item = plagenDatabase[huidigeFlashcardIndex];
-
-      if (!box || !item) return;
-      isFlashcardOmgedraaid = false;
-
-      box.innerHTML = `
-        <img src="${item.foto}" style="max-height:140px; width:100%; object-fit:cover; border-radius:6px; margin-bottom:10px;">
-        <h3 style="color:#111827;">Wat is dit?</h3>
-        <p style="font-size:12px; color:#6b7280; margin-top:5px;">(Klik om om te draaien)</p>
-      `;
-
-      if (teller) teller.innerText = `${huidigeFlashcardIndex + 1} / ${plagenDatabase.length}`;
-    }
-
-    function draaiFlashcardOm() {
-      const box = document.getElementById('flashcardBox');
-      const item = plagenDatabase[huidigeFlashcardIndex];
-      if (!box || !item) return;
-
-      if (!isFlashcardOmgedraaid) {
-        box.innerHTML = `
-          <span class="badge">${item.type}</span>
-          <h2 style="color:#15803d; margin:10px 0;">${item.naam}</h2>
-          <p style="font-size:13px; text-align:left; background:#f9fafb; padding:8px; border-radius:4px; margin-bottom:5px;"><strong>Herkenning:</strong> ${item.herkenning}</p>
-          <p style="font-size:13px; text-align:left; background:#f0fdf4; padding:8px; border-radius:4px;"><strong>Bestrijding/Zorg:</strong> ${item.bestrijding}</p>
-        `;
-        isFlashcardOmgedraaid = true;
-      } else {
-        toonFlashcard();
-      }
-    }
-
-    function volgendeFlashcard() {
-      huidigeFlashcardIndex = (huidigeFlashcardIndex + 1) % plagenDatabase.length;
-      toonFlashcard();
-    }
-
-    function vorigeFlashcard() {
-      huidigeFlashcardIndex = (huidigeFlashcardIndex - 1 + plagenDatabase.length) % plagenDatabase.length;
-      toonFlashcard();
-    }
-
-    // QUIZ LOGICA
-    function laadQuiz() {
-      huidigeQuizVraag = 0;
-      quizScore = 0;
-      toonQuizVraag();
-    }
-
-    function toonQuizVraag() {
-      const container = document.getElementById('quizContainer');
-      if (!container) return;
-
-      if (huidigeQuizVraag >= quizVragen.length) {
-        container.innerHTML = `
-          <div style="text-align:center; padding:20px;">
-            <h3 style="color:#15803d; font-size:22px;">🎉 Quiz Afgerond!</h3>
-            <p style="font-size:16px; margin:10px 0;">Je score is <strong>${quizScore} / ${quizVragen.length}</strong></p>
-            <button class="btn-action" onclick="laadQuiz()">Opnieuw Proberen</button>
-          </div>
-        `;
-        return;
-      }
-
-      const q = quizVragen[huidigeQuizVraag];
-      let html = `<h3 style="margin-bottom:15px;">Vraag ${huidigeQuizVraag + 1}: ${q.vraag}</h3>`;
-      
-      q.opties.forEach((optie, i) => {
-        html += `<button class="quiz-optie" onclick="controleerQuizAntwoord(${i})">${optie}</button>`;
-      });
-
-      container.innerHTML = html;
-    }
-
-    function controleerQuizAntwoord(gekozenIndex) {
-      const q = quizVragen[huidigeQuizVraag];
-      if (gekozenIndex === q.correct) {
-        quizScore++;
-        alert("Correct! 🎉");
-      } else {
-        alert("Helaas, dat is niet juist.");
-      }
-      huidigeQuizVraag++;
-      toonQuizVraag();
-    }
-
-    // PLANTENDOKTER
-    function filterDokter() {
-      const zoekTekst = (document.getElementById('dokterZoek')?.value || '').toLowerCase();
-      const container = document.getElementById('dokterResultaten');
-      if (!container) return;
-
-      container.innerHTML = '';
-      const gefilterd = plagenDatabase.filter(p => 
-        p.naam.toLowerCase().includes(zoekTekst) || 
-        p.herkenning.toLowerCase().includes(zoekTekst) ||
-        p.type.toLowerCase().includes(zoekTekst)
-      );
-
-      gefilterd.forEach(item => {
-        container.innerHTML += `
-          <div class="plaag-kaart">
-            <img src="${item.foto}" alt="${item.naam}">
-            <div class="plaag-kaart-inhoud">
-              <span class="badge">${item.type}</span>
-              <h3>${item.naam}</h3>
-              <p style="font-size:13px; color:#4b5563;">${item.herkenning}</p>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // BEHEER LOGICA
-    function laadBeheerTabel() {
-      const tbody = document.getElementById('beheerTabelBody');
-      if (!tbody) return;
-
-      tbody.innerHTML = '';
-      plagenDatabase.forEach((item, index) => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${item.naam}</td>
-            <td>${item.type}</td>
-            <td><button class="btn-danger" onclick="verwijderItem(${index})">Verwijder</button></td>
-          </tr>
-        `;
-      });
-    }
-
-    function voegPlaagToe(event) {
-      event.preventDefault();
-
-      const categorie = document.getElementById('nieuwCategorie').value;
-      const naam = document.getElementById('nieuwNaam').value;
-      const type = document.getElementById('nieuwType').value;
-      const foto = document.getElementById('nieuwFoto').value || "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=600&q=80";
-      const herkenning = document.getElementById('nieuwHerkenning').value;
-      const bestrijding = document.getElementById('nieuwBestrijding').value;
-
-      plagenDatabase.push({
-        id: "p" + (plagenDatabase.length + 1),
-        naam: `${naam} (${categorie})`,
-        type: type,
-        foto: foto,
-        herkenning: herkenning,
-        bestrijding: bestrijding
-      });
-
-      document.getElementById('voegPlaagToeForm').reset();
-      laadBeheerTabel();
-      toonHerbarium();
-      alert("Succesvol toegevoegd aan de database en het Herbarium!");
-    }
-
-    function verwijderItem(index) {
-      plagenDatabase.splice(index, 1);
-      laadBeheerTabel();
-      toonHerbarium();
-    }
-
-    // INIT
-    document.addEventListener("DOMContentLoaded", () => {
-      toonHerbarium();
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
