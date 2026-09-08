@@ -1,4 +1,4 @@
-// DATABASE: GEÏNTEGREERDE GEWASBESCHERMING (IPM) & BIOLOGISCHE BESTRIJDING
+// DATABASE: PLAGEN, ZIEKTEN & BIOLOGISCHE BESTRIJDING
 const plagenDatabase = [
   {
     id: "p1",
@@ -89,51 +89,56 @@ const plagenDatabase = [
     biologischeBestrijder: "Insectenetende aaltjes (Steinernema feltiae)",
     biologischeWerking: "Nematoden dringen de larven in de grond binnen en scheiden bacteriën uit die de larve doden.",
     foto: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: "p7",
-    naam: "Taxuskever",
-    wetenschappelijkeNaam: "Otiorhynchus sulcatus",
-    type: "Schadelijk insect",
-    omgeving: "Buiten",
-    symptomen: ["vreterij"],
-    onderdeel: "blad",
-    herkenning: "Ronde 'halve maantjes' uitgevreten aan de bladranden. Larven vreten de wortelhals aan.",
-    oorzaak: "Aanwezigheid van waardplanten (Taxus, Rhododendron, Heuchera).",
-    ipmPreventie: "Schoon uitgangsmateriaal gebruiken.",
-    biologischeBestrijder: "Aaltjes / Nematoden (Heterorhabditis bacteriophora)",
-    biologischeWerking: "Aaltjes worden via gietwater over de bodem verspreid om de keverlarven op te sporen.",
-    foto: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: "p8",
-    naam: "Dop- / Schildluis",
-    wetenschappelijkeNaam: "Coccidae",
-    type: "Schadelijk insect",
-    omgeving: "Binnen & Kas",
-    symptomen: ["plakkerig", "vlekken"],
-    onderdeel: "stengel",
-    herkenning: "Harde bruine schildjes op takken en bladnerven met veel plakkerige honingdauw.",
-    oorzaak: "Warme, beschutte omstandigheden en droge lucht.",
-    ipmPreventie: "Vroegtijdig handmatig verwijderen en plantconditie op peil houden.",
-    biologischeBestrijder: "Sluipwesp (Metaphycus helvolus) of Lieveheersbeestje",
-    biologischeWerking: "Eten de jonge beweeglijke stadia ('crawlers') of parasiteren de schildluis.",
-    foto: "https://images.unsplash.com/photo-1615228103105-0219c6368305?auto=format&fit=crop&w=600&q=80"
   }
 ];
 
-// VARIABELE OM HUIDIGE FILTER-TOESTAND BIJ TE HOUDEN
+// GLOBALE TOESTAND
 let actiefFilter = "alles";
 let zoekTerm = "";
+let huidigeFlashcardIndex = 0;
+let isFlashcardOmgedraaid = false;
 
-// KAARTEN RENDERING
+// -------------------------------------------------------------
+// 1. NAVIGATIE TUSSEN HOOFDTABBLADEN (Dokter, Flashcards, Beheer)
+// -------------------------------------------------------------
+function navigeerNaar(tabId) {
+  // Verberg alle secties
+  const alleSecties = document.querySelectorAll(".tab-sectie, section, .page-content");
+  alleSecties.forEach(s => s.style.display = "none");
+
+  // Zoek de doelsectie op ID of Class
+  const doelSectie = document.getElementById(tabId) || document.querySelector(`.${tabId}`) || document.querySelector(`[data-tab-content="${tabId}"]`);
+  
+  if (doelSectie) {
+    doelSectie.style.display = "block";
+  }
+
+  // Werk actieve knop-stijl bij
+  const navKnoppen = document.querySelectorAll("nav button, .nav-btn, .tab-btn");
+  navKnoppen.forEach(btn => {
+    btn.classList.remove("actief", "active");
+    if (btn.getAttribute("onclick")?.includes(tabId) || btn.getAttribute("data-tab") === tabId) {
+      btn.classList.add("actief", "active");
+    }
+  });
+
+  // Acties bij openen specifiek tabblad
+  if (tabId === "flashcards" || tabId.includes("flash")) {
+    startFlashcards();
+  } else if (tabId === "beheer" || tabId.includes("beheer")) {
+    laadBeheerTabel();
+  }
+}
+
+// -------------------------------------------------------------
+// 2. PLANTENDOKTER (OVERZICHT & FILTEREN)
+// -------------------------------------------------------------
 function toonPlagen() {
   const container = document.getElementById("plagenGrid") || document.querySelector(".grid-container") || document.getElementById("resultaten");
   if (!container) return;
 
   container.innerHTML = "";
 
-  // Filteren van de database
   const gefilterdeLijst = plagenDatabase.filter(item => {
     const komtOvereenMetZoek = item.naam.toLowerCase().includes(zoekTerm) || 
                               item.wetenschappelijkeNaam.toLowerCase().includes(zoekTerm) ||
@@ -141,23 +146,24 @@ function toonPlagen() {
 
     const komtOvereenMetFilter = (actiefFilter === "alles") || 
                                  (item.type.toLowerCase().includes(actiefFilter.toLowerCase())) ||
-                                 (item.omgeving.toLowerCase().includes(actiefFilter.toLowerCase())) ||
-                                 (item.onderdeel.toLowerCase().includes(actiefFilter.toLowerCase()));
+                                 (item.omgeving?.toLowerCase().includes(actiefFilter.toLowerCase())) ||
+                                 (item.onderdeel?.toLowerCase().includes(actiefFilter.toLowerCase()));
 
     return komtOvereenMetZoek && komtOvereenMetFilter;
   });
 
   if (gefilterdeLijst.length === 0) {
-    container.innerHTML = `<p class="geen-resultaat">Geen plagen of ziekten gevonden voor deze selectie.</p>`;
+    container.innerHTML = `<p style="padding:20px; text-align:center;">Geen plagen of ziekten gevonden.</p>`;
     return;
   }
 
-  // Kaarten opbouwen
   gefilterdeLijst.forEach(item => {
     const kaart = document.createElement("div");
     kaart.className = "plaag-kaart";
+    kaart.style.cssText = "border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; background:#fff; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.05);";
+    
     kaart.innerHTML = `
-      <img src="${item.foto}" alt="${item.naam}" style="width:100%; height:180px; object-fit:cover; border-radius:8px 8px 0 0;">
+      <img src="${item.foto}" alt="${item.naam}" style="width:100%; height:180px; object-fit:cover;">
       <div style="padding: 15px;">
         <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:bold;">${item.type}</span>
         <h3 style="margin:8px 0 2px 0;">${item.naam}</h3>
@@ -181,12 +187,113 @@ function toonPlagen() {
   });
 }
 
-// EVENEVENT LISTENERS INSTELLEN (TABBLADEN, FILTERS EN ZOEKBALK)
+// -------------------------------------------------------------
+// 3. FLASHCARDS LOGICA
+// -------------------------------------------------------------
+function startFlashcards() {
+  huidigeFlashcardIndex = 0;
+  isFlashcardOmgedraaid = false;
+  toonFlashcard();
+}
+
+function toonFlashcard() {
+  const cardElement = document.getElementById("flashcard") || document.querySelector(".flashcard");
+  if (!cardElement) return;
+
+  const item = plagenDatabase[huidigeFlashcardIndex];
+  if (!item) return;
+
+  isFlashcardOmgedraaid = false;
+  cardElement.innerHTML = `
+    <div style="border:2px solid #22c55e; border-radius:12px; padding:20px; text-align:center; background:#fff; min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer;" onclick="draaiFlashcardOm()">
+      <img src="${item.foto}" style="max-height:120px; border-radius:8px; margin-bottom:10px;">
+      <h3 style="margin:0;">Wat is deze plaag/ziekte?</h3>
+      <p style="color:#666; font-size:12px; margin-top:5px;">(Klik op de kaart om het antwoord te zien)</p>
+    </div>
+  `;
+}
+
+function draaiFlashcardOm() {
+  const cardElement = document.getElementById("flashcard") || document.querySelector(".flashcard");
+  if (!cardElement) return;
+
+  const item = plagenDatabase[huidigeFlashcardIndex];
+
+  if (!isFlashcardOmgedraaid) {
+    cardElement.innerHTML = `
+      <div style="border:2px solid #0284c7; border-radius:12px; padding:20px; text-align:center; background:#f0f9ff; min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer;" onclick="draaiFlashcardOm()">
+        <h2 style="color:#0369a1; margin:0 0 5px 0;">${item.naam}</h2>
+        <p style="font-style:italic; margin:0 0 10px 0;">${item.wetenschappelijkeNaam}</p>
+        <p style="font-size:13px; margin-bottom:8px;"><strong>Biologische Bestrijder:</strong><br>${item.biologischeBestrijder}</p>
+        <p style="font-size:12px; color:#555;">${item.biologischeWerking}</p>
+      </div>
+    `;
+    isFlashcardOmgedraaid = true;
+  } else {
+    toonFlashcard();
+  }
+}
+
+function volgendeFlashcard() {
+  huidigeFlashcardIndex = (huidigeFlashcardIndex + 1) % plagenDatabase.length;
+  toonFlashcard();
+}
+
+function vorigeFlashcard() {
+  huidigeFlashcardIndex = (huidigeFlashcardIndex - 1 + plagenDatabase.length) % plagenDatabase.length;
+  toonFlashcard();
+}
+
+// -------------------------------------------------------------
+// 4. BEHEER SCHERM (ITEM TOEVOEGEN/OVERZICHT)
+// -------------------------------------------------------------
+function laadBeheerTabel() {
+  const tabelBody = document.getElementById("beheerTabelBody") || document.querySelector("#beheer table tbody");
+  if (!tabelBody) return;
+
+  tabelBody.innerHTML = "";
+  plagenDatabase.forEach((item, index) => {
+    const rij = document.createElement("tr");
+    rij.innerHTML = `
+      <td style="padding:8px; border-bottom:1px solid #ddd;">${item.naam}</td>
+      <td style="padding:8px; border-bottom:1px solid #ddd;"><em>${item.wetenschappelijkeNaam}</em></td>
+      <td style="padding:8px; border-bottom:1px solid #ddd;">${item.biologischeBestrijder}</td>
+      <td style="padding:8px; border-bottom:1px solid #ddd;">
+        <button onclick="verwijderPlaag(${index})" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Verwijder</button>
+      </td>
+    `;
+    tabelBody.appendChild(rij);
+  });
+}
+
+function verwijderPlaag(index) {
+  plagenDatabase.splice(index, 1);
+  laadBeheerTabel();
+  toonPlagen();
+}
+
+// -------------------------------------------------------------
+// 5. INITIALISATIE & EVENT LISTENERS
+// -------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Eerste keer kaarten laden
+  // 1. Eerste weergave van de plagen
   toonPlagen();
 
-  // 2. Zoekbalk werkend maken
+  // 2. Koppel alle navigatieknoppen (Hoofdtabs)
+  const navKnoppen = document.querySelectorAll("nav button, .nav-btn, .tab-btn, [data-tab]");
+  navKnoppen.forEach(knop => {
+    knop.addEventListener("click", (e) => {
+      const doelTab = knop.getAttribute("data-tab") || 
+                      knop.getAttribute("onclick")?.match(/'([^']+)'/)?.[1] || 
+                      knop.innerText.toLowerCase().trim();
+      
+      if (doelTab) {
+        navigeerNaar(doelTab);
+      }
+    });
+  });
+
+  // 3. Zoekbalk koppelen
   const zoekInput = document.getElementById("zoekInput") || document.querySelector("input[type='text']");
   if (zoekInput) {
     zoekInput.addEventListener("input", (e) => {
@@ -195,16 +302,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. Tabbladen / Filterknoppen werkend maken
-  const filterKnoppen = document.querySelectorAll(".tab-knop, .filter-btn, button[data-filter]");
+  // 4. Sub-filters (Plagen filteren)
+  const filterKnoppen = document.querySelectorAll(".filter-btn, button[data-filter]");
   filterKnoppen.forEach(knop => {
     knop.addEventListener("click", (e) => {
-      // Actieve stijl omzetten
       filterKnoppen.forEach(k => k.classList.remove("active", "actief"));
-      e.target.classList.add("active", "actief");
-
-      // Filterwaarde ophalen
-      actiefFilter = e.target.getAttribute("data-filter") || e.target.innerText.trim();
+      knop.classList.add("active", "actief");
+      actiefFilter = knop.getAttribute("data-filter") || knop.innerText.trim();
       toonPlagen();
     });
   });
