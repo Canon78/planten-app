@@ -39,6 +39,54 @@ const standaardPlanten = [
   }
 ];
 
+// DATABANK SCHADELIJKE INSECTEN EN ZIEKTEN (PLANTENDOKTER)
+const plagenDatabase = [
+  {
+    id: "p1",
+    naam: "Spintmijt",
+    type: "Schadelijk insect / Mijt",
+    symptomen: ["spinnenweb", "geel"],
+    onderdeel: "blad",
+    herkenning: "Fijne spinnenwebjes onder het blad en gele spikkeling op de bovenzijde.",
+    oorzaak: "Warme, droge lucht (bijv. 's winters bij de verwarming).",
+    bestrijding: "Luchtvochtigheid verhogen, plant afspoelen onder de douche, of roofmijten inzetten.",
+    foto: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: "p2",
+    naam: "Trips",
+    type: "Schadelijk insect",
+    symptomen: ["vlekken", "geel"],
+    onderdeel: "blad",
+    herkenning: "Zilverachtige/grijze vlekken op het blad met zwarte stipjes (uitwerpselen).",
+    oorzaak: "Lage luchtvochtigheid en tocht.",
+    bestrijding: "Aangedane bladeren wegsnijden, afspoelen en insectenzeep of aaltjes gebruiken.",
+    foto: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: "p3",
+    naam: "Wolluis",
+    type: "Schadelijk insect",
+    symptomen: ["pluis", "plakkerig"],
+    onderdeel: "stengel",
+    herkenning: "Witte, pluizige/wollige bultjes in de bladoksels en onder bladeren.",
+    oorzaak: "Tocht, droge lucht of verminderde weerstand van de plant.",
+    bestrijding: "Aanstippen met alcohol/spiritus op een wattenstaafje of neemolie sprayen.",
+    foto: "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: "p4",
+    naam: "Wortelrot",
+    type: "Schimmel / Aandoening",
+    symptomen: ["geel"],
+    onderdeel: "wortel",
+    herkenning: "Zwarte, snotterige wortels en vergelende, slap hangende bladeren ondanks natte grond.",
+    oorzaak: "Te veel water geven en slechte potdrainage.",
+    bestrijding: "Plant verpotten, rotte wortels wegsnijden en voortaan minder water geven.",
+    foto: "https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=600&q=80"
+  }
+];
+
 let plantenDatabase = [];
 let bewerkId = null;
 
@@ -65,6 +113,7 @@ let resterendeTijd = 0;
 document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
+  laadPlantendokter();
   installeerPlakLuisteraar();
 });
 
@@ -98,6 +147,50 @@ function switchTab(tabId, btnElement) {
   if (tabId === 'flashcard-tab') {
     initFlashcards();
   }
+}
+
+// PLANTENDOKTER LOGICA
+function laadPlantendokter() {
+  const grid = document.getElementById("doctor-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  plagenDatabase.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "plant-card doctor-card";
+    card.setAttribute("data-symptomen", JSON.stringify(p.symptomen));
+    card.setAttribute("data-onderdeel", p.onderdeel);
+
+    card.innerHTML = `
+      <img src="${p.foto}" alt="${p.naam}">
+      <div class="plant-card-content">
+        <span class="doctor-badge">${p.type}</span>
+        <h3>${p.naam}</h3>
+        <p style="font-size:0.85rem; margin-top:5px;">🔍 <strong>Symptoom:</strong> ${p.herkenning}</p>
+        <p style="font-size:0.85rem; margin-top:5px;">⚠️ <strong>Oorzaak:</strong> ${p.oorzaak}</p>
+        <div class="treatment-box">
+          <strong>🩺 Behandeling:</strong><br>${p.bestrijding}
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function zoekPlaag() {
+  const gekozenSymptoom = document.getElementById("doctor-symptom").value;
+  const gekozenOnderdeel = document.getElementById("doctor-part").value;
+
+  document.querySelectorAll(".doctor-card").forEach(kaart => {
+    const symptomen = JSON.parse(kaart.getAttribute("data-symptomen") || "[]");
+    const onderdeel = kaart.getAttribute("data-onderdeel");
+
+    let toon = true;
+    if (gekozenSymptoom && !symptomen.includes(gekozenSymptoom)) toon = false;
+    if (gekozenOnderdeel && onderdeel !== gekozenOnderdeel) toon = false;
+
+    kaart.style.display = toon ? "block" : "none";
+  });
 }
 
 // FLASHCARDS LOGICA
