@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function() {
   laadBibliotheek();
   laadBeheerLijst();
   installeerPlakLuisteraar();
-  initFlashcards();
 });
 
 function opslaanInStorage() {
