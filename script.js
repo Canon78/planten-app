@@ -10,6 +10,7 @@ const standaardPlanten = [
     bladrand: "Grof getand",
     vrucht: "Gefleugelde splitvrucht (helikoptertje)",
     standplaats: "Volle zon",
+    bodemsoort: "Humusrijk / Universeel",
     waterbehoefte: "Gemiddeld (regelmatig)",
     bladbehoud: "Bladverliezend",
     bloeitijd: "Mei (hangende trossen)",
@@ -20,15 +21,36 @@ const standaardPlanten = [
   },
   {
     id: 2,
+    nlNaam: "Paardenbloem",
+    latNaam: "Taraxacum officinale",
+    familie: "Asteraceae (Composietenfamilie)",
+    leerjaren: ["3", "4"],
+    categorie: "Onkruid / Wilde plant",
+    bladvorm: "Veerspletig in wortelrozet",
+    bladrand: "Achterwaarts getand",
+    vrucht: "Nootje met vruchtpluis (pluisbol)",
+    standplaats: "Geen voorkeur (Zon tot Schaduw)",
+    bodemsoort: "Geen voorkeur / Elke bodemsoort",
+    waterbehoefte: "Verdraagt droogte én nattigheid",
+    bladbehoud: "Bladverliezend",
+    bloeitijd: "April - Oktober",
+    vermeerderen: "Penwortel & Pluiszaad via wind",
+    grootte: "5 tot 40 cm",
+    foto: "https://images.unsplash.com/photo-1533038590840-1cde6e668a91?auto=format&fit=crop&w=600&q=80",
+    beschrijving: "Bekend onkruid met holle stengel en wit melksap. Groeit op vrijwel elke bodem."
+  },
+  {
+    id: 3,
     nlNaam: "Monstera (Gatenplant)",
     latNaam: "Monstera deliciosa",
-    familie: "Araceae (Aronskelkwaliteit)",
+    familie: "Araceae (Aronskelkfamilie)",
     leerjaren: ["3", "4"],
     categorie: "Kamerplant",
     bladvorm: "Hartvormig met diepe insnijdingen/gaten",
     bladrand: "Gaafrandig (ingesneden)",
     vrucht: "Kolfvrucht (zelden binnenshuis)",
     standplaats: "Halfschaduw / Lichte plek",
+    bodemsoort: "Humusrijk / Universeel",
     waterbehoefte: "Gemiddeld (regelmatig)",
     bladbehoud: "Groenblijvend (bladhoudend)",
     bloeitijd: "Zelden in de huiskamer",
@@ -137,10 +159,12 @@ function toonFlashcard() {
   let hint = [];
   if (plant.familie) hint.push("🏛️ <strong>Familie:</strong> " + plant.familie);
   if (plant.leerjaren && plant.leerjaren.length > 0) hint.push("🎓 <strong>Leerjaar:</strong> " + plant.leerjaren.map(j => j + "e").join(", "));
+  if (plant.categorie) hint.push("🏷️ <strong>Type:</strong> " + plant.categorie);
   if (plant.bladvorm) hint.push("🍃 <strong>Bladvorm:</strong> " + plant.bladvorm);
   if (plant.bladrand) hint.push("📐 <strong>Bladrand:</strong> " + plant.bladrand);
   if (plant.vrucht) hint.push("🍒 <strong>Vrucht:</strong> " + plant.vrucht);
   if (plant.standplaats) hint.push("☀️ <strong>Standplaats:</strong> " + plant.standplaats);
+  if (plant.bodemsoort) hint.push("🪴 <strong>Bodemsoort:</strong> " + plant.bodemsoort);
   if (plant.beschrijving) hint.push("📝 <strong>Herbariumtip:</strong> " + plant.beschrijving);
 
   document.getElementById("fc-details").innerHTML = hint.join("<br>");
@@ -276,6 +300,7 @@ function toonVraag() {
     if (vraag.familie) hint.push("🏛️ <strong>Familie:</strong> " + vraag.familie);
     if (vraag.bladvorm) hint.push("🍃 <strong>Bladvorm:</strong> " + vraag.bladvorm);
     if (vraag.bladrand) hint.push("📐 <strong>Bladrand:</strong> " + vraag.bladrand);
+    if (vraag.bodemsoort) hint.push("🪴 <strong>Bodemsoort:</strong> " + vraag.bodemsoort);
     if (vraag.vrucht) hint.push("🍒 <strong>Vrucht:</strong> " + vraag.vrucht);
     if (vraag.beschrijving) hint.push("📝 <strong>Tip:</strong> " + vraag.beschrijving);
 
@@ -403,12 +428,13 @@ function laadBibliotheek() {
     card.setAttribute("data-lat", (plant.latNaam || "").toLowerCase());
     card.setAttribute("data-cat", plant.categorie || "");
     card.setAttribute("data-standplaats", plant.standplaats || "");
+    card.setAttribute("data-bodem", plant.bodemsoort || "");
     card.setAttribute("data-blad", plant.bladbehoud || "");
     card.setAttribute("data-jaren", JSON.stringify(plant.leerjaren || []));
 
     const zoekData = [
       plant.nlNaam, plant.latNaam, plant.familie, plant.bladvorm, plant.bladrand, plant.vrucht,
-      plant.categorie, plant.standplaats, plant.waterbehoefte, plant.bladbehoud, 
+      plant.categorie, plant.standplaats, plant.bodemsoort, plant.waterbehoefte, plant.bladbehoud, 
       plant.bloeitijd, plant.vermeerderen, plant.grootte, plant.beschrijving
     ].filter(Boolean).join(" ").toLowerCase();
 
@@ -427,11 +453,12 @@ function laadBibliotheek() {
         <div class="plant-details">
           ${plant.familie ? `<span>🏛️ <strong>Familie:</strong> ${plant.familie}</span>` : ''}
           <span>🎓 <strong>Leerjaar:</strong> ${leerjarenTekst}</span>
+          ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
           ${plant.bladvorm ? `<span>🍃 <strong>Bladvorm:</strong> ${plant.bladvorm}</span>` : ''}
           ${plant.bladrand ? `<span>📐 <strong>Bladrand:</strong> ${plant.bladrand}</span>` : ''}
           ${plant.vrucht ? `<span>🍒 <strong>Vrucht:</strong> ${plant.vrucht}</span>` : ''}
-          ${plant.categorie ? `<span>🏷️ <strong>Type:</strong> ${plant.categorie}</span>` : ''}
           ${plant.standplaats ? `<span>☀️ <strong>Standplaats:</strong> ${plant.standplaats}</span>` : ''}
+          ${plant.bodemsoort ? `<span>🪴 <strong>Bodemsoort:</strong> ${plant.bodemsoort}</span>` : ''}
           ${plant.waterbehoefte ? `<span>💧 <strong>Water:</strong> ${plant.waterbehoefte}</span>` : ''}
           ${plant.bladbehoud ? `<span>🍃 <strong>Blad:</strong> ${plant.bladbehoud}</span>` : ''}
           ${plant.bloeitijd ? `<span>🌸 <strong>Bloei:</strong> ${plant.bloeitijd}</span>` : ''}
@@ -450,6 +477,7 @@ function laadBibliotheek() {
 function pasFiltersToe() {
   const gekozenJaar = document.getElementById("filter-jaar").value;
   const standplaats = document.getElementById("filter-standplaats").value;
+  const bodem = document.getElementById("filter-bodem").value;
   const blad = document.getElementById("filter-blad").value;
   const categorie = document.getElementById("filter-categorie").value;
 
@@ -457,6 +485,7 @@ function pasFiltersToe() {
 
   kaarten.forEach(kaart => {
     const kStand = kaart.getAttribute("data-standplaats");
+    const kBodem = kaart.getAttribute("data-bodem");
     const kBlad = kaart.getAttribute("data-blad");
     const kCat = kaart.getAttribute("data-cat");
     const kJaren = JSON.parse(kaart.getAttribute("data-jaren") || "[]");
@@ -465,6 +494,7 @@ function pasFiltersToe() {
 
     if (gekozenJaar && !kJaren.includes(gekozenJaar)) toon = false;
     if (standplaats && kStand !== standplaats) toon = false;
+    if (bodem && kBodem !== bodem) toon = false;
     if (blad && kBlad !== blad) toon = false;
     if (categorie && kCat !== categorie) toon = false;
 
@@ -584,6 +614,7 @@ function voegPlantToe(e) {
         vrucht: document.getElementById("new-vrucht").value.trim(),
         categorie: document.getElementById("new-categorie").value,
         standplaats: document.getElementById("new-standplaats").value,
+        bodemsoort: document.getElementById("new-bodem").value,
         waterbehoefte: document.getElementById("new-water").value,
         bladbehoud: document.getElementById("new-blad").value,
         bloeitijd: document.getElementById("new-bloei").value.trim(),
@@ -607,6 +638,7 @@ function voegPlantToe(e) {
       vrucht: document.getElementById("new-vrucht").value.trim(),
       categorie: document.getElementById("new-categorie").value,
       standplaats: document.getElementById("new-standplaats").value,
+      bodemsoort: document.getElementById("new-bodem").value,
       waterbehoefte: document.getElementById("new-water").value,
       bladbehoud: document.getElementById("new-blad").value,
       bloeitijd: document.getElementById("new-bloei").value.trim(),
@@ -643,8 +675,9 @@ function startBewerken(id) {
   document.getElementById("new-bladvorm").value = plant.bladvorm || "";
   document.getElementById("new-bladrand").value = plant.bladrand || "";
   document.getElementById("new-vrucht").value = plant.vrucht || "";
-  document.getElementById("new-categorie").value = plant.categorie || "Struik / Plant";
-  document.getElementById("new-standplaats").value = plant.standplaats || "";
+  document.getElementById("new-categorie").value = plant.categorie || "Onkruid / Wilde plant";
+  document.getElementById("new-standplaats").value = plant.standplaats || "Geen voorkeur (Zon tot Schaduw)";
+  document.getElementById("new-bodem").value = plant.bodemsoort || "Geen voorkeur / Elke bodemsoort";
   document.getElementById("new-water").value = plant.waterbehoefte || "";
   document.getElementById("new-blad").value = plant.bladbehoud || "";
   document.getElementById("new-bloei").value = plant.bloeitijd || "";
