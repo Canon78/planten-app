@@ -1,14 +1,13 @@
-// AUTOMATISCHE HERSTEL-LOGICA VOOR OUDE PLANTEN
+// STANTDAARD DATABASE (Wordt gebruikt als er niks in de browser staat)
 let opgeslagenPlanten = JSON.parse(localStorage.getItem('herbarium_planten')) || [];
 
-// Zorg dat oude planten niet crashen als ze de nieuwe velden nog niet hadden
 let plantenDatabase = opgeslagenPlanten.map(p => {
   return {
     id: p.id || Date.now() + Math.random(),
     nlNaam: p.nlNaam || "Onbekende plant",
     latNaam: p.latNaam || "",
     familie: p.familie || "",
-    leerjaren: p.leerjaren || [3], // Standaard op 3e jaar zetten als het ontbrak
+    leerjaren: p.leerjaren || [3],
     bladvorm: p.bladvorm || "",
     bladrand: p.bladrand || "",
     vrucht: p.vrucht || "",
@@ -73,6 +72,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function opslaanInLocalStorage() {
   localStorage.setItem('herbarium_planten', JSON.stringify(plantenDatabase));
+}
+
+// --- BACK-UP & HERSTEL FUNCTIES ---
+function exporteerPlanten() {
+  if (plantenDatabase.length === 0) {
+    alert("Er zijn geen planten om te exporteren!");
+    return;
+  }
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plantenDatabase, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `herbarium_backup_${new Date().toISOString().slice(0,10)}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function importeerPlanten(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const geimporteerdePlanten = JSON.parse(e.target.result);
+      if (Array.isArray(geimporteerdePlanten)) {
+        plantenDatabase = geimporteerdePlanten;
+        opslaanInLocalStorage();
+        laadBeheerLijst();
+        pasFiltersToe();
+        alert(`✅ Succesvol ${geimporteerdePlanten.length} planten geïmporteerd!`);
+      } else {
+        alert("❌ Ongeldig bestandformaat.");
+      }
+    } catch (err) {
+      alert("❌ Er is een fout opgetreden bij het lezen van het bestand.");
+    }
+  };
+  reader.readAsText(file);
 }
 
 // --- NAVIGATIE & TABS ---
@@ -367,8 +405,7 @@ function toonQuizVraag() {
     optContainer.style.gridTemplateColumns = "1fr 1fr";
 
     vraag.opties.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.className = "option-img-btn";
+      const btn = document.className = "option-img-btn";
       const img = document.createElement("img");
       img.src = opt.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80';
       btn.appendChild(img);
