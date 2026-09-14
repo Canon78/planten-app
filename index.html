@@ -27,7 +27,7 @@
         <h2>🔍 Zoeken & Filteren</h2>
         
         <div class="search-container">
-          <input type="text" id="search-input" placeholder="Zoek op naam, familie, bladvorm, standplaats..." oninput="zoekPlanten()">
+          <input type="text" id="search-input" placeholder="Zoek op naam, familie, bladvorm, standplaats, schoollocatie..." oninput="zoekPlanten()">
         </div>
 
         <div id="alphabet-filter" class="alphabet-container"></div>
@@ -241,13 +241,18 @@
             </div>
 
             <div class="form-group">
-              <label>🎓 Geschikt voor Leerjaar:</label>
-              <div style="display: flex; gap: 15px; margin-top: 5px;">
-                <label><input type="checkbox" id="jaar-3" checked> 3e</label>
-                <label><input type="checkbox" id="jaar-4"> 4e</label>
-                <label><input type="checkbox" id="jaar-5"> 5e</label>
-                <label><input type="checkbox" id="jaar-6"> 6e</label>
-              </div>
+              <label for="new-locatie-school">📍 Locatie op school (Optioneel)</label>
+              <input type="text" id="new-locatie-school" placeholder="bijv. Binnentuin vak B, Hoofdingang, Achter sporthal">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>🎓 Geschikt voor Leerjaar:</label>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+              <label><input type="checkbox" id="jaar-3" checked> 3e</label>
+              <label><input type="checkbox" id="jaar-4"> 4e</label>
+              <label><input type="checkbox" id="jaar-5"> 5e</label>
+              <label><input type="checkbox" id="jaar-6"> 6e</label>
             </div>
           </div>
 
@@ -362,7 +367,7 @@
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button type="submit" class="primary-btn">➕ Plant Toevoegen aan Herbarium</button>
+            <button type="submit" id="submit-btn" class="primary-btn">➕ Plant Toevoegen aan Herbarium</button>
             <button type="button" class="secondary-btn" onclick="resetFormulier()">🔄 Formulier Wissen</button>
           </div>
         </form>
