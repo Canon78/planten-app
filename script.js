@@ -1,48 +1,30 @@
-// --- DATABASE EN INITIELE DATA ---
-let plantenDatabase = JSON.parse(localStorage.getItem('herbarium_planten')) || [
-  {
-    id: 1,
-    nlNaam: "Paardenbloem",
-    latNaam: "Taraxacum officinale",
-    familie: "Asteraceae (Composietenfamilie)",
-    leerjaren: [3],
-    bladvorm: "Veerspletig, diep ingesneden in een wortelrozet",
-    bladrand: "Grof getand, tanden wijzen achterwaarts",
-    vrucht: "Nootje met een steeltje en vruchtpluis (pluisbol)",
-    bloei: "April - Oktober (Hoogtepunt in het voorjaar)",
-    categorie: "Onkruid / Wilde plant",
-    standplaats: "Volle zon",
-    bodem: "Humusrijk / Universeel",
-    water: "Gemiddeld",
-    bladbehoud: "Bladverliezend",
-    vermeerderen: "Penwortel & Pluiszaad via wind",
-    grootte: "5 tot 40 cm",
-    locatieSchool: "Speelplaats & Binnentuin zone A",
-    beschrijving: "Bekend onkruid met een holle stengel die wit melksap bevat. Zeer belangrijke vroege voedselbron voor bijen.",
-    foto: "https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 2,
-    nlNaam: "Madeliefje",
-    latNaam: "Bellis perennis",
-    familie: "Asteraceae (Composietenfamilie)",
-    leerjaren: [3],
-    bladvorm: "Spathelvormig, omgekeerd eirond in rozet",
-    bladrand: "Gekarteld tot vrijwel gaafrandig",
-    vrucht: "Klein nootje zonder pluis",
-    bloei: "Vrijwel het hele jaar (Zolang het niet vriest)",
-    categorie: "Onkruid / Wilde plant",
-    standplaats: "Volle zon",
-    bodem: "Humusrijk / Universeel",
-    water: "Gemiddeld",
-    bladbehoud: "Groenblijvend (bladhoudend)",
-    vermeerderen: "Zaad & Uitlopers",
-    grootte: "5 tot 15 cm",
-    locatieSchool: "Grasveld bij de sportvelden",
-    beschrijving: "Klassieke graslandplant. De bloemhoofdjes sluiten 's nachts en bij regenweer.",
-    foto: "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80"
-  }
-];
+// AUTOMATISCHE HERSTEL-LOGICA VOOR OUDE PLANTEN
+let opgeslagenPlanten = JSON.parse(localStorage.getItem('herbarium_planten')) || [];
+
+// Zorg dat oude planten niet crashen als ze de nieuwe velden nog niet hadden
+let plantenDatabase = opgeslagenPlanten.map(p => {
+  return {
+    id: p.id || Date.now() + Math.random(),
+    nlNaam: p.nlNaam || "Onbekende plant",
+    latNaam: p.latNaam || "",
+    familie: p.familie || "",
+    leerjaren: p.leerjaren || [3], // Standaard op 3e jaar zetten als het ontbrak
+    bladvorm: p.bladvorm || "",
+    bladrand: p.bladrand || "",
+    vrucht: p.vrucht || "",
+    bloei: p.bloei || "",
+    categorie: p.categorie || "Onkruid / Wilde plant",
+    standplaats: p.standplaats || "",
+    bodem: p.bodem || "",
+    water: p.water || "",
+    bladbehoud: p.bladbehoud || "",
+    vermeerderen: p.vermeerderen || "",
+    grootte: p.grootte || "",
+    locatieSchool: p.locatieSchool || "",
+    beschrijving: p.beschrijving || "",
+    foto: p.foto || ""
+  };
+});
 
 let actieveFilterLetter = "";
 let isBewerken = false;
@@ -60,7 +42,7 @@ let quizTimer = null;
 let timerBarInterval = null;
 let gekozenTimerTijd = 0;
 
-// WA TCHTWOORD VOOR BEHEER
+// WACHTWOORD VOOR BEHEER
 let isIngelogdAlsAdmin = false;
 const ADMIN_WACHTWOORD = "docent123";
 
@@ -310,7 +292,6 @@ function startQuizMetInstellingen() {
     return;
   }
 
-  // Schud pool
   pool.sort(() => Math.random() - 0.5);
 
   quizVragen = pool.map(juistePlant => {
@@ -416,7 +397,6 @@ function toonQuizVraag() {
     });
   }
 
-  // Timer Afhandeling
   const timerDisplay = document.getElementById("timer-display");
   const timerBarContainer = document.getElementById("timer-bar-container");
   const timerBar = document.getElementById("timer-bar");
