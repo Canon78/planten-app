@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactief Digital Herbarium</title>
+  <title>Interactief Digitaal Herbarium</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -34,14 +34,16 @@
     <section id="library-tab" class="tab-content active">
       <div class="search-filter-card">
         <h2>🔍 Zoek & Filter Planten</h2>
-        <div class="search-box">
+        
+        <div class="search-box" style="margin-bottom: 15px;">
           <input type="text" id="search-input" placeholder="Zoek op Nederlandse of Latijnse naam, familie, bladvorm..." onkeyup="zoekPlanten()">
         </div>
 
-        <!-- Alfabetische filter -->
-        <div class="alphabet-container" id="alphabet-filter"></div>
+        <!-- Alfabetische filter A-Z -->
+        <div class="alphabet-container" id="alphabet-filter" style="margin-bottom: 15px;"></div>
 
-        <div class="filter-grid">
+        <!-- Filter Opties Grid -->
+        <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
           <div class="filter-group">
             <label for="filter-jaar">🎓 Leerjaar:</label>
             <select id="filter-jaar" onchange="pasFiltersToe()">
@@ -102,6 +104,7 @@
         </div>
       </div>
 
+      <!-- PLANTEN KAARTEN GRID -->
       <div class="plant-grid" id="plant-grid"></div>
     </section>
 
