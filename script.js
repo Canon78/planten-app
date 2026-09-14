@@ -1,4 +1,4 @@
-// STANTDAARD DATABASE (Wordt gebruikt als er niks in de browser staat)
+// STANDAARD DATABASE (Wordt gebruikt als er niks in de browser staat)
 let opgeslagenPlanten = JSON.parse(localStorage.getItem('herbarium_planten')) || [];
 
 let plantenDatabase = opgeslagenPlanten.map(p => {
@@ -372,7 +372,6 @@ function toonQuizVraag() {
 
   document.getElementById("question-count").innerText = `Vraag ${huidigeVraagIndex + 1} van ${totaal}`;
   document.getElementById("score-display").innerText = `Score: ${score}`;
-  document.getElementById("progress-bar").style.width = `${((huidigeVraagIndex) / totaal) * 100}%`;
 
   const imgContainer = document.getElementById("image-container");
   const plantImg = document.getElementById("plant-img");
@@ -405,7 +404,8 @@ function toonQuizVraag() {
     optContainer.style.gridTemplateColumns = "1fr 1fr";
 
     vraag.opties.forEach(opt => {
-      const btn = document.className = "option-img-btn";
+      const btn = document.createElement("button");
+      btn.className = "option-img-btn";
       const img = document.createElement("img");
       img.src = opt.foto || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80';
       btn.appendChild(img);
