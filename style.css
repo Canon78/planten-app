@@ -2,56 +2,45 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
 body {
   background-color: #f4f6f8;
   color: #333;
-  line-height: 1.6;
 }
 
 header {
   background-color: #2e7d32;
   color: white;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.8rem;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 nav {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.tab-btn {
-  background-color: rgba(255, 255, 255, 0.2);
+.nav-btn {
+  background-color: #1b5e20;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 8px 14px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s ease;
 }
 
-.tab-btn:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+.nav-btn.actief, .nav-btn:hover {
+  background-color: #4caf50;
 }
 
-.tab-btn.active {
-  background-color: white;
-  color: #2e7d32;
-}
-
-.container {
+main {
   max-width: 1000px;
   margin: 20px auto;
   padding: 0 15px;
@@ -61,387 +50,124 @@ nav {
   display: none;
 }
 
-.tab-content.active {
+.tab-content.actief {
   display: block;
 }
 
-.card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  margin-bottom: 1.5rem;
+.filter-bar {
+  margin-bottom: 20px;
 }
 
-/* ZOEK BALK & ALFABET */
-.search-container {
-  margin-bottom: 1rem;
-}
-
-.search-container input {
+.filter-bar input {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #a5d6a7;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
 }
 
-.search-container input:focus {
-  border-color: #2e7d32;
-}
-
-.alphabet-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 1.5rem;
-  justify-content: center;
-}
-
-.letter-btn {
-  background: #e8f5e9;
-  border: 1px solid #a5d6a7;
-  color: #2e7d32;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.letter-btn:hover, .letter-btn.active {
-  background: #2e7d32;
-  color: white;
-}
-
-/* PLANT GRID & CARDS */
-.plant-grid {
+.grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
-.plant-card {
+.plant-kaart {
   background: white;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  padding: 15px;
 }
 
-.plant-card:hover {
-  transform: translateY(-5px);
-}
-
-.plant-card img {
+.plant-kaart img {
   width: 100%;
   height: 180px;
   object-fit: cover;
-}
-
-.plant-card-content {
-  padding: 15px;
-}
-
-.plant-card-content h3 {
-  color: #2e7d32;
-  margin-bottom: 2px;
-}
-
-.plant-card-content em {
-  color: #666;
-  font-size: 0.9rem;
-  display: block;
+  border-radius: 6px;
   margin-bottom: 10px;
 }
 
-.plant-details span {
-  display: block;
-  font-size: 0.85rem;
-  color: #444;
-  margin-bottom: 4px;
-}
-
-/* PLANTENDOKTER STYLING */
-.doctor-card {
-  border-top: 4px solid #e65100;
-}
-
-.doctor-badge {
-  display: inline-block;
-  background: #ffe0b2;
-  color: #e65100;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.treatment-box {
-  background: #e8f5e9;
-  border: 1px solid #c8e6c9;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 10px;
-  font-size: 0.85rem;
-}
-
-/* FLASHCARDS */
-.flashcard-wrapper {
-  perspective: 1000px;
-  width: 100%;
+/* Flashcards */
+.flashcard-container {
   max-width: 450px;
-  margin: 0 auto 20px auto;
-  height: 380px;
+  margin: 20px auto;
+  text-align: center;
 }
 
-.flashcard {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-  cursor: pointer;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.flashcard.flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-front, .flashcard-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
+.card {
   background: white;
-  padding: 20px;
+  border: 2px solid #2e7d32;
+  border-radius: 10px;
+  min-height: 220px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px solid #a5d6a7;
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.flashcard-front img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.flashcard-back {
-  transform: rotateY(180deg);
-  align-items: flex-start;
-  overflow-y: auto;
-}
-
-.flashcard-controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-/* QUIZ */
-.quiz-header {
+.card-controls {
+  margin-top: 15px;
   display: flex;
   justify-content: space-between;
-  font-weight: bold;
-  margin-bottom: 10px;
+  align-items: center;
 }
 
-.timer-badge {
-  background: #fff3e0;
-  color: #e65100;
-  padding: 2px 8px;
-  border-radius: 12px;
-  border: 1px solid #ffe0b2;
-}
-
-.progress-container {
-  width: 100%;
-  background: #e0e0e0;
-  height: 8px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
+.card-controls button {
   background: #2e7d32;
-  width: 0%;
-  transition: width 0.3s;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.timer-bar-container {
-  width: 100%;
-  background: #eee;
-  height: 4px;
-  margin-bottom: 15px;
-}
-
-.timer-bar {
-  height: 100%;
-  background: #ff9800;
-  width: 100%;
-}
-
-.image-container img {
-  width: 100%;
-  max-height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.options-grid {
+/* Formulier Beheer */
+#plantForm {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.option-btn {
-  background: #f1f8e9;
-  border: 2px solid #c8e6c9;
-  padding: 12px;
+  gap: 15px;
+  background: white;
+  padding: 20px;
   border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  text-align: left;
-  transition: background 0.2s;
-}
-
-.option-btn:hover {
-  background: #c8e6c9;
-}
-
-.option-btn.correct {
-  background: #a5d6a7;
-  border-color: #2e7d32;
-  color: #1b5e20;
-}
-
-.option-btn.wrong {
-  background: #ffcdd2;
-  border-color: #c62828;
-  color: #b71c1c;
-}
-
-.option-img-btn {
-  border: 3px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  background: none;
-  padding: 0;
-}
-
-.option-img-btn img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  display: block;
-}
-
-.option-img-btn.correct { border-color: #2e7d32; }
-.option-img-btn.wrong { border-color: #c62828; }
-
-.feedback-box {
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.feedback-box.correct { background: #e8f5e9; color: #2e7d32; }
-.feedback-box.wrong { background: #ffebee; color: #c62828; }
-
-/* KNOPPEN & FORMULIEREN */
-.primary-btn {
-  background: #2e7d32;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.primary-btn:hover { background: #1b5e20; }
-
-.secondary-btn {
-  background: #757575;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 4px;
   font-weight: bold;
-  font-size: 0.9rem;
+  margin-bottom: 5px;
+  font-size: 14px;
 }
 
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%;
+.form-group input, .form-group textarea {
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-.paste-zone {
-  border: 2px dashed #a5d6a7;
-  background: #f1f8e9;
-  padding: 15px;
-  text-align: center;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.hidden { display: none !important; }
-
-/* FLOATING BUTTON: TERUG NAAR BOVEN */
-.back-to-top-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 50px;
-  height: 50px;
-  background-color: #2e7d32;
+.submit-btn {
+  grid-column: span 2;
+  background: #2e7d32;
   color: white;
+  padding: 12px;
   border: none;
-  border-radius: 50%;
-  font-size: 1.5rem;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.2s ease;
 }
 
-.back-to-top-btn:hover {
-  background-color: #1b5e20;
-  transform: scale(1.1);
-}
-
-.back-to-top-btn.show {
-  opacity: 1;
-  visibility: visible;
+.submit-btn:hover {
+  background: #1b5e20;
 }
