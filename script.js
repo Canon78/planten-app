@@ -20,8 +20,8 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
   }
 ];
 
+let actieveFlashcards = [];
 let huidigeFlashIndex = 0;
-let isOmgedraaid = false;
 let geselecteerdeLetter = "ALLES";
 let huidigeQuizVraag = null;
 let isIngelogdAlsBeheerder = false;
@@ -118,63 +118,105 @@ function filterHerbarium() {
   });
 }
 
-// 3. FLASHCARDS
+// 3. FLASHCARDS (3D FLIP & DETAILED STUDY FICHE)
 function startFlashcards() {
+  actieveFlashcards = [...plantenDatabase];
   huidigeFlashIndex = 0;
   toonFlashcard();
 }
 
 function toonFlashcard() {
-  const inhoud = document.getElementById("flashcardInhoud");
+  const voorkant = document.getElementById("flashcardVoorkant");
+  const achterkant = document.getElementById("flashcardAchterkant");
   const teller = document.getElementById("flashcardTeller");
-  if (plantenDatabase.length === 0) return;
+  const cardElement = document.querySelector(".flip-card");
 
-  const item = plantenDatabase[huidigeFlashIndex];
-  isOmgedraaid = false;
+  // Zorg dat de kaart weer op de voorkant begint
+  if (cardElement) cardElement.classList.remove("omgedraaid");
 
-  inhoud.innerHTML = `
-    <div>
-      <img src="${item.foto}" style="max-height:120px; border-radius:6px; margin-bottom:10px;">
-      <h3>Hoe heet deze plant?</h3>
-      ${toonLeerjaren(item)}
+  if (actieveFlashcards.length === 0) {
+    voorkant.innerHTML = `
+      <div class="card-placeholder">
+        🎉 Proficiat!<br><br>Je hebt alle planten uit de stapel verwerkt!
+      </div>
+    `;
+    achterkant.innerHTML = `<div>Druk op 'Herstel uitgestelde kaarten' om opnieuw te oefenen.</div>`;
+    teller.innerText = "0 / 0";
+    return;
+  }
+
+  if (huidigeFlashIndex >= actieveFlashcards.length) huidigeFlashIndex = 0;
+  if (huidigeFlashIndex < 0) huidigeFlashIndex = actieveFlashcards.length - 1;
+
+  const item = actieveFlashcards[huidigeFlashIndex];
+
+  // Voorkant HTML (Alleen Foto + Vraag)
+  voorkant.innerHTML = `
+    <img src="${item.foto || 'https://via.placeholder.com/300'}" alt="${item.naam}">
+    <h3 style="color:#2e7d32;">Hoe heet deze plant?</h3>
+    <div style="margin-top:5px;">${toonLeerjaren(item)}</div>
+  `;
+
+  // Achterkant HTML (Volledige Studiefiche)
+  achterkant.innerHTML = `
+    <h3 class="fiche-titel">${item.naam}</h3>
+    <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
+    
+    <div class="fiche-details">
+      ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${item.vindplaats}</div>` : ''}
+      <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
+      <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
+      <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
+      <p><strong>Bodemtype:</strong> ${pBodem(item)}</p>
+      <p><strong>Bladvorm / Rand:</strong> ${item.bladvorm || '-'} / ${item.bladrand || '-'}</p>
+      <p><strong>Bladbehoud:</strong> ${item.bladbehoud || '-'}</p>
+      <p><strong>Bloeitijd / Vrucht:</strong> ${item.bloeitijd || '-'} / ${item.vrucht || '-'}</p>
+      <p><strong>Grootte / Water:</strong> ${item.grootte || '-'} / ${item.waterbehoefte || '-'}</p>
+      <p><strong>Vermeerderen:</strong> ${item.vermeerderen || '-'}</p>
+      ${item.beschrijving ? `<p style="margin-top:8px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${item.beschrijving}</p>` : ''}
     </div>
   `;
 
-  teller.innerText = `${huidigeFlashIndex + 1} / ${plantenDatabase.length}`;
+  teller.innerText = `${huidigeFlashIndex + 1} / ${actieveFlashcards.length}`;
+}
+
+function pBodem(item) {
+  return item.bodemtype || '-';
 }
 
 function draaiFlashcardOm() {
-  if (plantenDatabase.length === 0) return;
-  const inhoud = document.getElementById("flashcardInhoud");
-  const item = plantenDatabase[huidigeFlashIndex];
-
-  if (!isOmgedraaid) {
-    inhoud.innerHTML = `
-      <div>
-        <h2 style="color:#2e7d32;">${item.naam}</h2>
-        <p><em>${item.wetenschappelijk}</em></p>
-        ${item.vindplaats ? `<p style="font-size:13px; color:#1b5e20;">📍 <strong>Vindplaats:</strong> ${item.vindplaats}</p>` : ''}
-        <p style="font-size:13px; margin-top:8px;"><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
-        <p style="font-size:13px;"><strong>Standplaats:</strong> ${item.standplaats}</p>
-        <p style="font-size:13px;"><strong>Bloeitijd:</strong> ${item.bloeitijd}</p>
-      </div>
-    `;
-    isOmgedraaid = true;
-  } else {
-    toonFlashcard();
+  const cardElement = document.querySelector(".flip-card");
+  if (cardElement && actieveFlashcards.length > 0) {
+    cardElement.classList.toggle("omgedraaid");
   }
 }
 
 function volgendeFlashcard() {
-  if (plantenDatabase.length === 0) return;
-  huidigeFlashIndex = (huidigeFlashIndex + 1) % plantenDatabase.length;
+  if (actieveFlashcards.length === 0) return;
+  huidigeFlashIndex = (huidigeFlashIndex + 1) % actieveFlashcards.length;
   toonFlashcard();
 }
 
 function vorigeFlashcard() {
-  if (plantenDatabase.length === 0) return;
-  huidigeFlashIndex = (huidigeFlashIndex - 1 + plantenDatabase.length) % plantenDatabase.length;
+  if (actieveFlashcards.length === 0) return;
+  huidigeFlashIndex = (huidigeFlashIndex - 1 + actieveFlashcards.length) % actieveFlashcards.length;
   toonFlashcard();
+}
+
+function markeerAlsGekend(event) {
+  event.stopPropagation(); // Voorkom dat de kaart tegelijk omdraait bij klikken op de knop
+  if (actieveFlashcards.length === 0) return;
+
+  actieveFlashcards.splice(huidigeFlashIndex, 1);
+
+  if (huidigeFlashIndex >= actieveFlashcards.length) {
+    huidigeFlashIndex = 0;
+  }
+  toonFlashcard();
+}
+
+function herstelStapel() {
+  startFlashcards();
 }
 
 // 4. QUIZ
@@ -273,11 +315,9 @@ function voegPlantToe(e) {
   };
 
   if (editIndex >= 0) {
-    // Bestaande plant bijwerken
     plantenDatabase[editIndex] = plantData;
     alert("Plant succesvol bijgewerkt!");
   } else {
-    // Nieuwe plant toevoegen
     plantenDatabase.push(plantData);
     alert("Nieuwe plant succesvol opgeslagen!");
   }
@@ -317,13 +357,11 @@ function laadPlantOmToBewerken(index) {
   document.getElementById("foto").value = p.foto || "";
   document.getElementById("beschrijving").value = p.beschrijving || "";
 
-  // Vink de juiste leerjaren aan
   const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
   document.querySelectorAll('input[name="leerjaarCheck"]').forEach(cb => {
     cb.checked = jaren.includes(cb.value);
   });
 
-  // Vormgeving van het formulier aanpassen
   document.getElementById("formTitel").innerText = `Plant Bewerken: ${p.naam}`;
   document.getElementById("submitBtn").innerText = "Plant Bijwerken";
   document.getElementById("annuleerBtn").style.display = "inline-block";
