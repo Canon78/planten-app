@@ -2,6 +2,7 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
   {
     naam: "Duizendblad",
     wetenschappelijk: "Achillea millefolium",
+    leerjaar: "1",
     bladvorm: "Veerdelig",
     bladrand: "Gekarteld / Ingesneden",
     vrucht: "Nootje",
@@ -21,8 +22,9 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
 let huidigeFlashIndex = 0;
 let isOmgedraaid = false;
 let geselecteerdeLetter = "ALLES";
+let huidigeQuizVraag = null;
 
-// 1. TABBLADEN NAVIGATIE (MÉT BEVEILIGING VOOR BEHEER)
+// 1. TABBLADEN NAVIGATIE
 function openTab(tabId) {
   if (tabId === 'beheer') {
     const wachtwoord = prompt("Voer de beheercode in om toegang te krijgen:");
@@ -44,14 +46,12 @@ function openTab(tabId) {
   if (tabId === 'flashcards') startFlashcards();
 }
 
-// 2. HERBARIUM (A-Z Sortering & Alfabetfilter)
+// 2. HERBARIUM
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
   container.innerHTML = "";
 
-  // Sorteer automatisch op alfabet (A-Z)
   plantenDatabase.sort((a, b) => a.naam.localeCompare(b.naam));
-
   maakAlfabetBalk();
 
   plantenDatabase.forEach(p => {
@@ -62,7 +62,7 @@ function laadHerbarium() {
       container.innerHTML += `
         <div class="plant-kaart" data-naam="${p.naam.toLowerCase()}">
           <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
-          <h3>${p.naam}</h3>
+          <h3>${p.naam} <span style="font-size:12px; color:#666;">(Yr ${p.leerjaar || 1})</span></h3>
           <p><em>${p.wetenschappelijk || ''}</em></p>
           <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
           <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
@@ -160,13 +160,82 @@ function vorigeFlashcard() {
   toonFlashcard();
 }
 
-// 4. BEHEER: PLANT TOEVOEGEN
+// 4. QUIZ (Met Leerjaar en Quiz-typen)
+function startQuiz() {
+  const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
+  const quizType = document.getElementById("quizType").value;
+
+  // Filter op leerjaar
+  let geschiktePlanten = plantenDatabase;
+  if (geselecteerdLeerjaar !== "ALLES") {
+    geschiktePlanten = plantenDatabase.filter(p => String(p.leerjaar) === geselecteerdLeerjaar);
+  }
+
+  if (geschiktePlanten.length < 2) {
+    alert("Er zijn minimaal 2 planten nodig in dit leerjaar om een quiz te starten!");
+    return;
+  }
+
+  // Kies willekeurige juist plant
+  const juistePlant = geschiktePlanten[Math.floor(Math.random() * geschiktePlanten.length)];
+
+  // Kies willekeurige foute opties
+  const fouteOpties = plantenDatabase
+    .filter(p => p.naam !== juistePlant.naam)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+
+  const alleOpties = [juistePlant, ...fouteOpties].sort(() => 0.5 - Math.random());
+  huidigeQuizVraag = { juistePlant, quizType };
+
+  const vraagElement = document.getElementById("quizVraag");
+  const optiesElement = document.getElementById("quizOpties");
+  optiesElement.innerHTML = "";
+
+  if (quizType === "fotoNaarNaam") {
+    vraagElement.innerHTML = `
+      <img src="${juistePlant.foto}" style="max-height:180px; border-radius:8px; margin-bottom:10px;"><br>
+      <strong>Welke plant is dit?</strong>
+    `;
+    alleOpties.forEach(optie => {
+      optiesElement.innerHTML += `<button class="quiz-optie-btn" onclick="controleerQuizAntwoord('${optie.naam}')">${optie.naam}</button>`;
+    });
+
+  } else if (quizType === "naamNaarFoto") {
+    vraagElement.innerHTML = `<strong>Kies de foto van: <span style="color:#2e7d32;">${juistePlant.naam}</span></strong>`;
+    alleOpties.forEach(optie => {
+      optiesElement.innerHTML += `
+        <div class="quiz-foto-optie" onclick="controleerQuizAntwoord('${optie.naam}')">
+          <img src="${optie.foto}" alt="${optie.naam}">
+        </div>
+      `;
+    });
+
+  } else if (quizType === "wetenschappelijk") {
+    vraagElement.innerHTML = `<strong>Wat is de wetenschappelijke naam van <span style="color:#2e7d32;">${juistePlant.naam}</span>?</strong>`;
+    alleOpties.forEach(optie => {
+      optiesElement.innerHTML += `<button class="quiz-optie-btn" onclick="controleerQuizAntwoord('${optie.naam}')"><em>${optie.wetenschappelijk || 'Geen Latijnse naam'}</em></button>`;
+    });
+  }
+}
+
+function controleerQuizAntwoord(gekozenNaam) {
+  if (gekozenNaam === huidigeQuizVraag.juistePlant.naam) {
+    alert("🎉 Juist beantwoord! Goed gedaan!");
+  } else {
+    alert(`❌ Helaas, dat is niet juist. Het juiste antwoord was: ${huidigeQuizVraag.juistePlant.naam}`);
+  }
+  startQuiz();
+}
+
+// 5. BEHEER: PLANT TOEVOEGEN
 function voegPlantToe(e) {
   e.preventDefault();
 
   const nieuwePlant = {
     naam: document.getElementById("naam").value,
     wetenschappelijk: document.getElementById("wetenschappelijk").value,
+    leerjaar: document.getElementById("leerjaar").value,
     bladvorm: document.getElementById("bladvorm").value,
     bladrand: document.getElementById("bladrand").value,
     vrucht: document.getElementById("vrucht").value,
