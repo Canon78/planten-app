@@ -91,10 +91,16 @@
         </div>
       </div>
 
+      <!-- Live Score Dashboard -->
+      <div id="quizScoreboard" class="quiz-scoreboard" style="display: none;">
+        <span>Vraag: <strong id="quizVraagTeller">1 / 10</strong></span>
+        <span>Score: <strong id="quizScore">0</strong></span>
+      </div>
+
       <div id="quizContainer" class="quiz-box">
         <p id="quizVraag">Stel de opties hierboven in en druk op 'Start Quiz'!</p>
         <div id="quizOpties" class="quiz-opties"></div>
-        <button id="startQuizBtn" class="submit-btn" onclick="startQuiz()">Start Quiz</button>
+        <button id="startQuizBtn" class="submit-btn" onclick="startNieuweQuizSessie()">Start Quiz</button>
       </div>
     </section>
 
