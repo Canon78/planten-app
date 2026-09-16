@@ -149,6 +149,81 @@ main {
   cursor: pointer;
 }
 
+/* Quiz Styling */
+.quiz-instellingen {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+}
+
+.instelling-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.instelling-item select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.quiz-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.quiz-opties {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.quiz-optie-btn {
+  background: #f0f4f1;
+  border: 2px solid #2e7d32;
+  color: #2e7d32;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.quiz-optie-btn:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+.quiz-foto-optie {
+  cursor: pointer;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quiz-foto-optie img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.quiz-foto-optie:hover {
+  border-color: #2e7d32;
+}
+
 /* Formulier Beheer */
 #plantForm {
   display: grid;
@@ -175,7 +250,7 @@ main {
   font-size: 14px;
 }
 
-.form-group input, .form-group textarea {
+.form-group input, .form-group select, .form-group textarea {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -191,6 +266,7 @@ main {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  width: 100%;
 }
 
 .submit-btn:hover {
