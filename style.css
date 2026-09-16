@@ -132,23 +132,22 @@ main {
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 13px;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
+/* Netjes onder elkaar gestylede details op de kaart */
 .kaart-details {
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-top: 6px;
-}
-
-.kaart-details p {
-  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .kaart-acties {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 15px;
   display: flex;
   gap: 8px;
 }
