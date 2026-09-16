@@ -60,7 +60,7 @@ function toonLeerjaren(p) {
   return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
 }
 
-// 2. HERBARIUM (ALLE INFO NETJE ONDER ELKAAR)
+// 2. HERBARIUM (INCLUSIEF VINDPLAATS OP SCHOOL)
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
   container.innerHTML = "";
@@ -80,7 +80,7 @@ function laadHerbarium() {
           <p style="font-style: italic; color: #555; margin-bottom: 8px;">${p.wetenschappelijk || 'Geen wetenschappelijke naam'}</p>
           
           <div class="kaart-details">
-            ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${p.vindplaats}</div>` : ''}
+            ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Vindplaats op school:</strong> ${p.vindplaats}</div>` : ''}
             <p><strong>Categorie:</strong> ${p.categorie || '-'}</p>
             <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
             <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
@@ -135,6 +135,11 @@ function filterHerbarium() {
   });
 }
 
+// SCROLL FUNCTIE VOOR DE PIJL
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // 3. FLASHCARDS
 function startFlashcards() {
   actieveFlashcards = [...plantenDatabase];
@@ -177,7 +182,7 @@ function toonFlashcard() {
     <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
     
     <div class="fiche-details">
-      ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${item.vindplaats}</div>` : ''}
+      ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Vindplaats op school:</strong> ${item.vindplaats}</div>` : ''}
       <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
       <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
       <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
