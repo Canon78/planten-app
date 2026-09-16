@@ -136,6 +136,16 @@ main {
   margin-bottom: 6px;
 }
 
+.kaart-details {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.kaart-details p {
+  margin-bottom: 4px;
+}
+
 .kaart-acties {
   margin-top: auto;
   padding-top: 12px;
@@ -386,7 +396,6 @@ main {
   object-fit: cover;
 }
 
-/* Kleuren bij antwoord */
 .quiz-optie-btn.juist, .quiz-foto-optie.juist {
   background-color: #4caf50 !important;
   color: white !important;
