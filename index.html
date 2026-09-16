@@ -8,14 +8,12 @@
 </head>
 <body>
 
-  <!-- NAVIGATIEBALK -->
   <header>
     <h1>🌿 PlantenAcademie</h1>
     <nav>
       <button class="nav-btn actief" onclick="openTab('herbarium')">📚 Herbarium</button>
       <button class="nav-btn" onclick="openTab('flashcards')">🎴 Flashcards</button>
       <button class="nav-btn" onclick="openTab('quiz')">🧠 Quiz</button>
-      <button class="nav-btn" onclick="openTab('plantendokter')">🩺 Plantendokter</button>
       <button class="nav-btn" onclick="openTab('beheer')">⚙️ Beheer</button>
     </nav>
   </header>
@@ -56,16 +54,7 @@
       </div>
     </section>
 
-    <!-- 4. PLANTENDOKTER TAB -->
-    <section id="plantendokter" class="tab-content">
-      <h2>Plantendokter</h2>
-      <div class="filter-bar">
-        <input type="text" id="zoekDokter" placeholder="Zoek op plaag of ziekte..." oninput="toonPlagen()">
-      </div>
-      <div id="plagenGrid" class="grid-container"></div>
-    </section>
-
-    <!-- 5. BEHEER TAB -->
+    <!-- 4. BEHEER TAB -->
     <section id="beheer" class="tab-content">
       <h2>Plant Toevoegen aan Database</h2>
       <form id="plantForm" onsubmit="voegPlantToe(event)">
@@ -124,7 +113,6 @@
           </datalist>
         </div>
 
-        <!-- VRIJ INVULBAAR MÉT SUGGESTIES -->
         <div class="form-group">
           <label for="standplaats">Standplaats:</label>
           <input type="text" id="standplaats" list="standplaats-opties" placeholder="Kies of typ standplaats...">
