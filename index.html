@@ -23,7 +23,7 @@
     <section id="herbarium" class="tab-content actief">
       <h2>Digital Herbarium</h2>
       <div class="filter-bar">
-        <input type="text" id="zoekHerbarium" placeholder="Zoek op plantennaam..." oninput="filterHerbarium()">
+        <input type="text" id="zoekHerbarium" placeholder="Zoek op plantennaam, vindplaats..." oninput="filterHerbarium()">
       </div>
 
       <!-- Alfabet Filterbalk -->
@@ -86,7 +86,7 @@
       <h2>Plant Toevoegen aan Database</h2>
       <form id="plantForm" onsubmit="voegPlantToe(event)">
         <div class="form-group">
-          <label for="naam">Nederlandse Naam:</label>
+          <label for="naam">Nederlandse Naam *:</label>
           <input type="text" id="naam" required placeholder="bijv. Duizendblad">
         </div>
 
@@ -95,13 +95,20 @@
           <input type="text" id="wetenschappelijk" placeholder="bijv. Achillea millefolium">
         </div>
 
-        <div class="form-group">
-          <label for="leerjaar">Leerjaar:</label>
-          <select id="leerjaar">
-            <option value="1">1e Leerjaar</option>
-            <option value="2">2e Leerjaar</option>
-            <option value="3">3e Leerjaar</option>
-          </select>
+        <!-- LEERJAREN VINKJES -->
+        <div class="form-group full-width">
+          <label>Kennen in Leerjaar (vink aan wat van toepassing is):</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="leerjaarCheck" value="1"> 1e Leerjaar</label>
+            <label><input type="checkbox" name="leerjaarCheck" value="2"> 2e Leerjaar</label>
+            <label><input type="checkbox" name="leerjaarCheck" value="3"> 3e Leerjaar</label>
+          </div>
+        </div>
+
+        <!-- VINDPLAATS OP SCHOOL -->
+        <div class="form-group full-width">
+          <label for="vindplaats">Vindplaats op school / tuin:</label>
+          <input type="text" id="vindplaats" placeholder="bijv. Binnentuin vak A, naast de kas, bordes hoofdingang...">
         </div>
 
         <div class="form-group">
