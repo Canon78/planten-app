@@ -20,15 +20,15 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
 
 let huidigeFlashIndex = 0;
 let isOmgedraaid = false;
+let geselecteerdeLetter = "ALLES";
 
-// 1. TABBLADEN NAVIGATIE MÉT BEVEILIGING VOOR BEHEER
+// 1. TABBLADEN NAVIGATIE (MÉT BEVEILIGING VOOR BEHEER)
 function openTab(tabId) {
-  // Beveiligingscontrole voor het Beheer tabblad
   if (tabId === 'beheer') {
     const wachtwoord = prompt("Voer de beheercode in om toegang te krijgen:");
     if (wachtwoord !== "docent1234") {
       alert("Foutieve code! Toegang geweigerd.");
-      return; // Stop de functie, het tabblad opent niet
+      return;
     }
   }
 
@@ -44,24 +44,54 @@ function openTab(tabId) {
   if (tabId === 'flashcards') startFlashcards();
 }
 
-// 2. HERBARIUM
+// 2. HERBARIUM (A-Z Sortering & Alfabetfilter)
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
   container.innerHTML = "";
 
+  // Sorteer automatisch op alfabet (A-Z)
+  plantenDatabase.sort((a, b) => a.naam.localeCompare(b.naam));
+
+  maakAlfabetBalk();
+
   plantenDatabase.forEach(p => {
-    container.innerHTML += `
-      <div class="plant-kaart">
-        <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
-        <h3>${p.naam}</h3>
-        <p><em>${p.wetenschappelijk || ''}</em></p>
-        <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
-        <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
-        <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
-        <p style="margin-top:8px; font-size:13px; color:#555;">${p.beschrijving || ''}</p>
-      </div>
-    `;
+    const eersteLetter = p.naam.charAt(0).toUpperCase();
+    const hoortBijLetter = (geselecteerdeLetter === "ALLES" || eersteLetter === geselecteerdeLetter);
+
+    if (hoortBijLetter) {
+      container.innerHTML += `
+        <div class="plant-kaart" data-naam="${p.naam.toLowerCase()}">
+          <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
+          <h3>${p.naam}</h3>
+          <p><em>${p.wetenschappelijk || ''}</em></p>
+          <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
+          <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
+          <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
+          <p style="margin-top:8px; font-size:13px; color:#555;">${p.beschrijving || ''}</p>
+        </div>
+      `;
+    }
   });
+}
+
+function maakAlfabetBalk() {
+  const alfabetBalk = document.getElementById("alfabetBalk");
+  if (!alfabetBalk) return;
+
+  const alfabet = ["ALLES", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+  
+  alfabetBalk.innerHTML = alfabet.map(letter => `
+    <button class="letter-btn ${geselecteerdeLetter === letter ? 'actief' : ''}" 
+            onclick="filterOpLetter('${letter}')">
+      ${letter}
+    </button>
+  `).join("");
+}
+
+function filterOpLetter(letter) {
+  geselecteerdeLetter = letter;
+  document.getElementById("zoekHerbarium").value = ""; 
+  laadHerbarium();
 }
 
 function filterHerbarium() {
@@ -69,8 +99,8 @@ function filterHerbarium() {
   const kaarten = document.querySelectorAll("#herbariumGrid .plant-kaart");
 
   kaarten.forEach(kaart => {
-    const tekst = kaart.innerText.toLowerCase();
-    kaart.style.display = tekst.includes(zoekTerm) ? "block" : "none";
+    const naam = kaart.getAttribute("data-naam");
+    kaart.style.display = naam.includes(zoekTerm) ? "block" : "none";
   });
 }
 
