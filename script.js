@@ -60,7 +60,7 @@ function toonLeerjaren(p) {
   return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
 }
 
-// 2. HERBARIUM (ALLE INFO DIRECT ZICHTBAAR)
+// 2. HERBARIUM (ALLE INFO NETJE ONDER ELKAAR)
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
   container.innerHTML = "";
@@ -77,18 +77,21 @@ function laadHerbarium() {
         <div class="plant-kaart" data-zoek="${p.naam.toLowerCase()} ${(p.vindplaats || '').toLowerCase()}">
           <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
           <h3>${p.naam} ${toonLeerjaren(p)}</h3>
-          <p><em>${p.wetenschappelijk || ''}</em></p>
+          <p style="font-style: italic; color: #555; margin-bottom: 8px;">${p.wetenschappelijk || 'Geen wetenschappelijke naam'}</p>
           
           <div class="kaart-details">
             ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${p.vindplaats}</div>` : ''}
             <p><strong>Categorie:</strong> ${p.categorie || '-'}</p>
             <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
             <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
-            <p><strong>Bladvorm / Rand:</strong> ${p.bladvorm || '-'} / ${p.bladrand || '-'}</p>
+            <p><strong>Bladvorm:</strong> ${p.bladvorm || '-'}</p>
+            <p><strong>Bladrand:</strong> ${p.bladrand || '-'}</p>
             <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
-            <p><strong>Bloeitijd / Vrucht:</strong> ${p.bloeitijd || '-'} / ${p.vrucht || '-'}</p>
-            <p><strong>Grootte / Water:</strong> ${p.grootte || '-'} / ${p.waterbehoefte || '-'}</p>
+            <p><strong>Bloeitijd:</strong> ${p.bloeitijd || '-'}</p>
+            <p><strong>Vrucht / Zaad:</strong> ${p.vrucht || '-'}</p>
+            <p><strong>Waterbehoefte:</strong> ${p.waterbehoefte || '-'}</p>
             <p><strong>Vermeerderen:</strong> ${p.vermeerderen || '-'}</p>
+            <p><strong>Maximale Grootte:</strong> ${p.grootte || '-'}</p>
             ${p.beschrijving ? `<p style="margin-top:6px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${p.beschrijving}</p>` : ''}
           </div>
           
@@ -179,11 +182,14 @@ function toonFlashcard() {
       <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
       <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
       <p><strong>Bodemtype:</strong> ${item.bodemtype || '-'}</p>
-      <p><strong>Bladvorm / Rand:</strong> ${item.bladvorm || '-'} / ${item.bladrand || '-'}</p>
+      <p><strong>Bladvorm:</strong> ${item.bladvorm || '-'}</p>
+      <p><strong>Bladrand:</strong> ${item.bladrand || '-'}</p>
       <p><strong>Bladbehoud:</strong> ${item.bladbehoud || '-'}</p>
-      <p><strong>Bloeitijd / Vrucht:</strong> ${item.bloeitijd || '-'} / ${item.vrucht || '-'}</p>
-      <p><strong>Grootte / Water:</strong> ${item.grootte || '-'} / ${item.waterbehoefte || '-'}</p>
+      <p><strong>Bloeitijd:</strong> ${item.bloeitijd || '-'}</p>
+      <p><strong>Vrucht / Zaad:</strong> ${item.vrucht || '-'}</p>
+      <p><strong>Waterbehoefte:</strong> ${item.waterbehoefte || '-'}</p>
       <p><strong>Vermeerderen:</strong> ${item.vermeerderen || '-'}</p>
+      <p><strong>Maximale Grootte:</strong> ${item.grootte || '-'}</p>
       ${item.beschrijving ? `<p style="margin-top:8px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${item.beschrijving}</p>` : ''}
     </div>
   `;
