@@ -34,16 +34,33 @@
 
     <!-- FLASHCARDS -->
     <section id="flashcards" class="tab-content">
-      <h2>Flashcards</h2>
-      <p>Klik op de kaart om de achterkant te bekijken.</p>
+      <h2>Flashcards Studeren</h2>
+      <p>Klik op de kaart om de volledige steekkaart op de achterkant te bekijken.</p>
+
       <div class="flashcard-container">
-        <div id="flashcard" class="card" onclick="draaiFlashcardOm()">
-          <div id="flashcardInhoud">Klik om te starten</div>
+        <!-- 3D Card Flip Wrapper -->
+        <div class="flip-card" onclick="draaiFlashcardOm()">
+          <div id="flashcardInner" class="flip-card-inner">
+            <!-- Voorkant -->
+            <div id="flashcardVoorkant" class="flip-card-front">
+              <div class="card-placeholder">Klik om te starten</div>
+            </div>
+            <!-- Achterkant -->
+            <div id="flashcardAchterkant" class="flip-card-back">
+              <!-- Content via JS -->
+            </div>
+          </div>
         </div>
+
         <div class="card-controls">
           <button onclick="vorigeFlashcard()">⬅ Vorige</button>
+          <button class="ken-ik-btn" onclick="markeerAlsGekend(event)">✅ Ik ken deze plant</button>
           <span id="flashcardTeller">0 / 0</span>
           <button onclick="volgendeFlashcard()">Volgende ➡</button>
+        </div>
+
+        <div style="margin-top: 15px; text-align: center;">
+          <button class="reset-stapel-btn" onclick="herstelStapel()">🔄 Herstel uitgestelde kaarten</button>
         </div>
       </div>
     </section>
