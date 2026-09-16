@@ -103,6 +103,8 @@ main {
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   padding: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
 .plant-kaart img {
@@ -132,6 +134,41 @@ main {
   font-size: 13px;
   margin-top: 6px;
   margin-bottom: 6px;
+}
+
+.kaart-acties {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.actie-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.actie-btn.bewerk {
+  background: #ff9800;
+  color: white;
+}
+
+.actie-btn.bewerk:hover {
+  background: #f57c00;
+}
+
+.actie-btn.verwijder {
+  background: #f44336;
+  color: white;
+}
+
+.actie-btn.verwijder:hover {
+  background: #d32f2f;
 }
 
 /* Flashcards */
@@ -277,6 +314,11 @@ main {
   grid-column: span 2;
 }
 
+.form-knoppen {
+  display: flex;
+  gap: 10px;
+}
+
 .form-group label {
   font-weight: bold;
   margin-bottom: 5px;
@@ -290,7 +332,7 @@ main {
 }
 
 .submit-btn {
-  grid-column: span 2;
+  flex: 1;
   background: #2e7d32;
   color: white;
   padding: 12px;
@@ -299,9 +341,23 @@ main {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  width: 100%;
 }
 
 .submit-btn:hover {
   background: #1b5e20;
+}
+
+.annuleer-btn {
+  background: #757575;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.annuleer-btn:hover {
+  background: #616161;
 }
