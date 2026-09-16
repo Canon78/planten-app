@@ -50,11 +50,34 @@
 
     <!-- QUIZ -->
     <section id="quiz" class="tab-content">
-      <h2>Plantekennis Quiz</h2>
-      <div id="quizContainer">
-        <p id="quizVraag">Druk op start om de quiz te beginnen!</p>
+      <h2>Plantenkennis Quiz</h2>
+      
+      <!-- Quiz Instellingen -->
+      <div class="quiz-instellingen">
+        <div class="instelling-item">
+          <label for="quizLeerjaar">Kies Leerjaar:</label>
+          <select id="quizLeerjaar">
+            <option value="ALLES">Alle Leerjaren</option>
+            <option value="1">1e Leerjaar</option>
+            <option value="2">2e Leerjaar</option>
+            <option value="3">3e Leerjaar</option>
+          </select>
+        </div>
+
+        <div class="instelling-item">
+          <label for="quizType">Kies Quiz Type:</label>
+          <select id="quizType">
+            <option value="fotoNaarNaam">Foto ➔ Nederlandse Naam</option>
+            <option value="naamNaarFoto">Naam ➔ Kies de juiste Foto</option>
+            <option value="wetenschappelijk">Nederlandse ➔ Wetenschappelijke Naam</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="quizContainer" class="quiz-box">
+        <p id="quizVraag">Stel de opties hierboven in en druk op 'Start Quiz'!</p>
         <div id="quizOpties" class="quiz-opties"></div>
-        <button id="startQuizBtn" onclick="startQuiz()">Start Quiz</button>
+        <button id="startQuizBtn" class="submit-btn" onclick="startQuiz()">Start Quiz</button>
       </div>
     </section>
 
@@ -70,6 +93,15 @@
         <div class="form-group">
           <label for="wetenschappelijk">Wetenschappelijke Naam:</label>
           <input type="text" id="wetenschappelijk" placeholder="bijv. Achillea millefolium">
+        </div>
+
+        <div class="form-group">
+          <label for="leerjaar">Leerjaar:</label>
+          <select id="leerjaar">
+            <option value="1">1e Leerjaar</option>
+            <option value="2">2e Leerjaar</option>
+            <option value="3">3e Leerjaar</option>
+          </select>
         </div>
 
         <div class="form-group">
