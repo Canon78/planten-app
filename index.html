@@ -3,182 +3,394 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlantenAcademie</title>
+  <title>PlantenAcademie - Herbarium & Oefenapp</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header>
-    <h1>🌿 PlantenAcademie</h1>
+    <h1>🌿 PlantenAcademie - Herbarium</h1>
     <nav>
-      <button class="nav-btn actief" onclick="openTab('herbarium')">📚 Herbarium</button>
-      <button class="nav-btn" onclick="openTab('flashcards')">🎴 Flashcards</button>
-      <button class="nav-btn" onclick="openTab('quiz')">🧠 Quiz</button>
-      <button class="nav-btn" onclick="openTab('beheer')">⚙️ Beheer</button>
+      <button class="tab-btn active" onclick="switchTab('library-tab', this)">📚 Herbarium</button>
+      <button class="tab-btn" onclick="switchTab('flashcard-tab', this)">🎴 Flashcards</button>
+      <button class="tab-btn" onclick="switchTab('quiz-tab', this)">🎯 Quiz</button>
+      <button class="tab-btn" onclick="switchTab('doctor-tab', this)">🩺 Plantendokter</button>
+      <button class="tab-btn" onclick="switchTab('admin-tab', this)">⚙️ Beheer</button>
     </nav>
   </header>
 
-  <main>
-    <!-- 1. HERBARIUM TAB -->
-    <section id="herbarium" class="tab-content actief">
-      <h2>Digital Herbarium</h2>
-      <div class="filter-bar">
-        <input type="text" id="zoekHerbarium" placeholder="Zoek op plantennaam..." oninput="filterHerbarium()">
+  <main class="container">
+
+    <!-- TAB 1: BIBLIOTHEEK / HERBARIUM -->
+    <section id="library-tab" class="tab-content active">
+      <h2>📚 Digital Herbarium</h2>
+      
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Zoek op Nederlandse/Latijnse naam, familie, bladvorm, vrucht..." oninput="zoekPlanten()">
       </div>
-      <div id="herbariumGrid" class="grid-container"></div>
+
+      <!-- SLIMME FILTERS -->
+      <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; background: #e8f5e9;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Slimme Filters</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">🎓 Leerjaar:</label>
+            <select id="filter-jaar" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Leerjaren --</option>
+              <option value="3">3de Jaar</option>
+              <option value="4">4de Jaar</option>
+              <option value="5">5de Jaar</option>
+              <option value="6">6de Jaar</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Standplaats:</label>
+            <select id="filter-standplaats" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Standplaatsen --</option>
+              <option value="Volle zon">Volle zon</option>
+              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
+              <option value="Schaduw">Schaduw</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Bladbehoud:</label>
+            <select id="filter-blad" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Bladsoorten --</option>
+              <option value="Groenblijvend (bladhoudend)">Groenblijvend</option>
+              <option value="Bladverliezend">Bladverliezend</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Categorie:</label>
+            <select id="filter-categorie" onchange="pasFiltersToe()" style="padding: 0.4rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle Categorieën --</option>
+              <option value="Kamerplant">Kamerplant</option>
+              <option value="Boom">Boom</option>
+              <option value="Struik / Plant">Struik / Plant</option>
+              <option value="Kruid / Vaste plant">Kruid / Vaste plant</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alfabet Filter -->
+      <div id="alphabet-filter" class="alphabet-container"></div>
+
+      <div id="plant-grid" class="plant-grid"></div>
     </section>
 
-    <!-- 2. FLASHCARDS TAB -->
-    <section id="flashcards" class="tab-content">
-      <h2>Flashcards Stampen</h2>
-      <p>Klik op de kaart om de achterkant te bekijken.</p>
-      <div class="flashcard-container">
-        <div id="flashcard" class="card" onclick="draaiFlashcardOm()">
-          <div id="flashcardInhoud">Klik om te starten</div>
+    <!-- TAB 2: FLASHCARDS -->
+    <section id="flashcard-tab" class="tab-content">
+      <h2>🎴 Flashcards Stampen</h2>
+      
+      <div class="card" style="margin-bottom: 1rem; padding: 0.8rem; background: #f0f4c3;">
+        <label for="fc-jaar-select" style="font-weight: bold;">🎓 Kies jouw leerjaar:</label>
+        <select id="fc-jaar-select" onchange="filterFlashcardsOpJaar()" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc; margin-left: 10px;">
+          <option value="alle">Alle Leerjaren</option>
+          <option value="3">3de Jaar</option>
+          <option value="4">4de Jaar</option>
+          <option value="5">5de Jaar</option>
+          <option value="6">6de Jaar</option>
+        </select>
+      </div>
+
+      <p style="margin-bottom: 1rem; color: #666;">Klik op de kaart om de achterkant (naam & herbariumkenmerken) te bekijken.</p>
+
+      <div class="flashcard-wrapper">
+        <div id="flashcard" class="flashcard" onclick="draaiFlashcardOm()">
+          <div class="flashcard-front">
+            <img id="fc-img" src="" alt="Plant">
+            <p class="fc-hint">💡 Klik op de kaart om om te draaien</p>
+          </div>
+          <div class="flashcard-back">
+            <h3 id="fc-nl"></h3>
+            <p><em id="fc-lat"></em></p>
+            <div id="fc-details" class="plant-details" style="margin-top: 1rem; text-align: left;"></div>
+          </div>
         </div>
-        <div class="card-controls">
-          <button onclick="vorigeFlashcard()">⬅ Vorige</button>
-          <span id="flashcardTeller">0 / 0</span>
-          <button onclick="volgendeFlashcard()">Volgende ➡</button>
-        </div>
+      </div>
+
+      <div class="flashcard-controls">
+        <button class="secondary-btn" onclick="vorigeFlashcard()">⬅️ Vorige</button>
+        <span id="fc-counter" style="font-weight: bold; align-self: center;">1 / 1</span>
+        <button class="primary-btn" onclick="volgendeFlashcard()">Volgende ➡️</button>
+        <button class="secondary-btn" onclick="schudFlashcards()" style="background-color: #f57c00;">🔀 Schudden</button>
       </div>
     </section>
 
-    <!-- 3. QUIZ TAB -->
-    <section id="quiz" class="tab-content">
-      <h2>Plantekennis Quiz</h2>
-      <div id="quizContainer">
-        <p id="quizVraag">Druk op start om de quiz te beginnen!</p>
-        <div id="quizOpties" class="quiz-opties"></div>
-        <button id="startQuizBtn" onclick="startQuiz()">Start Quiz</button>
+    <!-- TAB 3: QUIZ -->
+    <section id="quiz-tab" class="tab-content">
+      <div id="quiz-settings-card" class="card">
+        <h2>🎯 Quiz Instellingen</h2>
+        <p style="margin-bottom: 1.5rem; color: #555;">Kies jouw leerjaar en spelvorm voordat je begint:</p>
+
+        <div class="form-group">
+          <label for="quiz-jaar-select">🎓 Leerjaar:</label>
+          <select id="quiz-jaar-select">
+            <option value="alle">Alle Leerjaren (Gecombineerd)</option>
+            <option value="3">3de Jaar</option>
+            <option value="4">4de Jaar</option>
+            <option value="5">5de Jaar</option>
+            <option value="6">6de Jaar</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quiz-mode-select">🎮 Spelvorm:</label>
+          <select id="quiz-mode-select">
+            <option value="foto-naar-naam">🖼️ Foto ➔ Naam raden</option>
+            <option value="naam-naar-foto">🏷️ Naam ➔ Foto kiezen</option>
+            <option value="eigenschap-naar-naam">🔍 Herbariumkenmerken ➔ Naam raden</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="timer-select">⏱️ Timer per vraag:</label>
+          <select id="timer-select">
+            <option value="0">Geen timer (Rustig oefenen)</option>
+            <option value="30">30 seconden per vraag</option>
+            <option value="15">15 seconden per vraag (Spannend!)</option>
+            <option value="10">10 seconden per vraag (Expert!)</option>
+          </select>
+        </div>
+
+        <button class="primary-btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="startQuizMetInstellingen()">🚀 Start Quiz!</button>
+      </div>
+
+      <div id="quiz-card" class="card hidden">
+        <div class="quiz-header">
+          <span id="question-count">Vraag 1</span>
+          <span id="timer-display" class="timer-badge hidden">⏱️ <span id="time-left">15</span>s</span>
+          <span id="score-display">Score: 0</span>
+        </div>
+
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="timer-bar-container" class="timer-bar-container hidden">
+          <div id="timer-bar" class="timer-bar"></div>
+        </div>
+
+        <div id="image-container" class="image-container">
+          <img id="plant-img" src="" alt="Plantenfoto">
+        </div>
+
+        <div class="question-info">
+          <h3 id="question-title" class="hidden" style="text-align: center; font-size: 1.4rem; color: #2e7d32; margin-bottom: 0.5rem;"></h3>
+          <p id="question-desc" class="hint-text"></p>
+        </div>
+
+        <div id="options-container" class="options-grid"></div>
+        <div id="feedback-box" class="feedback-box hidden"></div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="next-btn" class="primary-btn hidden" onclick="volgendeVraag()">Volgende Vraag ➔</button>
+          <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Instellingen wijzigen</button>
+        </div>
+      </div>
+
+      <div id="result-card" class="card hidden">
+        <h2>🎉 Quiz Afgerond!</h2>
+        <p>Je hebt <strong id="final-score">0</strong> van de <strong id="total-questions">0</strong> vragen goed geantwoord.</p>
+        
+        <div class="student-form">
+          <label for="student-name">Jouw naam/klas:</label>
+          <input type="text" id="student-name" placeholder="Bijv. Jan - Klas 3B">
+          <button class="secondary-btn" onclick="verstuurNaarGoogleForms()">Score versturen naar docent 📤</button>
+          <p id="submit-status" class="status-msg"></p>
+        </div>
+
+        <button class="primary-btn" onclick="herstartQuiz()">Opnieuw Oefenen 🔄</button>
+        <button class="secondary-btn" onclick="stopQuizAndReturn()">⚙️ Andere Spelvorm / Leerjaar Kiezen</button>
       </div>
     </section>
 
-    <!-- 4. BEHEER TAB -->
-    <section id="beheer" class="tab-content">
-      <h2>Plant Toevoegen aan Database</h2>
-      <form id="plantForm" onsubmit="voegPlantToe(event)">
-        <div class="form-group">
-          <label for="naam">Nederlandse Naam:</label>
-          <input type="text" id="naam" required placeholder="bijv. Duizendblad">
-        </div>
+    <!-- TAB 4: PLANTENDOKTER (SCHADELIJKE INSECTEN & ZIEKTEN) -->
+    <section id="doctor-tab" class="tab-content">
+      <h2>🩺 De Plantendokter</h2>
+      <p style="margin-bottom: 1rem; color: #555;">Diagnosticeer en behandel schadelijke insecten, schimmels en aandoeningen bij planten.</p>
 
-        <div class="form-group">
-          <label for="wetenschappelijk">Wetenschappelijke Naam:</label>
-          <input type="text" id="wetenschappelijk" placeholder="bijv. Achillea millefolium">
+      <!-- DIAGNOSE FILTER -->
+      <div class="card" style="background: #fffde7; border: 1px solid #fff59d;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔍 Wat zie je aan de plant?</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Symptoom / Schade:</label>
+            <select id="doctor-symptom" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle symptomen --</option>
+              <option value="pluis">Witte pluis / wol</option>
+              <option value="plakkerig">Plakkerig blad (honingdauw)</option>
+              <option value="spinnenweb">Fijne webben / spikkeling</option>
+              <option value="vlekken">Bruine, grijze of zwarte vlekken</option>
+              <option value="geel">Vergelend / slap blad</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Aangedaan onderdeel:</label>
+            <select id="doctor-part" onchange="zoekPlaag()" style="padding: 0.5rem; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+              <option value="">-- Alle onderdelen --</option>
+              <option value="blad">Blad (boven-/onderkant)</option>
+              <option value="stengel">Stengel / Oksels</option>
+              <option value="wortel">Wortels / Potgrond</option>
+            </select>
+          </div>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label for="bladvorm">Bladvorm:</label>
-          <input type="text" id="bladvorm" list="bladvorm-opties" placeholder="Kies of typ bladvorm...">
-          <datalist id="bladvorm-opties">
-            <option value="Veerdelig">
-            <option value="Handvormig">
-            <option value="Eivormig">
-            <option value="Lancetvormig">
-            <option value="Lijnvormig">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="bladrand">Bladrand:</label>
-          <input type="text" id="bladrand" list="bladrand-opties" placeholder="Kies of typ bladrand...">
-          <datalist id="bladrand-opties">
-            <option value="Gekarteld">
-            <option value="Gezaagd">
-            <option value="Gaanrandig">
-            <option value="Ingesneden">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="vrucht">Vrucht / Zaad:</label>
-          <input type="text" id="vrucht" placeholder="bijv. Nootje, Bes, Doosvrucht">
-        </div>
-
-        <div class="form-group">
-          <label for="bloeitijd">Bloeitijd:</label>
-          <input type="text" id="bloeitijd" placeholder="bijv. Juni – September">
-        </div>
-
-        <div class="form-group">
-          <label for="categorie">Categorie:</label>
-          <input type="text" id="categorie" list="categorie-opties" placeholder="Kies of typ categorie...">
-          <datalist id="categorie-opties">
-            <option value="Vaste plant">
-            <option value="Sierheester">
-            <option value="Kamerplant">
-            <option value="Boom">
-            <option value="Eenjarige">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="standplaats">Standplaats:</label>
-          <input type="text" id="standplaats" list="standplaats-opties" placeholder="Kies of typ standplaats...">
-          <datalist id="standplaats-opties">
-            <option value="Zonnig (volle zon)">
-            <option value="Halfschaduw">
-            <option value="Schaduw">
-            <option value="Zonnig tot halfschaduw">
-            <option value="Halfschaduw tot schaduw">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="bodemtype">Bodemtype:</label>
-          <input type="text" id="bodemtype" list="bodemtype-opties" placeholder="Kies of typ bodemtype...">
-          <datalist id="bodemtype-opties">
-            <option value="Goed doorlatend">
-            <option value="Humusrijk / Voedselrijk">
-            <option value="Zandgrond">
-            <option value="Klei / Zware klei">
-            <option value="Zuurminnend / Bosgrond">
-            <option value="Natte / Vochtige grond">
-            <option value="Droge tot matig vochtige grond">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="bladbehoud">Bladbehoud:</label>
-          <input type="text" id="bladbehoud" list="bladbehoud-opties" placeholder="Kies of typ bladbehoud...">
-          <datalist id="bladbehoud-opties">
-            <option value="Bladverliezend">
-            <option value="Groenblijvend (Sierheester/Vaste plant)">
-            <option value="Half-groenblijvend">
-            <option value="Naaldblijvend (Conifeer)">
-          </datalist>
-        </div>
-
-        <div class="form-group">
-          <label for="waterbehoefte">Waterbehoefte:</label>
-          <input type="text" id="waterbehoefte" placeholder="bijv. Laag, Gemiddeld, Hoog">
-        </div>
-
-        <div class="form-group">
-          <label for="vermeerderen">Vermeerderen:</label>
-          <input type="text" id="vermeerderen" placeholder="bijv. Delen, Stekken, Zaaien">
-        </div>
-
-        <div class="form-group">
-          <label for="grootte">Maximale Grootte:</label>
-          <input type="text" id="grootte" placeholder="bijv. 40 - 80 cm">
-        </div>
-
-        <div class="form-group">
-          <label for="foto">Foto URL:</label>
-          <input type="url" id="foto" placeholder="https://images.unsplash.com/...">
-        </div>
-
-        <div class="form-group full-width">
-          <label for="beschrijving">Beschrijving / Extra Notities / Weetje:</label>
-          <textarea id="beschrijving" rows="4" placeholder="Schrijf hier extra informatie of een weetje..."></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">Plant Opslaan</button>
-      </form>
+      <!-- RASTER MET ZIEKTEN EN INSECTEN -->
+      <div id="doctor-grid" class="plant-grid"></div>
     </section>
+
+    <!-- TAB 5: BEHEER -->
+    <section id="admin-tab" class="tab-content">
+      <h2>⚙️ Herbarium Beheren</h2>
+      
+      <div class="card">
+        <h3>Plant Toevoegen of Bewerken</h3>
+        <form id="add-plant-form" onsubmit="voegPlantToe(event)">
+          
+          <div class="form-group">
+            <label for="new-nl">Nederlandse Naam *</label>
+            <input type="text" id="new-nl" required placeholder="Bijv. Gewone esdoorn">
+          </div>
+
+          <div class="form-group">
+            <label for="new-lat">Latijnse Naam *</label>
+            <input type="text" id="new-lat" required placeholder="Bijv. Acer pseudoplatanus">
+          </div>
+
+          <div class="form-group">
+            <label for="new-familie">Plantenfamilie (Latijn / NL)</label>
+            <input type="text" id="new-familie" placeholder="Bijv. Sapindaceae (Zeepboomfamilie)">
+          </div>
+
+          <!-- CHECKBOXES LEERJAREN -->
+          <div class="form-group" style="background: #e8f5e9; padding: 10px; border-radius: 6px;">
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;">🎓 Bestemd voor Leerjaar (meerdere mogelijk):</label>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <label><input type="checkbox" id="jaar-3" value="3" checked> 3de Jaar</label>
+              <label><input type="checkbox" id="jaar-4" value="4"> 4de Jaar</label>
+              <label><input type="checkbox" id="jaar-5" value="5"> 5de Jaar</label>
+              <label><input type="checkbox" id="jaar-6" value="6"> 6de Jaar</label>
+            </div>
+          </div>
+
+          <!-- SPECIFIEKE HERBARIUM KENMERKEN -->
+          <div style="background: #f1f8e9; padding: 10px; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #c8e6c9;">
+            <h4 style="margin-top: 0; color: #2e7d32; font-size: 0.95rem;">🌿 Herbarium & Determinatiekenmerken</h4>
+            
+            <div class="form-group">
+              <label for="new-bladvorm">Bladvorm</label>
+              <input type="text" id="new-bladvorm" placeholder="Bijv. Handlobbig, Eivormig, Geveerd, Naaldvormig">
+            </div>
+
+            <div class="form-group">
+              <label for="new-bladrand">Bladrand</label>
+              <input type="text" id="new-bladrand" placeholder="Bijv. Gesegmenteerd, Getand, Gekarteld, Gaafrandig">
+            </div>
+
+            <div class="form-group">
+              <label for="new-vrucht">Vrucht / Zaad</label>
+              <input type="text" id="new-vrucht" placeholder="Bijv. Gefleugelde splitvrucht (helikoptertje), Bessen, Eikel">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="new-categorie">Type / Categorie *</label>
+            <select id="new-categorie">
+              <option value="Struik / Plant">🌿 Struik / Plant</option>
+              <option value="Boom">🌲 Boom</option>
+              <option value="Kruid / Vaste plant">🌾 Kruid / Vaste plant</option>
+              <option value="Kamerplant">🌺 Kamerplant</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-standplaats">Standplaats</label>
+            <select id="new-standplaats">
+              <option value="">-- Kies standplaats --</option>
+              <option value="Volle zon">Volle zon</option>
+              <option value="Halfschaduw / Lichte plek">Halfschaduw / Lichte plek</option>
+              <option value="Schaduw">Schaduw</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-water">Waterbehoefte</label>
+            <select id="new-water">
+              <option value="">-- Kies waterbehoefte --</option>
+              <option value="Veel (grond vochtig houden)">Veel (grond vochtig houden)</option>
+              <option value="Gemiddeld (regelmatig)">Gemiddeld (regelmatig)</option>
+              <option value="Weinig (laat grond opdrogen)">Weinig (laat grond opdrogen)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-blad">Bladbehoud</label>
+            <select id="new-blad">
+              <option value="">-- Kies bladbehoud --</option>
+              <option value="Groenblijvend (bladhoudend)">Groenblijvend (bladhoudend)</option>
+              <option value="Bladverliezend">Bladverliezend</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="new-bloei">Bloeitijd & Bloeiwijze</label>
+            <input type="text" id="new-bloei" placeholder="Bijv. April - Mei, Hangende trossen">
+          </div>
+
+          <div class="form-group">
+            <label for="new-vermeerderen">Vermeerderen</label>
+            <input type="text" id="new-vermeerderen" placeholder="Bijv. Zaaien / Stekken">
+          </div>
+
+          <div class="form-group">
+            <label for="new-grootte">Grootte / Hoogte</label>
+            <input type="text" id="new-grootte" placeholder="Bijv. 20 tot 30 meter">
+          </div>
+
+          <div class="form-group">
+            <label for="new-foto">Foto URL (Optioneel)</label>
+            <input type="url" id="new-foto" placeholder="https://images.unsplash.com/...">
+          </div>
+
+          <div class="form-group">
+            <label>Of plak/upload hier een herbariumfoto:</label>
+            <div id="paste-area" class="paste-zone">
+              📋 Klik hier en druk op <strong>Ctrl+V</strong> om een gekopieerde foto te plakken<br>
+              of kies een bestand:
+              <input type="file" id="file-upload" accept="image/*" onchange="verwerkBestandUpload(this)">
+            </div>
+            <input type="hidden" id="new-foto-data">
+            <div id="img-preview-container" class="hidden">
+              <p>Voorbeeld geüploade foto:</p>
+              <img id="img-preview" src="" alt="Voorbeeld" style="max-height: 120px; border-radius: 6px;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="new-desc">Extra Herkenningspunten / Opmerkingen</label>
+            <textarea id="new-desc" rows="3" placeholder="Bijv. Opvallende rode bladstelen, knoppen, schorskenmerken..."></textarea>
+          </div>
+
+          <button type="submit" class="primary-btn">➕ Plant Toevoegen aan Herbarium</button>
+          <button type="button" class="secondary-btn" onclick="resetFormulier()">❌ Annuleren / Reset</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Bestaande Planten in Herbarium</h3>
+        <div id="admin-plant-list"></div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- KNOP: TERUG NAAR BOVEN -->
+  <button id="back-to-top-btn" class="back-to-top-btn" onclick="scrollToTop()" title="Terug naar boven">
+    ⬆️
+  </button>
 
   <script src="script.js"></script>
 </body>
