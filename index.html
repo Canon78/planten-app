@@ -83,8 +83,11 @@
 
     <!-- BEHEER -->
     <section id="beheer" class="tab-content">
-      <h2>Plant Toevoegen aan Database</h2>
+      <h2 id="formTitel">Plant Toevoegen aan Database</h2>
       <form id="plantForm" onsubmit="voegPlantToe(event)">
+        <!-- Verborgen Veld om Bewerken Index op te slaan -->
+        <input type="hidden" id="editIndex" value="-1">
+
         <div class="form-group">
           <label for="naam">Nederlandse Naam *:</label>
           <input type="text" id="naam" required placeholder="bijv. Duizendblad">
@@ -218,7 +221,10 @@
           <textarea id="beschrijving" rows="4" placeholder="Schrijf hier extra informatie of een weetje..."></textarea>
         </div>
 
-        <button type="submit" class="submit-btn">Plant Opslaan</button>
+        <div class="form-knoppen full-width">
+          <button type="submit" id="submitBtn" class="submit-btn">Plant Opslaan</button>
+          <button type="button" id="annuleerBtn" class="annuleer-btn" style="display:none;" onclick="annuleerBewerken()">Annuleren</button>
+        </div>
       </form>
     </section>
   </main>
