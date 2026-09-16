@@ -1,481 +1,173 @@
-/* ==========================================
-   1. ALGEMENE STIJLEN & RESETS
-   ========================================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
   background-color: #f4f6f8;
-  color: #333333;
-  line-height: 1.6;
-  padding-bottom: 60px;
+  color: #333;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
-
-/* ==========================================
-   2. HEADER & NAVIGATIE TABS
-   ========================================== */
-.header {
+header {
   background-color: #2e7d32;
-  color: #ffffff;
-  padding: 15px 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  color: white;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 15px;
 }
 
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-icon {
-  font-size: 2.2rem;
-}
-
-.header h1 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.subtitle {
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-.main-nav {
+nav {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
-.tab-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+.nav-btn {
+  background-color: #1b5e20;
+  color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 0.95rem;
+  padding: 8px 14px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  font-weight: bold;
 }
 
-.tab-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.nav-btn.actief, .nav-btn:hover {
+  background-color: #4caf50;
 }
 
-.tab-btn.active {
-  background: #ffffff;
-  color: #2e7d32;
-  font-weight: 700;
+main {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 15px;
 }
 
 .tab-content {
   display: none;
 }
 
-.tab-content.active {
+.tab-content.actief {
   display: block;
 }
 
-/* ==========================================
-   3. KAARTEN, ZOEK- EN FILTEROPTIES
-   ========================================== */
-.card, .search-filter-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 22px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-  margin-bottom: 25px;
+.filter-bar {
+  margin-bottom: 20px;
 }
 
-.search-filter-card h2, .card h2 {
-  color: #2e7d32;
-  margin-bottom: 15px;
-  font-size: 1.3rem;
-}
-
-.search-box input {
+.filter-bar input {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.search-box input:focus {
-  border-color: #2e7d32;
-}
-
-.alphabet-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.letter-btn {
-  background: #f0f4f1;
-  border: 1px solid #c8e6c9;
-  color: #2e7d32;
-  font-weight: bold;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.letter-btn:hover {
-  background: #c8e6c9;
-}
-
-.letter-btn.active {
-  background: #2e7d32;
-  color: #ffffff;
-  border-color: #2e7d32;
-}
-
-.filter-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  color: #444;
-}
-
-.filter-group select {
-  width: 100%;
-  padding: 9px;
-  border: 1px solid #cccccc;
-  border-radius: 6px;
-  background: #fff;
-  font-size: 0.9rem;
-}
-
-/* ==========================================
-   4. PLANTEN KAARTEN GRID (MET RUIMTE ROND FOTO)
-   ========================================== */
-.plant-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
-  margin-top: 25px;
-}
-
-.plant-card {
-  background: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.plant-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-.plant-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-  /* Extra ruimte onder de foto */
-  margin-bottom: 10px; 
-}
-
-.plant-card-content {
-  /* Royale binnenruimte zodat tekst niet tegen randen plakt */
-  padding: 18px 20px 22px 20px; 
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.plant-card-content h3 {
-  margin: 0 0 4px 0;
-  color: #2e7d32;
-  font-size: 1.3rem;
-}
-
-.plant-card-content em {
-  color: #666666;
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-  display: block;
-}
-
-.plant-details span {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.92rem;
-  line-height: 1.4;
-}
-
-/* ==========================================
-   5. FLASHCARDS & QUIZ STIJLEN
-   ========================================== */
-.flashcard-wrapper {
-  perspective: 1000px;
-  width: 100%;
-  max-width: 450px;
-  height: 420px;
-  margin: 20px auto;
-}
-
-.flashcard {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.6s ease;
-  cursor: pointer;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-}
-
-.flashcard.flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-front, .flashcard-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.flashcard-front img {
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.flashcard-back {
-  transform: rotateY(180deg);
-  overflow-y: auto;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.flashcard-controls, .fc-nav-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.option-btn {
-  background: #ffffff;
-  border: 2px solid #e0e0e0;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s;
-}
-
-.option-btn:hover {
-  border-color: #2e7d32;
-  background: #f4fbf4;
-}
-
-.option-btn.correct {
-  background: #c8e6c9 !important;
-  border-color: #2e7d32 !important;
-  color: #1b5e20;
-  font-weight: bold;
-}
-
-.option-btn.wrong {
-  background: #ffcdd2 !important;
-  border-color: #c62828 !important;
-  color: #b71c1c;
-}
-
-.feedback-box {
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 15px;
-  font-weight: bold;
-}
-
-.feedback-box.correct { background: #e8f5e9; color: #2e7d32; }
-.feedback-box.wrong { background: #ffebee; color: #c62828; }
-
-/* ==========================================
-   6. KNOPPEN & FORMULIEREN (BEHEER)
-   ========================================== */
-.btn-primary {
-  background: #2e7d32;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-primary:hover { background: #1b5e20; }
-
-.btn-secondary {
-  background: #757575;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-secondary:hover { background: #616161; }
-
-.btn-danger, .btn-delete {
-  background: #d32f2f;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-edit {
-  background: #1976d2;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.form-group input[type="text"],
-.form-group input[type="url"],
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 9px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 16px;
 }
 
-.admin-plant-item {
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.plant-kaart, .plaag-kaart {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 15px;
+}
+
+.plant-kaart img, .plaag-kaart img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* Flashcards */
+.flashcard-container {
+  max-width: 450px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.card {
+  background: white;
+  border: 2px solid #2e7d32;
+  border-radius: 10px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-controls {
+  margin-top: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
 }
 
-.admin-plant-thumb {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 12px;
-}
-
-.admin-plant-info {
-  display: flex;
-  align-items: center;
-}
-
-.hidden { display: none !important; }
-
-/* ==========================================
-   7. BLAUWE TERUG-NAAR-BOVEN PIJL (GROOT & RECHTS)
-   ========================================== */
-#back-to-top-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px; /* RECHTS geplaatst */
-  left: auto;  /* Voorkomt dat hij aan de linkerkant plakt */
-  width: 60px;  /* Lekker groot */
-  height: 60px; /* Lekker groot */
-  background-color: #1976d2; /* Opvallend blauw */
-  color: #ffffff;
+.card-controls button {
+  background: #2e7d32;
+  color: white;
   border: none;
-  border-radius: 50%;
-  font-size: 28px; /* Grote duidelijke pijl */
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Formulier */
+#plantForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.form-group input, .form-group textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-btn {
+  grid-column: span 2;
+  background: #2e7d32;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
 }
 
-#back-to-top-btn:hover {
-  background-color: #1565c0;
-  transform: scale(1.12);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-}
-
-#back-to-top-btn.show {
-  opacity: 1;
-  visibility: visible;
+.submit-btn:hover {
+  background: #1b5e20;
 }
