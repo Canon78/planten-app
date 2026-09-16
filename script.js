@@ -1,4 +1,3 @@
-// INITIALE DATABASES
 let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
   {
     naam: "Duizendblad",
@@ -19,23 +18,6 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
   }
 ];
 
-const plagenDatabase = [
-  {
-    naam: "Spintmijt",
-    type: "Mijt",
-    herkenning: "Fijne spinnenwebjes onder het blad met gele spikkeling.",
-    bestrijding: "Luchtvochtigheid verhogen of roofmijten inzetten.",
-    foto: "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    naam: "Trips",
-    type: "Schadelijk insect",
-    herkenning: "Zilverachtige vlekken met zwarte stipjes op het blad.",
-    bestrijding: "Aangedane bladeren wegsnijden, roofwantsen inzetten.",
-    foto: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=600&q=80"
-  }
-];
-
 let huidigeFlashIndex = 0;
 let isOmgedraaid = false;
 
@@ -46,13 +28,11 @@ function openTab(tabId) {
 
   document.getElementById(tabId).classList.add('actief');
   
-  // Zoek de knop en maak deze actief
   const geklikteKnop = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(tabId));
   if (geklikteKnop) geklikteKnop.classList.add('actief');
 
   if (tabId === 'herbarium') laadHerbarium();
   if (tabId === 'flashcards') startFlashcards();
-  if (tabId === 'plantendokter') toonPlagen();
 }
 
 // 2. HERBARIUM
@@ -141,25 +121,7 @@ function vorigeFlashcard() {
   toonFlashcard();
 }
 
-// 4. PLANTENDOKTER
-function toonPlagen() {
-  const container = document.getElementById("plagenGrid");
-  const zoekTerm = document.getElementById("zoekDokter")?.value.toLowerCase() || "";
-  container.innerHTML = "";
-
-  plagenDatabase.filter(p => p.naam.toLowerCase().includes(zoekTerm)).forEach(p => {
-    container.innerHTML += `
-      <div class="plaag-kaart">
-        <img src="${p.foto}" alt="${p.naam}">
-        <h3>${p.naam}</h3>
-        <p><strong>Herkenning:</strong> ${p.herkenning}</p>
-        <p><strong>Bestrijding:</strong> ${p.bestrijding}</p>
-      </div>
-    `;
-  });
-}
-
-// 5. BEHEER: PLANT TOEVOEGEN
+// 4. BEHEER: PLANT TOEVOEGEN
 function voegPlantToe(e) {
   e.preventDefault();
 
