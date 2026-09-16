@@ -24,7 +24,6 @@ let actieveFlashcards = [];
 let huidigeFlashIndex = 0;
 let geselecteerdeLetter = "ALLES";
 
-// QUIZ VARIABELEN VOOR SCORE EN SESSIES (10 VRAGEN)
 let huidigeQuizVraag = null;
 let isIngelogdAlsBeheerder = false;
 let quizSessieActief = false;
@@ -61,7 +60,7 @@ function toonLeerjaren(p) {
   return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
 }
 
-// 2. HERBARIUM
+// 2. HERBARIUM (ALLE INFO DIRECT ZICHTBAAR)
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
   container.innerHTML = "";
@@ -79,11 +78,19 @@ function laadHerbarium() {
           <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
           <h3>${p.naam} ${toonLeerjaren(p)}</h3>
           <p><em>${p.wetenschappelijk || ''}</em></p>
-          ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${p.vindplaats}</div>` : ''}
-          <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
-          <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
-          <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
-          <p style="margin-top:8px; font-size:13px; color:#555;">${p.beschrijving || ''}</p>
+          
+          <div class="kaart-details">
+            ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${p.vindplaats}</div>` : ''}
+            <p><strong>Categorie:</strong> ${p.categorie || '-'}</p>
+            <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
+            <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
+            <p><strong>Bladvorm / Rand:</strong> ${p.bladvorm || '-'} / ${p.bladrand || '-'}</p>
+            <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
+            <p><strong>Bloeitijd / Vrucht:</strong> ${p.bloeitijd || '-'} / ${p.vrucht || '-'}</p>
+            <p><strong>Grootte / Water:</strong> ${p.grootte || '-'} / ${p.waterbehoefte || '-'}</p>
+            <p><strong>Vermeerderen:</strong> ${p.vermeerderen || '-'}</p>
+            ${p.beschrijving ? `<p style="margin-top:6px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${p.beschrijving}</p>` : ''}
+          </div>
           
           <div class="kaart-acties">
             <button class="actie-btn bewerk" onclick="laadPlantOmToBewerken(${index})">✏️ Bewerken</button>
@@ -216,7 +223,7 @@ function herstelStapel() {
   startFlashcards();
 }
 
-// 4. QUIZ (INTERACTIEF MET VISUELE ANTWORTEN EN SESSIE VAN 10 VRAGEN)
+// 4. QUIZ
 function startNieuweQuizSessie() {
   const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
   
@@ -313,7 +320,7 @@ function volgendeQuizVraag() {
 }
 
 function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
-  if (quizBezigMetAnimatie) return; // Voorkom dubbelklikken
+  if (quizBezigMetAnimatie) return;
   quizBezigMetAnimatie = true;
 
   const isJuist = (gekozenNaam === huidigeQuizVraag.juistePlant.naam);
@@ -325,7 +332,6 @@ function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
   } else {
     gekliktElement.classList.add("fout");
 
-    // Licht ook het JUISTE element groen op
     const alleElementen = document.querySelectorAll("#quizOpties [data-naam]");
     alleElementen.forEach(el => {
       if (el.getAttribute("data-naam") === huidigeQuizVraag.juistePlant.naam) {
@@ -334,7 +340,6 @@ function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
     });
   }
 
-  // Wacht 1,5 seconde en ga automatisch door naar de volgende vraag
   setTimeout(() => {
     volgendeQuizVraag();
   }, 1500);
