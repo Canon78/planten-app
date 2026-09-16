@@ -21,8 +21,17 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
 let huidigeFlashIndex = 0;
 let isOmgedraaid = false;
 
-// 1. TABBLADEN NAVIGATIE
+// 1. TABBLADEN NAVIGATIE MÉT BEVEILIGING VOOR BEHEER
 function openTab(tabId) {
+  // Beveiligingscontrole voor het Beheer tabblad
+  if (tabId === 'beheer') {
+    const wachtwoord = prompt("Voer de beheercode in om toegang te krijgen:");
+    if (wachtwoord !== "docent1234") {
+      alert("Foutieve code! Toegang geweigerd.");
+      return; // Stop de functie, het tabblad opent niet
+    }
+  }
+
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('actief'));
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('actief'));
 
