@@ -55,7 +55,7 @@ main {
 }
 
 .filter-bar {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .filter-bar input {
@@ -64,6 +64,31 @@ main {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
+}
+
+/* Alfabet Balk Styling */
+.alfabet-balk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.letter-btn {
+  background: white;
+  border: 1px solid #2e7d32;
+  color: #2e7d32;
+  padding: 5px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.letter-btn:hover, .letter-btn.actief {
+  background: #2e7d32;
+  color: white;
 }
 
 .grid-container {
