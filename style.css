@@ -130,7 +130,7 @@ main {
   color: #1b5e20;
   border: 1px solid #a5d6a7;
   border-radius: 4px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   font-size: 13px;
   margin-bottom: 8px;
 }
@@ -178,6 +178,32 @@ main {
 
 .actie-btn.verwijder:hover {
   background: #d32f2f;
+}
+
+/* SCROLL NAAR BOVEN PIJL KNOP */
+#scrollBovenBtn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 99;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#scrollBovenBtn:hover {
+  background-color: #1b5e20;
+  transform: scale(1.08);
 }
 
 /* FLASHCARDS 3D FLIP ANIMATIE */
