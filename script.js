@@ -2,7 +2,8 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
   {
     naam: "Duizendblad",
     wetenschappelijk: "Achillea millefolium",
-    leerjaar: "1",
+    leerjaren: ["1", "2"],
+    vindplaats: "Binnentuin vak A",
     bladvorm: "Veerdelig",
     bladrand: "Gekarteld / Ingesneden",
     vrucht: "Nootje",
@@ -46,6 +47,12 @@ function openTab(tabId) {
   if (tabId === 'flashcards') startFlashcards();
 }
 
+// Helper om leerjaren netjes te tonen
+function toonLeerjaren(p) {
+  const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+  return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
+}
+
 // 2. HERBARIUM
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
@@ -60,10 +67,11 @@ function laadHerbarium() {
 
     if (hoortBijLetter) {
       container.innerHTML += `
-        <div class="plant-kaart" data-naam="${p.naam.toLowerCase()}">
+        <div class="plant-kaart" data-zoek="${p.naam.toLowerCase()} ${(p.vindplaats || '').toLowerCase()}">
           <img src="${p.foto || 'https://via.placeholder.com/300'}" alt="${p.naam}">
-          <h3>${p.naam} <span style="font-size:12px; color:#666;">(Yr ${p.leerjaar || 1})</span></h3>
+          <h3>${p.naam} ${toonLeerjaren(p)}</h3>
           <p><em>${p.wetenschappelijk || ''}</em></p>
+          ${p.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Schooltuin:</strong> ${p.vindplaats}</div>` : ''}
           <p><strong>Standplaats:</strong> ${p.standplaats || '-'}</p>
           <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
           <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
@@ -99,8 +107,8 @@ function filterHerbarium() {
   const kaarten = document.querySelectorAll("#herbariumGrid .plant-kaart");
 
   kaarten.forEach(kaart => {
-    const naam = kaart.getAttribute("data-naam");
-    kaart.style.display = naam.includes(zoekTerm) ? "block" : "none";
+    const zoekData = kaart.getAttribute("data-zoek");
+    kaart.style.display = zoekData.includes(zoekTerm) ? "block" : "none";
   });
 }
 
@@ -122,6 +130,7 @@ function toonFlashcard() {
     <div>
       <img src="${item.foto}" style="max-height:120px; border-radius:6px; margin-bottom:10px;">
       <h3>Hoe heet deze plant?</h3>
+      ${toonLeerjaren(item)}
     </div>
   `;
 
@@ -138,7 +147,9 @@ function draaiFlashcardOm() {
       <div>
         <h2 style="color:#2e7d32;">${item.naam}</h2>
         <p><em>${item.wetenschappelijk}</em></p>
-        <p style="font-size:13px; margin-top:8px;"><strong>Standplaats:</strong> ${item.standplaats}</p>
+        ${item.vindplaats ? `<p style="font-size:13px; color:#1b5e20;">📍 <strong>Vindplaats:</strong> ${item.vindplaats}</p>` : ''}
+        <p style="font-size:13px; margin-top:8px;"><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
+        <p style="font-size:13px;"><strong>Standplaats:</strong> ${item.standplaats}</p>
         <p style="font-size:13px;"><strong>Bloeitijd:</strong> ${item.bloeitijd}</p>
       </div>
     `;
@@ -160,15 +171,17 @@ function vorigeFlashcard() {
   toonFlashcard();
 }
 
-// 4. QUIZ (Met Leerjaar en Quiz-typen)
+// 4. QUIZ
 function startQuiz() {
   const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
   const quizType = document.getElementById("quizType").value;
 
-  // Filter op leerjaar
   let geschiktePlanten = plantenDatabase;
   if (geselecteerdLeerjaar !== "ALLES") {
-    geschiktePlanten = plantenDatabase.filter(p => String(p.leerjaar) === geselecteerdLeerjaar);
+    geschiktePlanten = plantenDatabase.filter(p => {
+      const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+      return jaren.includes(geselecteerdLeerjaar);
+    });
   }
 
   if (geschiktePlanten.length < 2) {
@@ -176,10 +189,8 @@ function startQuiz() {
     return;
   }
 
-  // Kies willekeurige juist plant
   const juistePlant = geschiktePlanten[Math.floor(Math.random() * geschiktePlanten.length)];
 
-  // Kies willekeurige foute opties
   const fouteOpties = plantenDatabase
     .filter(p => p.naam !== juistePlant.naam)
     .sort(() => 0.5 - Math.random())
@@ -232,10 +243,14 @@ function controleerQuizAntwoord(gekozenNaam) {
 function voegPlantToe(e) {
   e.preventDefault();
 
+  // Verzamel alle aangevinkte leerjaren
+  const aangevinkt = Array.from(document.querySelectorAll('input[name="leerjaarCheck"]:checked')).map(cb => cb.value);
+
   const nieuwePlant = {
     naam: document.getElementById("naam").value,
+    leerjaren: aangevinkt.length > 0 ? aangevinkt : ["1"],
+    vindplaats: document.getElementById("vindplaats").value,
     wetenschappelijk: document.getElementById("wetenschappelijk").value,
-    leerjaar: document.getElementById("leerjaar").value,
     bladvorm: document.getElementById("bladvorm").value,
     bladrand: document.getElementById("bladrand").value,
     vrucht: document.getElementById("vrucht").value,
