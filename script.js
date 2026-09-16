@@ -24,15 +24,17 @@ let huidigeFlashIndex = 0;
 let isOmgedraaid = false;
 let geselecteerdeLetter = "ALLES";
 let huidigeQuizVraag = null;
+let isIngelogdAlsBeheerder = false;
 
 // 1. TABBLADEN NAVIGATIE
 function openTab(tabId) {
-  if (tabId === 'beheer') {
+  if (tabId === 'beheer' && !isIngelogdAlsBeheerder) {
     const wachtwoord = prompt("Voer de beheercode in om toegang te krijgen:");
     if (wachtwoord !== "docent1234") {
       alert("Foutieve code! Toegang geweigerd.");
       return;
     }
+    isIngelogdAlsBeheerder = true;
   }
 
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('actief'));
@@ -47,7 +49,6 @@ function openTab(tabId) {
   if (tabId === 'flashcards') startFlashcards();
 }
 
-// Helper om leerjaren netjes te tonen
 function toonLeerjaren(p) {
   const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
   return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
@@ -61,7 +62,7 @@ function laadHerbarium() {
   plantenDatabase.sort((a, b) => a.naam.localeCompare(b.naam));
   maakAlfabetBalk();
 
-  plantenDatabase.forEach(p => {
+  plantenDatabase.forEach((p, index) => {
     const eersteLetter = p.naam.charAt(0).toUpperCase();
     const hoortBijLetter = (geselecteerdeLetter === "ALLES" || eersteLetter === geselecteerdeLetter);
 
@@ -76,6 +77,11 @@ function laadHerbarium() {
           <p><strong>Bodemtype:</strong> ${p.bodemtype || '-'}</p>
           <p><strong>Bladbehoud:</strong> ${p.bladbehoud || '-'}</p>
           <p style="margin-top:8px; font-size:13px; color:#555;">${p.beschrijving || ''}</p>
+          
+          <div class="kaart-acties">
+            <button class="actie-btn bewerk" onclick="laadPlantOmToBewerken(${index})">✏️ Bewerken</button>
+            <button class="actie-btn verwijder" onclick="verwijderPlant(${index})">🗑️ Verwijderen</button>
+          </div>
         </div>
       `;
     }
@@ -239,14 +245,14 @@ function controleerQuizAntwoord(gekozenNaam) {
   startQuiz();
 }
 
-// 5. BEHEER: PLANT TOEVOEGEN
+// 5. BEHEER: TOEVOEGEN, BEWERKEN EN VERWIJDEREN
 function voegPlantToe(e) {
   e.preventDefault();
 
-  // Verzamel alle aangevinkte leerjaren
+  const editIndex = parseInt(document.getElementById("editIndex").value);
   const aangevinkt = Array.from(document.querySelectorAll('input[name="leerjaarCheck"]:checked')).map(cb => cb.value);
 
-  const nieuwePlant = {
+  const plantData = {
     naam: document.getElementById("naam").value,
     leerjaren: aangevinkt.length > 0 ? aangevinkt : ["1"],
     vindplaats: document.getElementById("vindplaats").value,
@@ -266,12 +272,89 @@ function voegPlantToe(e) {
     beschrijving: document.getElementById("beschrijving").value
   };
 
-  plantenDatabase.push(nieuwePlant);
-  localStorage.setItem("plantenDatabase", JSON.stringify(plantenDatabase));
+  if (editIndex >= 0) {
+    // Bestaande plant bijwerken
+    plantenDatabase[editIndex] = plantData;
+    alert("Plant succesvol bijgewerkt!");
+  } else {
+    // Nieuwe plant toevoegen
+    plantenDatabase.push(plantData);
+    alert("Nieuwe plant succesvol opgeslagen!");
+  }
 
-  alert("Plant succesvol opgeslagen!");
-  document.getElementById("plantForm").reset();
+  localStorage.setItem("plantenDatabase", JSON.stringify(plantenDatabase));
+  annuleerBewerken();
   openTab('herbarium');
+}
+
+function laadPlantOmToBewerken(index) {
+  if (!isIngelogdAlsBeheerder) {
+    const wachtwoord = prompt("Voer de beheercode in om te kunnen bewerken:");
+    if (wachtwoord !== "docent1234") {
+      alert("Foutieve code! Toegang geweigerd.");
+      return;
+    }
+    isIngelogdAlsBeheerder = true;
+  }
+
+  const p = plantenDatabase[index];
+  document.getElementById("editIndex").value = index;
+
+  document.getElementById("naam").value = p.naam || "";
+  document.getElementById("wetenschappelijk").value = p.wetenschappelijk || "";
+  document.getElementById("vindplaats").value = p.vindplaats || "";
+  document.getElementById("bladvorm").value = p.bladvorm || "";
+  document.getElementById("bladrand").value = p.bladrand || "";
+  document.getElementById("vrucht").value = p.vrucht || "";
+  document.getElementById("bloeitijd").value = p.bloeitijd || "";
+  document.getElementById("categorie").value = p.categorie || "";
+  document.getElementById("standplaats").value = p.standplaats || "";
+  document.getElementById("bodemtype").value = p.bodemtype || "";
+  document.getElementById("bladbehoud").value = p.bladbehoud || "";
+  document.getElementById("waterbehoefte").value = p.waterbehoefte || "";
+  document.getElementById("vermeerderen").value = p.vermeerderen || "";
+  document.getElementById("grootte").value = p.grootte || "";
+  document.getElementById("foto").value = p.foto || "";
+  document.getElementById("beschrijving").value = p.beschrijving || "";
+
+  // Vink de juiste leerjaren aan
+  const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+  document.querySelectorAll('input[name="leerjaarCheck"]').forEach(cb => {
+    cb.checked = jaren.includes(cb.value);
+  });
+
+  // Vormgeving van het formulier aanpassen
+  document.getElementById("formTitel").innerText = `Plant Bewerken: ${p.naam}`;
+  document.getElementById("submitBtn").innerText = "Plant Bijwerken";
+  document.getElementById("annuleerBtn").style.display = "inline-block";
+
+  openTab('beheer');
+}
+
+function annuleerBewerken() {
+  document.getElementById("plantForm").reset();
+  document.getElementById("editIndex").value = "-1";
+  document.getElementById("formTitel").innerText = "Plant Toevoegen aan Database";
+  document.getElementById("submitBtn").innerText = "Plant Opslaan";
+  document.getElementById("annuleerBtn").style.display = "none";
+}
+
+function verwijderPlant(index) {
+  if (!isIngelogdAlsBeheerder) {
+    const wachtwoord = prompt("Voer de beheercode in om te verwijderen:");
+    if (wachtwoord !== "docent1234") {
+      alert("Foutieve code! Toegang geweigerd.");
+      return;
+    }
+    isIngelogdAlsBeheerder = true;
+  }
+
+  const plant = plantenDatabase[index];
+  if (confirm(`Weet je zeker dat je "${plant.naam}" wilt verwijderen?`)) {
+    plantenDatabase.splice(index, 1);
+    localStorage.setItem("plantenDatabase", JSON.stringify(plantenDatabase));
+    laadHerbarium();
+  }
 }
 
 // ON LOAD
