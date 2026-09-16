@@ -23,8 +23,15 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
 let actieveFlashcards = [];
 let huidigeFlashIndex = 0;
 let geselecteerdeLetter = "ALLES";
+
+// QUIZ VARIABELEN VOOR SCORE EN SESSIES (10 VRAGEN)
 let huidigeQuizVraag = null;
 let isIngelogdAlsBeheerder = false;
+let quizSessieActief = false;
+let huidigeVraagNummer = 0;
+let quizScoreTeller = 0;
+let maxVragenPerSessie = 10;
+let quizBezigMetAnimatie = false;
 
 // 1. TABBLADEN NAVIGATIE
 function openTab(tabId) {
@@ -118,7 +125,7 @@ function filterHerbarium() {
   });
 }
 
-// 3. FLASHCARDS (3D FLIP & DETAILED STUDY FICHE)
+// 3. FLASHCARDS
 function startFlashcards() {
   actieveFlashcards = [...plantenDatabase];
   huidigeFlashIndex = 0;
@@ -131,7 +138,6 @@ function toonFlashcard() {
   const teller = document.getElementById("flashcardTeller");
   const cardElement = document.querySelector(".flip-card");
 
-  // Zorg dat de kaart weer op de voorkant begint
   if (cardElement) cardElement.classList.remove("omgedraaid");
 
   if (actieveFlashcards.length === 0) {
@@ -150,14 +156,12 @@ function toonFlashcard() {
 
   const item = actieveFlashcards[huidigeFlashIndex];
 
-  // Voorkant HTML (Alleen Foto + Vraag)
   voorkant.innerHTML = `
     <img src="${item.foto || 'https://via.placeholder.com/300'}" alt="${item.naam}">
     <h3 style="color:#2e7d32;">Hoe heet deze plant?</h3>
     <div style="margin-top:5px;">${toonLeerjaren(item)}</div>
   `;
 
-  // Achterkant HTML (Volledige Studiefiche)
   achterkant.innerHTML = `
     <h3 class="fiche-titel">${item.naam}</h3>
     <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
@@ -167,7 +171,7 @@ function toonFlashcard() {
       <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
       <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
       <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
-      <p><strong>Bodemtype:</strong> ${pBodem(item)}</p>
+      <p><strong>Bodemtype:</strong> ${item.bodemtype || '-'}</p>
       <p><strong>Bladvorm / Rand:</strong> ${item.bladvorm || '-'} / ${item.bladrand || '-'}</p>
       <p><strong>Bladbehoud:</strong> ${item.bladbehoud || '-'}</p>
       <p><strong>Bloeitijd / Vrucht:</strong> ${item.bloeitijd || '-'} / ${item.vrucht || '-'}</p>
@@ -178,10 +182,6 @@ function toonFlashcard() {
   `;
 
   teller.innerText = `${huidigeFlashIndex + 1} / ${actieveFlashcards.length}`;
-}
-
-function pBodem(item) {
-  return item.bodemtype || '-';
 }
 
 function draaiFlashcardOm() {
@@ -204,14 +204,11 @@ function vorigeFlashcard() {
 }
 
 function markeerAlsGekend(event) {
-  event.stopPropagation(); // Voorkom dat de kaart tegelijk omdraait bij klikken op de knop
+  event.stopPropagation();
   if (actieveFlashcards.length === 0) return;
 
   actieveFlashcards.splice(huidigeFlashIndex, 1);
-
-  if (huidigeFlashIndex >= actieveFlashcards.length) {
-    huidigeFlashIndex = 0;
-  }
+  if (huidigeFlashIndex >= actieveFlashcards.length) huidigeFlashIndex = 0;
   toonFlashcard();
 }
 
@@ -219,11 +216,10 @@ function herstelStapel() {
   startFlashcards();
 }
 
-// 4. QUIZ
-function startQuiz() {
+// 4. QUIZ (INTERACTIEF MET VISUELE ANTWORTEN EN SESSIE VAN 10 VRAGEN)
+function startNieuweQuizSessie() {
   const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
-  const quizType = document.getElementById("quizType").value;
-
+  
   let geschiktePlanten = plantenDatabase;
   if (geselecteerdLeerjaar !== "ALLES") {
     geschiktePlanten = plantenDatabase.filter(p => {
@@ -237,8 +233,38 @@ function startQuiz() {
     return;
   }
 
-  const juistePlant = geschiktePlanten[Math.floor(Math.random() * geschiktePlanten.length)];
+  huidigeVraagNummer = 0;
+  quizScoreTeller = 0;
+  quizSessieActief = true;
+  document.getElementById("quizScoreboard").style.display = "flex";
 
+  volgendeQuizVraag();
+}
+
+function volgendeQuizVraag() {
+  quizBezigMetAnimatie = false;
+
+  if (huidigeVraagNummer >= maxVragenPerSessie) {
+    toonQuizEindresultaat();
+    return;
+  }
+
+  huidigeVraagNummer++;
+  document.getElementById("quizVraagTeller").innerText = `${huidigeVraagNummer} / ${maxVragenPerSessie}`;
+  document.getElementById("quizScore").innerText = quizScoreTeller;
+
+  const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
+  const quizType = document.getElementById("quizType").value;
+
+  let geschiktePlanten = plantenDatabase;
+  if (geselecteerdLeerjaar !== "ALLES") {
+    geschiktePlanten = plantenDatabase.filter(p => {
+      const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+      return jaren.includes(geselecteerdLeerjaar);
+    });
+  }
+
+  const juistePlant = geschiktePlanten[Math.floor(Math.random() * geschiktePlanten.length)];
   const fouteOpties = plantenDatabase
     .filter(p => p.naam !== juistePlant.naam)
     .sort(() => 0.5 - Math.random())
@@ -257,14 +283,18 @@ function startQuiz() {
       <strong>Welke plant is dit?</strong>
     `;
     alleOpties.forEach(optie => {
-      optiesElement.innerHTML += `<button class="quiz-optie-btn" onclick="controleerQuizAntwoord('${optie.naam}')">${optie.naam}</button>`;
+      optiesElement.innerHTML += `
+        <button class="quiz-optie-btn" data-naam="${optie.naam}" onclick="controleerQuizAntwoord('${optie.naam}', this)">
+          ${optie.naam}
+        </button>
+      `;
     });
 
   } else if (quizType === "naamNaarFoto") {
     vraagElement.innerHTML = `<strong>Kies de foto van: <span style="color:#2e7d32;">${juistePlant.naam}</span></strong>`;
     alleOpties.forEach(optie => {
       optiesElement.innerHTML += `
-        <div class="quiz-foto-optie" onclick="controleerQuizAntwoord('${optie.naam}')">
+        <div class="quiz-foto-optie" data-naam="${optie.naam}" onclick="controleerQuizAntwoord('${optie.naam}', this)">
           <img src="${optie.foto}" alt="${optie.naam}">
         </div>
       `;
@@ -273,18 +303,58 @@ function startQuiz() {
   } else if (quizType === "wetenschappelijk") {
     vraagElement.innerHTML = `<strong>Wat is de wetenschappelijke naam van <span style="color:#2e7d32;">${juistePlant.naam}</span>?</strong>`;
     alleOpties.forEach(optie => {
-      optiesElement.innerHTML += `<button class="quiz-optie-btn" onclick="controleerQuizAntwoord('${optie.naam}')"><em>${optie.wetenschappelijk || 'Geen Latijnse naam'}</em></button>`;
+      optiesElement.innerHTML += `
+        <button class="quiz-optie-btn" data-naam="${optie.naam}" onclick="controleerQuizAntwoord('${optie.naam}', this)">
+          <em>${optie.wetenschappelijk || 'Geen Latijnse naam'}</em>
+        </button>
+      `;
     });
   }
 }
 
-function controleerQuizAntwoord(gekozenNaam) {
-  if (gekozenNaam === huidigeQuizVraag.juistePlant.naam) {
-    alert("🎉 Juist beantwoord! Goed gedaan!");
+function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
+  if (quizBezigMetAnimatie) return; // Voorkom dubbelklikken
+  quizBezigMetAnimatie = true;
+
+  const isJuist = (gekozenNaam === huidigeQuizVraag.juistePlant.naam);
+
+  if (isJuist) {
+    gekliktElement.classList.add("juist");
+    quizScoreTeller++;
+    document.getElementById("quizScore").innerText = quizScoreTeller;
   } else {
-    alert(`❌ Helaas, dat is niet juist. Het juiste antwoord was: ${huidigeQuizVraag.juistePlant.naam}`);
+    gekliktElement.classList.add("fout");
+
+    // Licht ook het JUISTE element groen op
+    const alleElementen = document.querySelectorAll("#quizOpties [data-naam]");
+    alleElementen.forEach(el => {
+      if (el.getAttribute("data-naam") === huidigeQuizVraag.juistePlant.naam) {
+        el.classList.add("juist");
+      }
+    });
   }
-  startQuiz();
+
+  // Wacht 1,5 seconde en ga automatisch door naar de volgende vraag
+  setTimeout(() => {
+    volgendeQuizVraag();
+  }, 1500);
+}
+
+function toonQuizEindresultaat() {
+  document.getElementById("quizScoreboard").style.display = "none";
+  const vraagElement = document.getElementById("quizVraag");
+  const optiesElement = document.getElementById("quizOpties");
+
+  vraagElement.innerHTML = `
+    <h2 style="color:#2e7d32; margin-bottom:10px;">🏆 Quiz Afgerond!</h2>
+    <p style="font-size:18px;">Je behaalde <strong>${quizScoreTeller}</strong> van de <strong>${maxVragenPerSessie}</strong> punten.</p>
+  `;
+
+  optiesElement.innerHTML = `
+    <button class="submit-btn" style="max-width:300px; margin:20px auto;" onclick="startNieuweQuizSessie()">
+      🔄 Opnieuw Proberen
+    </button>
+  `;
 }
 
 // 5. BEHEER: TOEVOEGEN, BEWERKEN EN VERWIJDEREN
