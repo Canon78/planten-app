@@ -108,8 +108,8 @@
     <section id="beheer" class="tab-content">
       <h2 id="formTitel">Plant Toevoegen aan Database</h2>
       <form id="plantForm" onsubmit="voegPlantToe(event)">
-        <!-- Verborgen Veld om Bewerken Index op te slaan -->
-        <input type="hidden" id="editIndex" value="-1">
+        <!-- Verborgen Veld om Bewerken ID op te slaan -->
+        <input type="hidden" id="editId" value="">
 
         <div class="form-group">
           <label for="naam">Nederlandse Naam *:</label>
@@ -255,6 +255,6 @@
   <!-- SNEL NAAR BOVEN KNOP (PIJL) -->
   <button onclick="scrollToTop()" id="scrollBovenBtn" title="Naar boven">⬆</button>
 
-  <script src="script.js"></script>
+  <script src="script.js" type="module"></script>
 </body>
 </html>
