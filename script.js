@@ -1,5 +1,56 @@
-let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
-  {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Jouw Firebase configuratie
+const firebaseConfig = {
+  apiKey: "AIzaSyAp3X_mpCW2YtFmPvQabnJBpAvvZWC-mV8",
+  authDomain: "planten-academie.firebaseapp.com",
+  projectId: "planten-academie",
+  storageBucket: "planten-academie.firebasestorage.app",
+  messagingSenderId: "227884207515",
+  appId: "1:227884207515:web:f6645e7377e589228fe53e",
+  measurementId: "G-TC86MPTPNP"
+};
+
+// Initialiseer Firebase en Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let plantenDatabase = [];
+let actieveFlashcards = [];
+let huidigeFlashIndex = 0;
+let geselecteerdeLetter = "ALLES";
+
+let huidigeQuizVraag = null;
+let isIngelogdAlsBeheerder = false;
+let quizSessieActief = false;
+let huidigeVraagNummer = 0;
+let quizScoreTeller = 0;
+let maxVragenPerSessie = 10;
+let quizBezigMetAnimatie = false;
+
+// GEGEVENS OPHALEN UIT FIRESTORE
+async function laadPlantenUitDatabase() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "planten"));
+    plantenDatabase = [];
+    querySnapshot.forEach((docSnap) => {
+      plantenDatabase.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    
+    // Als de database leeg is, voegen we standaard Duizendblad toe als voorbeeld
+    if (plantenDatabase.length === 0) {
+      await voegStandaardPlantToe();
+    } else {
+      laadHerbarium();
+    }
+  } catch (error) {
+    console.error("Fout bij ophalen planten: ", error);
+  }
+}
+
+async function voegStandaardPlantToe() {
+  const standaardPlant = {
     naam: "Duizendblad",
     wetenschappelijk: "Achillea millefolium",
     leerjaren: ["1", "2"],
@@ -17,23 +68,13 @@ let plantenDatabase = JSON.parse(localStorage.getItem("plantenDatabase")) || [
     grootte: "40 - 80 cm",
     foto: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80",
     beschrijving: "Aromatisch blad. Aantrekkelijk voor bijen en vlinders. Weetje: Genoemd naar Achilles die de plant gebruikte op het slagveld."
-  }
-];
-
-let actieveFlashcards = [];
-let huidigeFlashIndex = 0;
-let geselecteerdeLetter = "ALLES";
-
-let huidigeQuizVraag = null;
-let isIngelogdAlsBeheerder = false;
-let quizSessieActief = false;
-let huidigeVraagNummer = 0;
-let quizScoreTeller = 0;
-let maxVragenPerSessie = 10;
-let quizBezigMetAnimatie = false;
+  };
+  await addDoc(collection(db, "planten"), standaardPlant);
+  await laadPlantenUitDatabase();
+}
 
 // 1. TABBLADEN NAVIGATIE
-function openTab(tabId) {
+window.openTab = function(tabId) {
   if (tabId === 'beheer' && !isIngelogdAlsBeheerder) {
     const wachtwoord = prompt("Voer de beheercode in om toegang te krijgen:");
     if (wachtwoord !== "docent1234") {
@@ -53,22 +94,23 @@ function openTab(tabId) {
 
   if (tabId === 'herbarium') laadHerbarium();
   if (tabId === 'flashcards') startFlashcards();
-}
+};
 
 function toonLeerjaren(p) {
   const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
   return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
 }
 
-// 2. HERBARIUM (INCLUSIEF VINDPLAATS OP SCHOOL)
+// 2. HERBARIUM
 function laadHerbarium() {
   const container = document.getElementById("herbariumGrid");
+  if (!container) return;
   container.innerHTML = "";
 
   plantenDatabase.sort((a, b) => a.naam.localeCompare(b.naam));
   maakAlfabetBalk();
 
-  plantenDatabase.forEach((p, index) => {
+  plantenDatabase.forEach((p) => {
     const eersteLetter = p.naam.charAt(0).toUpperCase();
     const hoortBijLetter = (geselecteerdeLetter === "ALLES" || eersteLetter === geselecteerdeLetter);
 
@@ -96,8 +138,8 @@ function laadHerbarium() {
           </div>
           
           <div class="kaart-acties">
-            <button class="actie-btn bewerk" onclick="laadPlantOmToBewerken(${index})">✏️ Bewerken</button>
-            <button class="actie-btn verwijder" onclick="verwijderPlant(${index})">🗑️ Verwijderen</button>
+            <button class="actie-btn bewerk" onclick="laadPlantOmToBewerken('${p.id}')">✏️ Bewerken</button>
+            <button class="actie-btn verwijder" onclick="verwijderPlant('${p.id}')">🗑️ Verwijderen</button>
           </div>
         </div>
       `;
@@ -119,13 +161,13 @@ function maakAlfabetBalk() {
   `).join("");
 }
 
-function filterOpLetter(letter) {
+window.filterOpLetter = function(letter) {
   geselecteerdeLetter = letter;
   document.getElementById("zoekHerbarium").value = ""; 
   laadHerbarium();
-}
+};
 
-function filterHerbarium() {
+window.filterHerbarium = function() {
   const zoekTerm = document.getElementById("zoekHerbarium").value.toLowerCase();
   const kaarten = document.querySelectorAll("#herbariumGrid .plant-kaart");
 
@@ -133,12 +175,11 @@ function filterHerbarium() {
     const zoekData = kaart.getAttribute("data-zoek");
     kaart.style.display = zoekData.includes(zoekTerm) ? "block" : "none";
   });
-}
+};
 
-// SCROLL FUNCTIE VOOR DE PIJL
-function scrollToTop() {
+window.scrollToTop = function() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+};
 
 // 3. FLASHCARDS
 function startFlashcards() {
@@ -156,13 +197,15 @@ function toonFlashcard() {
   if (cardElement) cardElement.classList.remove("omgedraaid");
 
   if (actieveFlashcards.length === 0) {
-    voorkant.innerHTML = `
-      <div class="card-placeholder">
-        🎉 Proficiat!<br><br>Je hebt alle planten uit de stapel verwerkt!
-      </div>
-    `;
-    achterkant.innerHTML = `<div>Druk op 'Herstel uitgestelde kaarten' om opnieuw te oefenen.</div>`;
-    teller.innerText = "0 / 0";
+    if (voorkant) {
+      voorkant.innerHTML = `
+        <div class="card-placeholder">
+          🎉 Proficiat!<br><br>Je hebt alle planten uit de stapel verwerkt!
+        </div>
+      `;
+    }
+    if (achterkant) achterkant.innerHTML = `<div>Druk op 'Herstel uitgestelde kaarten' om opnieuw te oefenen.</div>`;
+    if (teller) teller.innerText = "0 / 0";
     return;
   }
 
@@ -171,77 +214,81 @@ function toonFlashcard() {
 
   const item = actieveFlashcards[huidigeFlashIndex];
 
-  voorkant.innerHTML = `
-    <img src="${item.foto || 'https://via.placeholder.com/300'}" alt="${item.naam}">
-    <h3 style="color:#2e7d32;">Hoe heet deze plant?</h3>
-    <div style="margin-top:5px;">${toonLeerjaren(item)}</div>
-  `;
+  if (voorkant) {
+    voorkant.innerHTML = `
+      <img src="${item.foto || 'https://via.placeholder.com/300'}" alt="${item.naam}">
+      <h3 style="color:#2e7d32;">Hoe heet deze plant?</h3>
+      <div style="margin-top:5px;">${toonLeerjaren(item)}</div>
+    `;
+  }
 
-  achterkant.innerHTML = `
-    <h3 class="fiche-titel">${item.naam}</h3>
-    <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
-    
-    <div class="fiche-details">
-      ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Vindplaats op school:</strong> ${item.vindplaats}</div>` : ''}
-      <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : (item.leerjaar || '1')}</p>
-      <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
-      <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
-      <p><strong>Bodemtype:</strong> ${item.bodemtype || '-'}</p>
-      <p><strong>Bladvorm:</strong> ${item.bladvorm || '-'}</p>
-      <p><strong>Bladrand:</strong> ${item.bladrand || '-'}</p>
-      <p><strong>Bladbehoud:</strong> ${item.bladbehoud || '-'}</p>
-      <p><strong>Bloeitijd:</strong> ${item.bloeitijd || '-'}</p>
-      <p><strong>Vrucht / Zaad:</strong> ${item.vrucht || '-'}</p>
-      <p><strong>Waterbehoefte:</strong> ${item.waterbehoefte || '-'}</p>
-      <p><strong>Vermeerderen:</strong> ${item.vermeerderen || '-'}</p>
-      <p><strong>Maximale Grootte:</strong> ${item.grootte || '-'}</p>
-      ${item.beschrijving ? `<p style="margin-top:8px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${item.beschrijving}</p>` : ''}
-    </div>
-  `;
+  if (achterkant) {
+    achterkant.innerHTML = `
+      <h3 class="fiche-titel">${item.naam}</h3>
+      <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
+      
+      <div class="fiche-details">
+        ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Vindplaats op school:</strong> ${item.vindplaats}</div>` : ''}
+        <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : '1'}</p>
+        <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
+        <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
+        <p><strong>Bodemtype:</strong> ${item.bodemtype || '-'}</p>
+        <p><strong>Bladvorm:</strong> ${item.bladvorm || '-'}</p>
+        <p><strong>Bladrand:</strong> ${item.bladrand || '-'}</p>
+        <p><strong>Bladbehoud:</strong> ${item.bladbehoud || '-'}</p>
+        <p><strong>Bloeitijd:</strong> ${item.bloeitijd || '-'}</p>
+        <p><strong>Vrucht / Zaad:</strong> ${item.vrucht || '-'}</p>
+        <p><strong>Waterbehoefte:</strong> ${item.waterbehoefte || '-'}</p>
+        <p><strong>Vermeerderen:</strong> ${item.vermeerderen || '-'}</p>
+        <p><strong>Maximale Grootte:</strong> ${item.grootte || '-'}</p>
+        ${item.beschrijving ? `<p style="margin-top:8px; background:#f9f9f9; padding:6px; border-radius:4px;">💡 <strong>Notities/Weetje:</strong> ${item.beschrijving}</p>` : ''}
+      </div>
+    `;
+  }
 
-  teller.innerText = `${huidigeFlashIndex + 1} / ${actieveFlashcards.length}`;
+  if (teller) teller.innerText = `${huidigeFlashIndex + 1} / ${actieveFlashcards.length}`;
 }
 
-function draaiFlashcardOm() {
+window.draaiFlashcardOm = function() {
   const cardElement = document.querySelector(".flip-card");
   if (cardElement && actieveFlashcards.length > 0) {
     cardElement.classList.toggle("omgedraaid");
   }
-}
+};
 
-function volgendeFlashcard() {
+window.volgendeFlashcard = function() {
   if (actieveFlashcards.length === 0) return;
   huidigeFlashIndex = (huidigeFlashIndex + 1) % actieveFlashcards.length;
   toonFlashcard();
-}
+};
 
-function vorigeFlashcard() {
+window.vorigeFlashcard = function() {
   if (actieveFlashcards.length === 0) return;
   huidigeFlashIndex = (huidigeFlashIndex - 1 + actieveFlashcards.length) % actieveFlashcards.length;
   toonFlashcard();
-}
+};
 
-function markeerAlsGekend(event) {
+window.markeerAlsGekend = function(event) {
   event.stopPropagation();
   if (actieveFlashcards.length === 0) return;
 
   actieveFlashcards.splice(huidigeFlashIndex, 1);
   if (huidigeFlashIndex >= actieveFlashcards.length) huidigeFlashIndex = 0;
   toonFlashcard();
-}
+};
 
-function herstelStapel() {
+window.herstelStapel = function() {
   startFlashcards();
-}
+};
 
 // 4. QUIZ
-function startNieuweQuizSessie() {
+window.startNieuweQuizSessie = function() {
   const geselecteerdLeerjaar = document.getElementById("quizLeerjaar").value;
   
   let geschiktePlanten = plantenDatabase;
   if (geselecteerdLeerjaar !== "ALLES") {
     geschiktePlanten = plantenDatabase.filter(p => {
-      const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+      const jaren = p.leerjaren || ["1"];
       return jaren.includes(geselecteerdLeerjaar);
     });
   }
@@ -257,7 +304,7 @@ function startNieuweQuizSessie() {
   document.getElementById("quizScoreboard").style.display = "flex";
 
   volgendeQuizVraag();
-}
+};
 
 function volgendeQuizVraag() {
   quizBezigMetAnimatie = false;
@@ -277,7 +324,7 @@ function volgendeQuizVraag() {
   let geschiktePlanten = plantenDatabase;
   if (geselecteerdLeerjaar !== "ALLES") {
     geschiktePlanten = plantenDatabase.filter(p => {
-      const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+      const jaren = p.leerjaren || ["1"];
       return jaren.includes(geselecteerdLeerjaar);
     });
   }
@@ -330,7 +377,7 @@ function volgendeQuizVraag() {
   }
 }
 
-function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
+window.controleerQuizAntwoord = function(gekozenNaam, gekliktElement) {
   if (quizBezigMetAnimatie) return;
   quizBezigMetAnimatie = true;
 
@@ -354,7 +401,7 @@ function controleerQuizAntwoord(gekozenNaam, gekliktElement) {
   setTimeout(() => {
     volgendeQuizVraag();
   }, 1500);
-}
+};
 
 function toonQuizEindresultaat() {
   document.getElementById("quizScoreboard").style.display = "none";
@@ -373,11 +420,11 @@ function toonQuizEindresultaat() {
   `;
 }
 
-// 5. BEHEER: TOEVOEGEN, BEWERKEN EN VERWIJDEREN
-function voegPlantToe(e) {
+// 5. BEHEER: TOEVOEGEN, BEWERKEN EN VERWIJDEREN VIA FIRESTORE
+window.voegPlantToe = async function(e) {
   e.preventDefault();
 
-  const editIndex = parseInt(document.getElementById("editIndex").value);
+  const editId = document.getElementById("editId").value;
   const aangevinkt = Array.from(document.querySelectorAll('input[name="leerjaarCheck"]:checked')).map(cb => cb.value);
 
   const plantData = {
@@ -400,20 +447,26 @@ function voegPlantToe(e) {
     beschrijving: document.getElementById("beschrijving").value
   };
 
-  if (editIndex >= 0) {
-    plantenDatabase[editIndex] = plantData;
-    alert("Plant succesvol bijgewerkt!");
-  } else {
-    plantenDatabase.push(plantData);
-    alert("Nieuwe plant succesvol opgeslagen!");
+  try {
+    if (editId) {
+      const plantRef = doc(db, "planten", editId);
+      await updateDoc(plantRef, plantData);
+      alert("Plant succesvol bijgewerkt in de cloud!");
+    } else {
+      await addDoc(collection(db, "planten"), plantData);
+      alert("Nieuwe plant succesvol opgeslagen in de cloud!");
+    }
+
+    annuleerBewerken();
+    await laadPlantenUitDatabase();
+    openTab('herbarium');
+  } catch (error) {
+    console.error("Fout bij opslaan: ", error);
+    alert("Er ging iets mis bij het opslaan naar de database.");
   }
+};
 
-  localStorage.setItem("plantenDatabase", JSON.stringify(plantenDatabase));
-  annuleerBewerken();
-  openTab('herbarium');
-}
-
-function laadPlantOmToBewerken(index) {
+window.laadPlantOmToBewerken = function(id) {
   if (!isIngelogdAlsBeheerder) {
     const wachtwoord = prompt("Voer de beheercode in om te kunnen bewerken:");
     if (wachtwoord !== "docent1234") {
@@ -423,8 +476,10 @@ function laadPlantOmToBewerken(index) {
     isIngelogdAlsBeheerder = true;
   }
 
-  const p = plantenDatabase[index];
-  document.getElementById("editIndex").value = index;
+  const p = plantenDatabase.find(item => item.id === id);
+  if (!p) return;
+
+  document.getElementById("editId").value = p.id;
 
   document.getElementById("naam").value = p.naam || "";
   document.getElementById("wetenschappelijk").value = p.wetenschappelijk || "";
@@ -443,7 +498,7 @@ function laadPlantOmToBewerken(index) {
   document.getElementById("foto").value = p.foto || "";
   document.getElementById("beschrijving").value = p.beschrijving || "";
 
-  const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
+  const jaren = p.leerjaren || ["1"];
   document.querySelectorAll('input[name="leerjaarCheck"]').forEach(cb => {
     cb.checked = jaren.includes(cb.value);
   });
@@ -453,17 +508,17 @@ function laadPlantOmToBewerken(index) {
   document.getElementById("annuleerBtn").style.display = "inline-block";
 
   openTab('beheer');
-}
+};
 
-function annuleerBewerken() {
+window.annuleerBewerken = function() {
   document.getElementById("plantForm").reset();
-  document.getElementById("editIndex").value = "-1";
+  document.getElementById("editId").value = "";
   document.getElementById("formTitel").innerText = "Plant Toevoegen aan Database";
   document.getElementById("submitBtn").innerText = "Plant Opslaan";
   document.getElementById("annuleerBtn").style.display = "none";
-}
+};
 
-function verwijderPlant(index) {
+window.verwijderPlant = async function(id) {
   if (!isIngelogdAlsBeheerder) {
     const wachtwoord = prompt("Voer de beheercode in om te verwijderen:");
     if (wachtwoord !== "docent1234") {
@@ -473,15 +528,19 @@ function verwijderPlant(index) {
     isIngelogdAlsBeheerder = true;
   }
 
-  const plant = plantenDatabase[index];
-  if (confirm(`Weet je zeker dat je "${plant.naam}" wilt verwijderen?`)) {
-    plantenDatabase.splice(index, 1);
-    localStorage.setItem("plantenDatabase", JSON.stringify(plantenDatabase));
-    laadHerbarium();
+  const plant = plantenDatabase.find(item => item.id === id);
+  if (confirm(`Weet je zeker dat je "${plant ? plant.naam : 'deze plant'}" wilt verwijderen?`)) {
+    try {
+      await deleteDoc(doc(db, "planten", id));
+      await laadPlantenUitDatabase();
+    } catch (error) {
+      console.error("Fout bij verwijderen: ", error);
+      alert("Er ging iets mis bij het verwijderen.");
+    }
   }
-}
+};
 
-// ON LOAD
+// ON LOAD: LAAD DIRECT UIT FIREBASE
 document.addEventListener("DOMContentLoaded", () => {
-  laadHerbarium();
+  laadPlantenUitDatabase();
 });
