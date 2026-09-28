@@ -98,7 +98,12 @@ window.openTab = function(tabId) {
 
 function toonLeerjaren(p) {
   const jaren = p.leerjaren || (p.leerjaar ? [String(p.leerjaar)] : ["1"]);
-  return jaren.map(j => `<span class="leerjaar-tag">Jaar ${j}</span>`).join(" ");
+  return jaren.map(j => {
+    let graadNaam = j + "ste graad";
+    if (j === "2") graadNaam = "2de graad";
+    if (j === "3") graadNaam = "3de graad";
+    return `<span class="leerjaar-tag">${graadNaam}</span>`;
+  }).join(" ");
 }
 
 // 2. HERBARIUM
@@ -223,13 +228,20 @@ function toonFlashcard() {
   }
 
   if (achterkant) {
+    const gradenLijst = (item.leerjaren || ["1"]).map(j => {
+      let g = j + "ste graad";
+      if (j === "2") g = "2de graad";
+      if (j === "3") g = "3de graad";
+      return g;
+    }).join(', ');
+
     achterkant.innerHTML = `
       <h3 class="fiche-titel">${item.naam}</h3>
       <div class="fiche-latijn">${item.wetenschappelijk || 'Geen wetenschappelijke naam'}</div>
       
       <div class="fiche-details">
         ${item.vindplaats ? `<div class="vindplaats-badge">📍 <strong>Vindplaats op school:</strong> ${item.vindplaats}</div>` : ''}
-        <p><strong>Leerjaren:</strong> ${item.leerjaren ? item.leerjaren.join(', ') : '1'}</p>
+        <p><strong>Graden:</strong> ${gradenLijst}</p>
         <p><strong>Categorie:</strong> ${item.categorie || '-'}</p>
         <p><strong>Standplaats:</strong> ${item.standplaats || '-'}</p>
         <p><strong>Bodemtype:</strong> ${item.bodemtype || '-'}</p>
@@ -294,7 +306,7 @@ window.startNieuweQuizSessie = function() {
   }
 
   if (geschiktePlanten.length < 2) {
-    alert("Er zijn minimaal 2 planten nodig in dit leerjaar om een quiz te starten!");
+    alert("Er zijn minimaal 2 planten nodig in deze graad om een quiz te starten!");
     return;
   }
 
