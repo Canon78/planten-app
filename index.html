@@ -234,9 +234,16 @@
           <input type="text" id="grootte" placeholder="bijv. 40 - 80 cm">
         </div>
 
+        <!-- FOTO UPLOAD VELD IN PLAATS VAN URL -->
         <div class="form-group">
-          <label for="foto">Foto URL:</label>
-          <input type="url" id="foto" placeholder="https://images.unsplash.com/...">
+          <label for="fotoInput">📸 Planten Foto:</label>
+          <input type="file" id="fotoInput" accept="image/*" onchange="verwerkBestandFoto(event)">
+          <input type="hidden" id="foto">
+        </div>
+
+        <div class="form-group" id="previewContainer" style="display:none; text-align:center;">
+          <label>Voorbeeld gekozen foto:</label>
+          <img id="fotoPreview" src="" alt="Preview" style="max-height: 120px; border-radius: 6px; border: 1px solid #ccc;">
         </div>
 
         <div class="form-group full-width">
