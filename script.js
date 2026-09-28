@@ -73,6 +73,21 @@ async function voegStandaardPlantToe() {
   await laadPlantenUitDatabase();
 }
 
+// HULPFUNCTIE VOOR FOTO BESTAND UPLOAD
+window.verwerkBestandFoto = function(event) {
+    const bestand = event.target.files[0];
+    if (bestand) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Data = e.target.result;
+            document.getElementById("foto").value = base64Data;
+            document.getElementById("fotoPreview").src = base64Data;
+            document.getElementById("previewContainer").style.display = "block";
+        };
+        reader.readAsDataURL(bestand);
+    }
+};
+
 // 1. TABBLADEN NAVIGATIE
 window.openTab = function(tabId) {
   if (tabId === 'beheer' && !isIngelogdAlsBeheerder) {
@@ -507,8 +522,17 @@ window.laadPlantOmToBewerken = function(id) {
   document.getElementById("waterbehoefte").value = p.waterbehoefte || "";
   document.getElementById("vermeerderen").value = p.vermeerderen || "";
   document.getElementById("grootte").value = p.grootte || "";
-  document.getElementById("foto").value = p.foto || "";
   document.getElementById("beschrijving").value = p.beschrijving || "";
+
+  // Foto instellen en voorbeeld tonen indien aanwezig
+  const fotoVal = p.foto || "";
+  document.getElementById("foto").value = fotoVal;
+  if (fotoVal) {
+      document.getElementById("fotoPreview").src = fotoVal;
+      document.getElementById("previewContainer").style.display = "block";
+  } else {
+      document.getElementById("previewContainer").style.display = "none";
+  }
 
   const jaren = p.leerjaren || ["1"];
   document.querySelectorAll('input[name="leerjaarCheck"]').forEach(cb => {
@@ -525,6 +549,8 @@ window.laadPlantOmToBewerken = function(id) {
 window.annuleerBewerken = function() {
   document.getElementById("plantForm").reset();
   document.getElementById("editId").value = "";
+  document.getElementById("foto").value = "";
+  document.getElementById("previewContainer").style.display = "none";
   document.getElementById("formTitel").innerText = "Plant Toevoegen aan Database";
   document.getElementById("submitBtn").innerText = "Plant Opslaan";
   document.getElementById("annuleerBtn").style.display = "none";
